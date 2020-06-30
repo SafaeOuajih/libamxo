@@ -1,0 +1,167 @@
+/****************************************************************************
+**
+** Copyright (c) 2020 SoftAtHome
+**
+** Redistribution and use in source and binary forms, with or
+** without modification, are permitted provided that the following
+** conditions are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+** notice, this list of conditions and the following disclaimer.
+**
+** 2. Redistributions in binary form must reproduce the above
+** copyright notice, this list of conditions and the following
+** disclaimer in the documentation and/or other materials provided
+** with the distribution.
+**
+** Subject to the terms and conditions of this license, each
+** copyright holder and contributor hereby grants to those receiving
+** rights under this license a perpetual, worldwide, non-exclusive,
+** no-charge, royalty-free, irrevocable (except for failure to
+** satisfy the conditions of this license) patent license to make,
+** have made, use, offer to sell, sell, import, and otherwise
+** transfer this software, where such license applies only to those
+** patent claims, already acquired or hereafter acquired, licensable
+** by such copyright holder or contributor that are necessarily
+** infringed by:
+**
+** (a) their Contribution(s) (the licensed copyrights of copyright
+** holders and non-copyrightable additions of contributors, in
+** source or binary form) alone; or
+**
+** (b) combination of their Contribution(s) with the work of
+** authorship to which such Contribution(s) was added by such
+** copyright holder or contributor, if, at the time the Contribution
+** is added, such addition causes such combination to be necessarily
+** infringed. The patent license shall not apply to any other
+** combinations which include the Contribution.
+**
+** Except as expressly stated above, no rights or licenses from any
+** copyright holder or contributor is granted under this license,
+** whether expressly, by implication, estoppel or otherwise.
+**
+** DISCLAIMER
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+** CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+** INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+** MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+** DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR
+** CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+** USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+** AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+** LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+** ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+** POSSIBILITY OF SUCH DAMAGE.
+**
+****************************************************************************/
+%config {
+    test_option_number = 123;
+    test_option_string = "This is a text";
+    test_option_bool = true; 
+}
+
+include "test_include.odl";
+
+%define {
+    object TestObjectRoot {
+
+        object TestObjectSingelton;
+        %read-only %persistent %private object TestObjSingletonAttr;
+        object TestObjectTemplate[];
+        %read-only %persistent %private object TestObjTemplateAttr[];
+
+        object TestObjectParamTypes {
+            string Param1;
+            int32 Param2;
+            int64 Param3;
+            uint32 Param4;
+            uint64 Param5;
+            bool Param6;
+            double Param7;
+        }
+
+        object TestObjectFunctions {
+            void func1();
+            string func2();
+            int32 func3();
+            int64 func4();
+            uint32 func5();
+            uint64 func6();
+            bool func7();
+            double func8();
+            list func9();
+            htable func10();
+            variant func11();
+            void func12(string arg1,
+                        int32 arg2,
+                        int64 arg3,
+                        uint32 arg4,
+                        uint64 arg5,
+                        bool arg6,
+                        double arg7,
+                        list arg8,
+                        htable arg9,
+                        variant arg10);
+        }
+
+        object TestSingeltonParamAttr {
+            %read-only %persistent %private %template %instance %volatile string Param1;
+        }
+        object TestTemplateParamAttr[] {
+            %read-only %persistent %private %template %instance %volatile string Param1;
+            %template string Param2;
+            %instance string Param3;
+        }
+
+        object TestSingletonFuncAttr {
+            %private %template %instance void TestFunc1();
+            void TestFunc2(%mandatory %in %out %strict int32 number);
+        }
+        object TestTemplateFuncAttr {
+            %private %template %instance void TestFunc1();
+            %template void TestFunc2();
+            %instance void TestFunc3();
+            void TestFunc4(%mandatory %in %out %strict int32 number);
+        }
+
+        object TestObjectTemplateWithChild[] {
+            object TemplateChildObject {
+                string Param1;
+                void func1();
+            }
+        }
+
+        %read-only object TestChangeAttr {
+            %private string Param1;
+            %private void Func1();
+        }
+
+    }
+}
+
+%populate {
+    object TestObjectRoot.TestObjectTemplateWithChild {
+        instance add(1,"Name") {
+            object TemplateChildObject {
+                parameter Param1 = "Some Text";
+            }
+        }
+    }
+
+    object TestObjectRoot.TestTemplateParamAttr {
+        parameter Param2 = "This is param 2";
+        parameter Param1 = "This is param 1";
+        instance add(99,"") {
+            parameter Param1 = "This is param 1 in instance";
+            parameter Param3 = "Hello World";
+        }
+        instance add(0, "");
+    }
+
+    !read-only %persistent object TestObjectRoot.TestChangeAttr {
+        !private %read-only parameter Param1;
+    }
+}

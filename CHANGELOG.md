@@ -1,0 +1,127 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+
+## Release 0.0.11 - 2020-06-30(07:45:20 +0000)
+
+### Changes
+
+- Scrubs Component.* files
+
+## Release 0.0.10 - 2020-06-29(16:22:07 +0000)
+
+### New 
+
+- Support for legacy SAH build system
+
+## Release 0.0.9 - 2020-06-26(18:01:12 +0000)
+
+### New 
+
+- Support for csv_string and ssv_string variant type
+- Copybara file
+
+### Changes
+
+- Build libraries in target specific output directory
+
+## Release 0.0.8 - 2020-06-23(16:54:11 +0000)
+
+### Fixes
+
+- Object attributes
+
+## Release 0.0.7 - 2020-06-22(10:48:58 +0000)
+
+### New
+
+- Define mib objects
+- Extend objects with mibs (define and populate section)
+- Define datetime type
+- Datetime type can be used as function return type, parameter type and function argument type
+
+## Release 0.0.6 - 2020-06-16(11:08:07 +0000)
+
+### New
+
+- Event subscription callback with filter
+- Validates objects and parameters while parsing
+- Adds deprecated "write with" construct
+- Support for complex types in config section
+- Adds pcb backwards compatibility (constraint keyword)
+- Adds PCB compatibility actions on parameters and objects
+- Adds actions to objects
+- Adds actions for parameters and set default in definition block
+
+### Changes
+
+- Extends connections API
+- Extends valid odl test
+- Updates odl documentation
+- update license to BSD+patent
+
+### Fixes
+
+- Ignore sign-compare in generated flex file
+
+## Release 0.0.5 - 2020-06-04(13:09:15 +0000)
+
+### Fixes
+
+- Fixes compiler error (musl)
+- Fixes pipeline testing (first compile lib)
+
+### New
+
+- Creates unit test results file (ELK)
+- Adds more tests and fixes
+- Adds API documentation
+
+## Release 0.0.4 - 2020-05-28(06:46:08 +0000)
+
+### New
+
+- ODL documentation in markdown
+- Automatic instance counter definition
+
+### Fixes
+
+- Function override in definition, does not fail, provides warning
+- PCB ODL compatibility
+
+## Release 0.0.3 - 2020-05-26(10:29:37 +0000)
+
+### New 
+
+- Adds support for shebang
+- Single line comments can now also start with '#'
+
+## Release 0.0.2 - 2020-05-26(07:27:23 +0000)
+
+### New
+
+- Complete Import resolver
+- Definition of entry points
+- Adds dlopen flags support
+
+### Changes
+
+- Removes duplicate hook function typedefs
+
+## Release 0.0.1 - 2020-05-24(09:59:17 +0000)
+
+### New
+
+- Tests
+- Line tracking
+- Auto-resolve order option - support for '*' (any)
+- Less string copy and memory allocation during parsing (flex/bison)
+- Parser hooks
+- Adds parser hooks
+- Recursive include protection

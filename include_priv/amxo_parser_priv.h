@@ -1,0 +1,261 @@
+/****************************************************************************
+**
+** Copyright (c) 2020 SoftAtHome
+**
+** Redistribution and use in source and binary forms, with or
+** without modification, are permitted provided that the following
+** conditions are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+** notice, this list of conditions and the following disclaimer.
+**
+** 2. Redistributions in binary form must reproduce the above
+** copyright notice, this list of conditions and the following
+** disclaimer in the documentation and/or other materials provided
+** with the distribution.
+**
+** Subject to the terms and conditions of this license, each
+** copyright holder and contributor hereby grants to those receiving
+** rights under this license a perpetual, worldwide, non-exclusive,
+** no-charge, royalty-free, irrevocable (except for failure to
+** satisfy the conditions of this license) patent license to make,
+** have made, use, offer to sell, sell, import, and otherwise
+** transfer this software, where such license applies only to those
+** patent claims, already acquired or hereafter acquired, licensable
+** by such copyright holder or contributor that are necessarily
+** infringed by:
+**
+** (a) their Contribution(s) (the licensed copyrights of copyright
+** holders and non-copyrightable additions of contributors, in
+** source or binary form) alone; or
+**
+** (b) combination of their Contribution(s) with the work of
+** authorship to which such Contribution(s) was added by such
+** copyright holder or contributor, if, at the time the Contribution
+** is added, such addition causes such combination to be necessarily
+** infringed. The patent license shall not apply to any other
+** combinations which include the Contribution.
+**
+** Except as expressly stated above, no rights or licenses from any
+** copyright holder or contributor is granted under this license,
+** whether expressly, by implication, estoppel or otherwise.
+**
+** DISCLAIMER
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+** CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+** INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+** MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+** DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR
+** CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+** USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+** AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+** LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+** ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+** POSSIBILITY OF SUCH DAMAGE.
+**
+****************************************************************************/
+
+#if !defined(__AMXO_PARSER_PRIV_H__)
+#define __AMXO_PARSER_PRIV_H__
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+// doxygen has problems with these attributes
+#if !defined(USE_DOXYGEN)
+#define AMXO_PRIVATE __attribute__ ((visibility("hidden")))
+#define AMXO_CONSTRUCTOR(x) __attribute__((constructor(x)))
+#define AMXO_DESTRUCTOR(x) __attribute__((destructor(x)))
+#define AMXO_UNUSED __attribute__((unused))
+#define AMXO_WARN_UNUSED_RETURN __attribute__ ((warn_unused_result))
+#else
+#define AMXO_PRIVATE
+#define AMXO_CONSTRUCTOR(x)
+#define AMXO_DESTRUCTOR(x)
+#define AMXO_UNUSED
+#endif
+
+enum amxo_parser_tokens_t
+{
+    token_include,
+    token_optional_include,
+    token_import,
+    token_config,
+    token_define,
+    token_populate,
+    token_object,
+    token_mib,
+    token_keyword,
+    token_eof
+};
+
+typedef enum _amxo_parser_attr {
+    attr_readonly,
+    attr_persistent,
+    attr_private,
+    attr_template,
+    attr_instance,
+    attr_variable,
+    attr_in,
+    attr_out,
+    attr_mandatory,
+    attr_strict
+} amxo_parser_attr_t;
+
+typedef enum _amxo_action {
+    action_read,
+    action_write,
+    action_validate,
+    action_list,
+    action_describe,
+    action_add_inst,
+    action_del_inst,
+    action_destroy,
+    action_max = action_destroy
+} amxo_action_t;
+
+typedef struct _amxo_txt {
+    char *txt;
+    int length;
+} amxo_txt_t;
+
+typedef struct _amxo_res_data {
+    amxc_htable_it_t hit;
+    amxc_htable_t data;
+} amxo_res_data_t;
+
+void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char *key,
+                                    amxc_htable_it_t *it);
+
+ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t *parser,
+                                           void *buf,
+                                           size_t max_size);
+
+int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t *parser,
+                                             const char *file_path,
+                                             amxd_object_t *object);
+
+void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t *parser);
+
+void AMXO_PRIVATE amxo_parser_create_lex(amxo_parser_t *parser);
+void AMXO_PRIVATE amxo_parser_destroy_lex(amxo_parser_t *parser);
+
+void AMXO_PRIVATE amxo_parser_msg(amxo_parser_t *parser, const char *format, ...) \
+    __attribute__ ((format(printf, 2, 3)));
+
+int AMXO_PRIVATE amxo_parser_printf(const char *format, ...) \
+    __attribute__ ((format(printf, 1, 2)));
+
+bool AMXO_PRIVATE amxo_parser_file_exists(amxc_var_t *dir,
+                                          const char *file_path,
+                                          char **full_path);
+
+bool AMXO_PRIVATE amxo_parser_find_file(const amxc_llist_t *dirs,
+                                        const char *file_path,
+                                        char **full_path);
+
+bool AMXO_PRIVATE amxo_parser_check_attr(amxo_parser_t *pctx,
+                                         int64_t attributes,
+                                         int64_t bitmask);
+
+bool AMXO_PRIVATE amxo_parser_set_param_attrs(amxo_parser_t *pctx,
+                                              uint64_t attr,
+                                              bool enable);
+
+bool AMXO_PRIVATE amxo_parser_set_object_attrs(amxo_parser_t *pctx,
+                                               uint64_t attr,
+                                               bool enable);
+
+bool AMXO_PRIVATE amxo_parser_create_object(amxo_parser_t *pctx,
+                                            const char *name,
+                                            int64_t attr_bitmask,
+                                            amxd_object_type_t type);
+
+bool AMXO_PRIVATE amxo_parser_add_instance(amxo_parser_t *pctx,
+                                           uint32_t index,
+                                           const char *name);
+
+bool AMXO_PRIVATE amxo_parser_push_object(amxo_parser_t *pctx,
+                                          const char *name);
+
+bool AMXO_PRIVATE amxo_parser_pop_object(amxo_parser_t *pctx);
+
+bool AMXO_PRIVATE amxo_parser_push_param(amxo_parser_t *pctx,
+                                         const char *name,
+                                         int64_t attr_bitmask,
+                                         amxd_object_type_t type);
+
+bool AMXO_PRIVATE amxo_parser_set_param(amxo_parser_t *pctx,
+                                        const char *name,
+                                        amxc_var_t *value);
+
+bool AMXO_PRIVATE amxo_parser_pop_param(amxo_parser_t *pctx);
+
+int AMXO_PRIVATE amxo_parser_push_func(amxo_parser_t *pctx,
+                                       const char *name,
+                                       int64_t attr_bitmask,
+                                       amxd_object_type_t type);
+
+void AMXO_PRIVATE amxo_parser_pop_func(amxo_parser_t *pctx);
+
+bool AMXO_PRIVATE amxo_parser_add_arg(amxo_parser_t *pctx,
+                                      const char *name,
+                                      int64_t attr_bitmask,
+                                      amxd_object_type_t type,
+                                      amxc_var_t *def_value);
+
+bool amxo_parser_set_counter(amxo_parser_t *pctx,
+                             const char *param_name);
+
+bool amxo_parser_subscribe(amxo_parser_t *pctx,
+                           const char *event_regexp,
+                           const char *path_regexp);
+
+bool amxo_parser_subscribe_item(amxo_parser_t *pctx);
+
+int AMXO_PRIVATE amxo_parser_include(amxo_parser_t *pctx, const char *file_path);
+
+amxc_htable_t *AMXO_PRIVATE amxo_parser_get_resolvers(void);
+
+int AMXO_PRIVATE amxo_parser_resolve_internal(amxo_parser_t *parser,
+                                              const char *fn_name,
+                                              const char *data);
+
+int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t *parser,
+                                     const char *resolver_name,
+                                     const char *func_name,
+                                     const char *data);
+
+void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t *parser);
+void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t *parser);
+
+int AMXO_PRIVATE amxo_parser_call_entry_point(amxo_parser_t *pctx,
+                                              const char *lib_name,
+                                              const char *fn_name);
+
+bool AMXO_PRIVATE amxo_parser_set_data_option(amxo_parser_t *pctx,
+                                              const char *key,
+                                              amxc_var_t *value);
+
+int AMXO_PRIVATE amxo_parser_set_action(amxo_parser_t *pctx,
+                                        amxo_action_t action);
+
+int AMXO_PRIVATE amxo_parser_get_action_id(amxo_parser_t *pctx,
+                                           const char *action_name);
+
+char *AMXO_PRIVATE amxo_parser_build_import_resolver_data(const char *function,
+                                                          const char *library);
+
+bool AMXO_PRIVATE amxo_parser_add_mib(amxo_parser_t *pctx,
+                                      const char *mib_name);
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __AMXO_PARSER_PRIV_H__
+

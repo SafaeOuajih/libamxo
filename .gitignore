@@ -1,0 +1,7 @@
+**/output/*
+**/run_test
+libamxo-*.*
+libamxo_*.*
+tests/test_plugin/test_plugin.d
+tests/test_plugin/test_plugin.o
+tests/test_plugin/test_plugin.so
