@@ -63,6 +63,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <limits.h>
@@ -73,6 +74,7 @@
 #include <amxp/amxp_signal.h>
 #include <amxd/amxd_common.h>
 #include <amxd/amxd_dm.h>
+#include <amxd/amxd_object.h>
 #include <amxd/amxd_action.h>
 #include <amxo/amxo.h>
 
@@ -90,7 +92,13 @@ static void amxo_resolver_ftab_defaults(amxo_parser_t *parser,
                            "check_minimum",
                            AMXO_FUNC(amxd_action_param_check_minimum));
     amxo_resolver_ftab_add(parser,
+                           "check_minimum_length",
+                           AMXO_FUNC(amxd_action_param_check_minimum));
+    amxo_resolver_ftab_add(parser,
                            "check_maximum",
+                           AMXO_FUNC(amxd_action_param_check_maximum));
+    amxo_resolver_ftab_add(parser,
+                           "check_maximum_length",
                            AMXO_FUNC(amxd_action_param_check_maximum));
     amxo_resolver_ftab_add(parser,
                            "check_range",
@@ -115,7 +123,18 @@ static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t *parser,
     if((data != NULL) && (data[0] != 0)) {
         it = amxc_htable_get(ftab_data, data);
     } else {
-        it = amxc_htable_get(ftab_data, fn_name);
+        amxc_string_t full_name;
+        char *path = amxd_object_get_path(parser->object, AMXD_OBJECT_NAMED);
+        amxc_string_init(&full_name, 0);
+        if((path != NULL) && (*path != 0)) {
+            amxc_string_push_buffer(&full_name, path, strlen(path) + 1);
+            amxc_string_appendf(&full_name, ".%s", fn_name);
+            it = amxc_htable_get(ftab_data, amxc_string_get(&full_name, 0));
+        }
+        amxc_string_clean(&full_name);
+        if(it == NULL) {
+            it = amxc_htable_get(ftab_data, fn_name);
+        }
     }
     when_null(it, exit);
 
@@ -135,25 +154,18 @@ static void amxo_resolver_ftab_clean(amxo_parser_t *parser,
 
 static bool amxo_ftab_func_name_is_valid(const char *name) {
     bool retval = false;
-    bool is_allnum = true;
     when_str_empty(name, exit);
-    when_true(isalpha(name[0]) == 0, exit);
+    when_true(isalpha(name[0]) == 0 && name[0] != '_', exit);
 
     for(int i = 0; name[i] != 0; i++) {
-        if(isalpha(name[i]) != 0) {
-            is_allnum = false;
-        } else {
-            if(isdigit(name[i]) == 0) {
-                is_allnum = false;
-                if((name[i] != '_') &&
-                   (name[i] != '-')) {
-                    goto exit;
-                }
+        if(isalnum(name[i]) == 0) {
+            if((name[i] != '_') && (name[i] != '-') && (name[i] != '.')) {
+                goto exit;
             }
         }
     }
 
-    retval = is_allnum ? false : true;
+    retval = true;
 
 exit:
     return retval;

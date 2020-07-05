@@ -201,6 +201,9 @@ static int64_t amxo_attr_2_param_attr(int64_t attributes) {
     if(amxd_bit_map(attr_variable) & attributes) {
         param_attrs |= amxd_bit_map(amxd_pattr_variable);
     }
+    if(amxd_bit_map(attr_key) & attributes) {
+        param_attrs |= amxd_bit_map(amxd_pattr_key);
+    }
     return param_attrs;
 }
 
@@ -284,9 +287,9 @@ bool amxo_parser_check_attr(amxo_parser_t *pctx,
     bool retval = false;
     int attr_mask = ~bitmask;
 
-    int check_attr = attributes & attr_mask;
-    pctx->status = (check_attr == 0) ? amxd_status_ok : amxd_status_invalid_attr;
-    retval = (check_attr == 0);
+    int check_attr = attributes | attr_mask;
+    pctx->status = (check_attr != attr_mask) ? amxd_status_ok : amxd_status_invalid_attr;
+    retval = (check_attr != attr_mask);
     if(!retval) {
         amxo_parser_msg(pctx, "Invalid attributes given");
     }
@@ -360,9 +363,23 @@ bool amxo_parser_add_instance(amxo_parser_t *pctx,
         goto exit;
     }
 
-    pctx->status = amxd_object_new_instance(&object, pctx->object, name, index);
+    pctx->status = amxd_object_add_instance(pctx->object,
+                                            &object,
+                                            name,
+                                            index,
+                                            pctx->data);
     if(pctx->status != amxd_status_ok) {
-        amxo_parser_msg(pctx, "Failed to create object %s", name);
+        switch(pctx->status) {
+        case amxd_status_duplicate:
+            amxo_parser_msg(pctx, "Failed to create instance %s - duplicate key(s)", name);
+            break;
+        case amxd_status_missing_key:
+            amxo_parser_msg(pctx, "Failed to create instance %s - missing key(s)", name);
+            break;
+        default:
+            amxo_parser_msg(pctx, "Failed to create instance %s", name);
+            break;
+        }
         goto exit;
     }
 
@@ -373,6 +390,7 @@ bool amxo_parser_add_instance(amxo_parser_t *pctx,
     retval = true;
 
 exit:
+    amxc_var_delete(&pctx->data);
     return retval;
 }
 
@@ -614,10 +632,11 @@ exit:
 
 }
 
-bool amxo_parser_subscribe(amxo_parser_t *pctx,
-                           const char *event_regexp,
-                           const char *path_regexp) {
-    bool retval = false;
+int amxo_parser_subscribe(amxo_parser_t *pctx,
+                          const char *event_regexp,
+                          const char *path_regexp,
+                          const char *full_expr) {
+    int retval = 1;
     amxd_dm_t *dm = amxd_object_get_dm(pctx->object);
     amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
     when_null(dm, exit);
@@ -630,23 +649,35 @@ bool amxo_parser_subscribe(amxo_parser_t *pctx,
     }
 
     if(path_regexp != NULL) {
-        amxc_var_t filter;
-        amxc_var_init(&filter);
-        amxc_var_set_type(&filter, AMXC_VAR_ID_HTABLE);
-        amxc_var_add_key(cstring_t,
-                         &filter,
-                         "object",
-                         path_regexp);
-        amxp_slot_connect_filtered(&dm->sigmngr, event_regexp, &filter, fn, NULL);
-        amxc_var_clean(&filter);
-    } else if(pctx->data != NULL) {
-        amxp_slot_connect_filtered(&dm->sigmngr, event_regexp, pctx->data, fn, NULL);
-        amxc_var_delete(&pctx->data);
+        amxc_string_t expression;
+        const char *expr = NULL;
+        amxc_string_init(&expression, 0);
+        amxc_string_appendf(&expression, "object matches \"%s\"", path_regexp);
+        expr = amxc_string_get(&expression, 0);
+        retval = amxp_slot_connect_filtered(&dm->sigmngr, event_regexp, expr, fn, NULL);
+        if(retval != 0) {
+            retval = -1;
+            pctx->status = amxd_status_invalid_value;
+            amxo_parser_msg(pctx,
+                            "Subscribe failed : %s", event_regexp);
+        }
+        amxc_string_clean(&expression);
+    } else if(full_expr != NULL) {
+        retval = amxp_slot_connect_filtered(&dm->sigmngr, event_regexp, full_expr, fn, NULL);
+        if(retval != 0) {
+            retval = -1;
+            pctx->status = amxd_status_invalid_value;
+            amxo_parser_msg(pctx,
+                            "Invalid expression : %s", full_expr);
+        }
     } else {
-        amxp_slot_connect_filtered(&dm->sigmngr, event_regexp, NULL, fn, NULL);
+        retval = amxp_slot_connect_filtered(&dm->sigmngr, event_regexp, NULL, fn, NULL);
+        if(retval != 0) {
+            pctx->status = amxd_status_invalid_value;
+            amxo_parser_msg(pctx,
+                            "Subscribe failed : %s", event_regexp);
+        }
     }
-
-    retval = true;
 
 exit:
     return retval;
@@ -657,7 +688,7 @@ bool amxo_parser_subscribe_item(amxo_parser_t *pctx) {
     amxd_dm_t *dm = amxd_object_get_dm(pctx->object);
     amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
     char *regexp_path = NULL;
-    amxc_var_t filter;
+    amxc_string_t expression;
     const char *event_pattern = NULL;
     when_null(dm, exit);
 
@@ -667,24 +698,28 @@ bool amxo_parser_subscribe_item(amxo_parser_t *pctx) {
         goto exit;
     }
 
-    regexp_path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED | AMXD_OBJECT_REGEXP);
-    amxc_var_init(&filter);
-    amxc_var_set_type(&filter, AMXC_VAR_ID_HTABLE);
-    amxc_var_add_key(cstring_t, &filter, "object", regexp_path);
+    regexp_path = amxd_object_get_path(pctx->object,
+                                       AMXD_OBJECT_NAMED | AMXD_OBJECT_REGEXP);
+    amxc_string_init(&expression, 0);
+    amxc_string_appendf(&expression, "object matches \"%s\"", regexp_path);
 
     if(pctx->param != NULL) {
-        amxc_string_t param_key;
-        amxc_string_init(&param_key, 0);
-        amxc_string_appendf(&param_key, "%s.to", amxd_param_get_name(pctx->param));
-        amxc_var_add_key(cstring_t, &filter, amxc_string_get(&param_key, 0), ".*");
-        amxc_string_clean(&param_key);
+        amxc_string_appendf(&expression,
+                            " && parameters.%s.to matches \".*\"",
+                            amxd_param_get_name(pctx->param));
         event_pattern = "dm:object-changed";
     } else {
         event_pattern = "dm:.*";
     }
 
-    amxp_slot_connect_filtered(&dm->sigmngr, event_pattern, &filter, fn, NULL);
+    amxp_slot_connect_filtered(&dm->sigmngr,
+                               event_pattern,
+                               amxc_string_get(&expression, 0),
+                               fn,
+                               NULL);
 
+    free(regexp_path);
+    amxc_string_clean(&expression);
     retval = true;
 
 exit:

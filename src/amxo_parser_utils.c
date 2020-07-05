@@ -89,15 +89,16 @@
 static char *amxo_parser_get_resolver_name(const char *data) {
     amxc_string_t full_data;
     size_t length = strlen(data);
-    amxc_llist_t *parts = NULL;
+    amxc_llist_t parts;
     amxc_llist_it_t *it = NULL;
     char *name = NULL;
 
+    amxc_llist_init(&parts);
     amxc_string_init(&full_data, length + 1);
     amxc_string_set_at(&full_data, 0, data, length, amxc_string_overwrite);
-    parts = amxc_string_split_llist(&full_data, ":");
-    it = amxc_llist_take_first(parts);
-    amxc_llist_delete(&parts, amxc_string_list_it_free);
+    amxc_string_split_to_llist(&full_data, &parts, ':');
+    it = amxc_llist_take_first(&parts);
+    amxc_llist_clean(&parts, amxc_string_list_it_free);
     amxc_string_clean(&full_data);
 
     amxc_string_trim(amxc_string_from_llist_it(it), NULL);

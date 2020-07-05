@@ -8,7 +8,7 @@ A data model is a hierarchical tree of objects where each object can contain 0, 
 > ### __Table of Contents__  
 >
 >  1. [Writing comments](#writing-comments)  
->  2. [Sections](#sections) 
+>  2. [Sections](#sections)  
   2.1. [Section %config](#Section%20%25config)  
   |_______ [Syntax](#%25config-syntax)  
   |_______ [Example](#%25config-example)  
@@ -30,7 +30,7 @@ A data model is a hierarchical tree of objects where each object can contain 0, 
   2.2.3. [Define functions](#define-functions)  
   |_______ [Attributes](#function-attributes)  
   |_______ [Arguments](#function-arguments)  
-  |_______ [Resolver](#function-resolver)  
+  |_______ [Function Signature](#function-signature)  
   |_______ [Default functions](#default-functions)  
   |_______ [Syntax](#function-syntax)  
   |_______ [Example](#function-example)  
@@ -40,9 +40,9 @@ A data model is a hierarchical tree of objects where each object can contain 0, 
   2.2.5 [Define actions](#define-actions)  
   |_______ [Action names](#action-names)  
   |_______ [Data](#action-data)  
-  |_______ [Resolver](#action-resolver)  
   |_______ [Syntax](#action-syntax)  
   |_______ [Example](#action-example)  
+  2.2.6 [Resolver Instructions](#resolver-instructions)  
   2.3. [Section %populate](#section-%25populate)  
   2.3.1. [Create instances](#create-instances)  
   2.3.2. [Change parameter values](#change-parameter-values)  
@@ -70,7 +70,7 @@ In an odl file it is possible to write comments.
 
 - Multi-line comments starts with `/*` and ends with `*/`
 
-Comments can be places at any place in the odl file.
+Comments can be used at any place in the odl file.
 
 ## Sections
 
@@ -108,7 +108,7 @@ Everything between the curly braces '{' and '}' is considered as the body of the
 > %config {
 >    <name> = <VALUE>;
 >    <name> = [ <VALUE>, <VALUE>, ... ];
->    <name> = { <name> = <VALUE>, <name> = <VALUE>, ... ];
+>    <name> = { <name> = <VALUE>, <name> = <VALUE>, ... };
 >  ...
 >}
 >```
@@ -231,6 +231,7 @@ Attributes can be set on parameters. The valid attributes are:
 - `%template`
 - `%instance`
 - `%volatile`
+- `%key`
 
 The attribute `%read-only` prevents external source to change the parameter's value with a `set` operation. The process that owns the data model can change the value.
 
@@ -240,17 +241,22 @@ The attribute `%private` makes the parameter invisible for external sources. The
 
 The attribute `%template` makes the parameter `usable` on template objects. A parameter with only the `%template` attribute set (and not the `%instance`) will not be inherited by instance objects. This attribute has only effect on template objects and is ignore on singleton objects.
 
-The attribute `%instance` makes the parameter `usable` on instance objects. A parameter with only the `%instance` attribute set will be inherited by instance objects. This attribute has only effect on template objects and is ignore on singleton objects. If only this attribute is set and not the `%template` attribute the parameter definition is still accessible in the template object.
+The attribute `%instance` makes the parameter `usable` on instance objects. A parameter with the `%instance` attribute set will be inherited by instance objects. This attribute has only effect on template objects and is ignore on singleton objects. If only this attribute is set and not the `%template` attribute the parameter definition is still accessible in the template object.
 
 The attribute `%volatile` marks the parameter as "changes often". The only effect that this attribute has is that no events are send when the parameter's value changes.
 
-When no attributes are specified on parameters define in a template object, by default the `%instance` attribute is set.
+The attribute `%key` can only be used on parameters defined in a template object. The attribute can be set on parameters in the `%populate` section if the template object does not have any instances yet. The `key` parameters are used to identify the instance in a unique way. The combination of the values of the `key` parameters must be unique. These parameters are immutable, once set the value can not be changed. 
+
+When no attributes are specified on parameters defined in a template object, by default the `%instance` attribute is set.
 
 ##### Parameter value
 
 A default value can be defined.
 
 When no value is specified the default value for the declared type is used.
+
+When the parameter definition has a definition body (starts with `{` and ends with `}` behind the parameter name) the default value must be defined in the parameter body using the keyword `default`.
+This is typically done when action for the parameter are defined.
 
 ##### Parameter syntax
 
@@ -260,6 +266,10 @@ When no value is specified the default value for the declared type is used.
 >[<ATTRIBUTES>] <TYPE> <name>;
 >
 >[<ATTRIBUTES>] <TYPE> <name> = <VALUE>;
+>
+> [<ATTRIBUTES>] <TYPE> <name> {
+>   ...
+> }
 >```
 
 ##### Parameter example
@@ -317,21 +327,8 @@ Arguments declared with attribute `%madatory` are required, if a function caller
 
 Arguments declared with attribute `%strict` must be provided by the caller with the correct type, if the provided value is not of the defined type, the function call fails. If an argument is not strict typed, data type conversion can be done by the callee.
 
-##### Function resolver
+##### Function Signature
 
-In most cases it will not be required to specify a function resolver. The default odl parser function resolving behavior is in most cases suficient. The behavior of the `import` and `auto` resolver can be modified using configuration options.
-
-When specifiying a resolver, at least the resolver name must be given. Parsing of the odl file fails when a unknow resolver name is set.
-
-The resolver definition starts with `<!` and ends with  `!>` and must be set behind the closing `)` of the argument list (balnks are allowed). Within the resolver definition, the first thing to mention is the resolver name which can not contain any blanks. The name must be ended with `:` or the closing `!>`.
-
-The odl parser library provides three default function resolvers:
-
-- auto - will call all resolvers in a defined order until a function is found or no more resolvers are availble. The order can be defined with the configuration option `auto-resolver-order` in the `%config` section.
-- ftab - an application can build a function table using the odl parser library API, before starting the odl parsing itself. The ftab resolver (function table) will use this information to resolve the functions.
-- import - the import resolver can load plug-ins (in shared object format using dlopen) and resolver the functions using dlsym. By default the import resolver will prefix the function names with `_<object name>_`. Or when the function is not defined in an object body the function name is prefixed with `_`
-
-> NOTE  
 >The C function implementation must match the following signature, if the C implementation does not match the signature the behavior is undefined when called.
 >
 > ```
@@ -353,7 +350,7 @@ The default functions definitions are:
 - %template void add(%strict htable parameters, uint32 index, string name);
 - %template void del(uint32 index, string name);
 
-It is possible to overide these function, either with exactly the same definition but another function implementation or event with a total different definition (only the same name).
+It is possible to overide these function, either with exactly the same definition but another function implementation or even with a total different definition (only the same name).
 
 ##### Function syntax
 
@@ -394,7 +391,7 @@ It is possible to overide these function, either with exactly the same definitio
 Entry points can only be defined in `%define` section body.
 
 When using the import resolver (see [Import](#import)), entry points can be defined.
-Entry points are functions in your plug-in implementation that can be called for multiple reasons. The Ambiorix runtime calls the entry points with reason 0 (START) after the odl files are loaded and with reason 1 (STOP) when the applications is stopping.
+Entry points are functions in your plug-in implementation that can be called for multiple reasons. The Ambiorix runtime calls the entry points with reason 0 (START) after the odl files are loaded and with reason 1 (STOP) when the application is stopping.
 
 This gives the implementor of the plug-in the ability to provide a function that can do initialization and clean-up. Other applications that are using the odl parser library can invoke the entry points for other different reasons.
 
@@ -407,6 +404,7 @@ To resolve an entry point a library name must be given followed by a function na
 The library must be imported with [import](#import)
 
 > NOTE  
+>
 >The C function implementation must match the following signature, if the C implementation does not match the signature the behavior is undefined when called.
 >
 > ```
@@ -435,33 +433,49 @@ The library must be imported with [import](#import)
 
 #### Define actions
 
-TODO
+Actions can be added in object and parameter definitions (in the object body definition or in the parameter body definition).
+
+Actions are callback functions that are called for a specific reason. The function implementation will be fetched using one of the function resolvers. It is possible to add resolver instructions after the function name. Multiple callback functions for the same reason (action name) can be provided.
+
+Some action implementations can requiere that data is provided.
+
+The most common added action on objects and parameters is the `validate` action.
+
+If private data is added to the object or parameter it is also common to add a `destroy` action.
+
+More details about action implementation and how the actions must behave is described in the document [Actions, Transactions and Events](https://gitlab.com/soft.at.home/ambiorix/libraries/lib_amxd/-/blob/master/doc/actions_transactions_events.md) of the data model library (libamxd).
 
 ##### Action names
 
-TODO
+The possible action names are:
+
+- `read` - called when the object or parameter needs to be read (values).
+- `write`  - called when the object or parameter needs to be written.
+- `validate`  - called when the object or parameter needs to be validated.
+- `describe` - this is a special read action and only available on objects, only used for introspection
+- `list` - this is a special read action and only available on objects, only used for introspection.
+- `add-inst` - called when an instance needs to be added. This action can only be used on template objects
+- `del-inst` - called when an instance needs to be deleted. This action can only be used on template objects.
+- `destroy` - called when the object or parameter is going to be deleted. 
+
 
 ##### Action data
 
-TODO
-
-##### Action resolver
-
-TODO
+The data can be added behind the function name (or resolver instructions). The data can be a simple value like a number or text, or composite values like arrays or table (key value pairs). The data will be passed to the function as the private data and will always be a pointer to a variant.
 
 ##### Action syntax
 
 >Syntax:
 >
 > ```odl
-> on action <ACTION> call <name> [<!RESOLVER:<RESOLVER-DATA>!>];
-> on action <ACTION> call <name> [<!RESOLVER:<RESOLVER-DATA>!>] [ <VALUE>, <VALUE>, ...];
-> on action <ACTION> call <name> [<!RESOLVER:<RESOLVER-DATA>!>] {
+> on action <ACTION> call <function name> [<!RESOLVER:<RESOLVER-DATA>!>];
+> on action <ACTION> call <function name> [<!RESOLVER:<RESOLVER-DATA>!>] [ <VALUE>, <VALUE>, ...];
+> on action <ACTION> call <function name> [<!RESOLVER:<RESOLVER-DATA>!>] {
 >             <key> = <VALUE>,
 >             <key> = <VALUE>,
 >             ...
 > };
-> on <ACTION> call <name> [<!RESOLVER:<RESOLVER-DATA>!>] <VALUE>;
+> on <ACTION> call <function name> [<!RESOLVER:<RESOLVER-DATA>!>] <VALUE>;
 >```
 
 ##### Action Example
@@ -476,6 +490,23 @@ TODO
 >     }
 > }
 >   
+
+#### Resolver Instructions
+
+Everywere were a function name is provided, it is possible to provide function resolving instructions, except for [entrypoints](#define-entry-points)
+
+In most cases it will not be required to specify a function resolver instruction. The default odl parser function resolving behavior is in most cases suficient. The behavior of the `import` and `auto` resolver can be modified using configuration options.
+
+When specifiying a resolver, at least the resolver name must be given. Parsing of the odl file fails when a unknow resolver name is set.
+
+The resolver definition starts with `<!` and ends with  `!>` and must be set behind the closing `)` of the argument list (blanks are allowed). Within the resolver definition, the first thing to mention is the resolver name which can not contain any blanks. The name must be ended with `:` or the closing `!>`.
+
+The odl parser library provides three default function resolvers:
+
+- **auto** - will call all resolvers in a defined order until a function is found or no more resolvers are availble. The order can be defined with the configuration option `auto-resolver-order` in the `%config` section.
+- **ftab** - an application can build a function table using the odl parser library API, before starting the odl parsing itself. The ftab resolver (function table) will use this information to resolve the functions.
+- **import** - the import resolver can load plug-ins (in shared object format using dlopen) and resolves the functions using dlsym. By default the import resolver will prefix the function names with `_<object name>_` or `_<param name>_` depending on the context. When the function is not defined in an object or parameter body the function name is prefixed with `_`.
+
 ### Section %populate
 
 In the `%populate` section it is possible to:
@@ -492,23 +523,27 @@ Each `%populate` section starts with `%populate {` and ends with `}`.
 
 Everything between the curly braces '{' and '}' is considered as the body of the `%populate` section.
 
-#### %define Syntax
+#### %populate Syntax
 
 >Syntax:
 >
 >```odl
-> %define {
+> %populate {
 > ...
 > }
 >```
 
-#### %define Example
+#### %populate Example
 
 > Example:
 >
 > ```odl
-> %define {
->     object Greeter;
+> %populate {
+>     object Greeter.History {
+>        instance add() {
+>          ...
+>        }
+>     }
 > }
 > ```
 
@@ -586,7 +621,7 @@ include "<include_file>";
     <config option> = [ <VALUE>, <VALUE>, ... ];
 
     // set a config option using key-value pairs
-    <config option> = [ <key> = <VALUE>, <key> = <VALUE>, ... ];
+    <config option> = { <key> = <VALUE>, <key> = <VALUE>, ... };
     ...
 }
 
@@ -677,6 +712,14 @@ include "<include_file>";
           [<SET ATTRIBUTES>] [<UNSET ATTRIBUTES>] parameter <name> = <VALUE>;
           ...
         }
+        instance add() {
+          [<SET ATTRIBUTES>] [<UNSET ATTRIBUTES>] parameter <name> = <VALUE>;
+          ...
+        }
+        instance add(<index>,<name>,<key param>=<value>,<key param>=<value>, ...) {
+          [<SET ATTRIBUTES>] [<UNSET ATTRIBUTES>] parameter <name> = <VALUE>;
+          ...
+        }
     }
 
     object <path> {
@@ -715,6 +758,7 @@ Valid attribute names are
 - `%out`
 - `%mandatory`
 - `%strict`
+- `%key`
 
 The notation without pre-pending the attribute name with '%' is considered deprecated.
 
@@ -743,6 +787,7 @@ For more information about these attributes on object see section [Define object
 - `%template`
 - `%instance`
 - `%volatile` or `!volatile`
+- `%key`
 
 For more information about these attributes on object see section [Define parameters](#define-parameters)
 
@@ -797,6 +842,7 @@ The valid action names are:
 - `list` - can be used on objects
 - `add-inst` - can be used on objects
 - `del-inst` - can be used on objects
+- `destroy` - can be used on parameters and objects
 
 Deprecated action descriptions
 
@@ -823,13 +869,15 @@ on action validate <name> <!RESOLVER:<RESOLVER-DATA>!>;
 
 The ambiorix odl parser provides 3 resolvers:
 
-- auto - the default if no resolver is specified, this resolver will iterator over all resolvers in the specified order (see config option `auto-resolver-order`) until a resolver returns a function.
-- ftab - the function table resolver, the function table can be filled with functions using `amxo_resolver_ftab_add`
-- import - loads shared objects (so files) and uses `dlsym` to resolve the functions. Share objects can be loaded using the `import` keyword in the odl, or by calling `amxo_resolver_import_open` in your code.
+- **auto** - the default if no resolver is specified, this resolver will iterator over all resolvers in the specified order (see config option `auto-resolver-order`) until a resolver returns a function.
+- **ftab** - the function table resolver, the function table can be filled with functions using `amxo_resolver_ftab_add`
+- **import** - loads shared objects (so files) and uses `dlsym` to resolve the functions. Share objects can be loaded using the `import` keyword in the odl, or by calling `amxo_resolver_import_open` in your code.
 
 Other resolver can be added to the function resolving system using `amxo_register_resolver` or removed using `amxo_unregister_resolver`.
 
 By specifying the resolver name behind a function, the odl parser will only use the resolver specified.
+
+Adding resolver information is optional, and is not needed when the function name in odl file can be resolved automatically.
 
 ***
 
@@ -842,9 +890,15 @@ By specifying the resolver name behind a function, the odl parser will only use 
 
 The resolver data is depending on the resolver itself. See the documentation of the specific resolver.
 
+The default provide function resolvers are documented here
+
 #### Auto resolver data
 
-The auto resolver does not take any data
+The auto resolver does not take any data. This is the default function resolver.
+
+This resolver does not tries to resolve to function names to a function pointer by itself, it will use the other registered function resolvers in a pre-defined order. The first function resolver that returns a function pointer will be used.
+
+The order of the resolvers can be configured in the `%config` section using configuration option `auto-resolver-order`
 
 #### Ftab resolver data
 
@@ -854,7 +908,7 @@ This data is optional, if the function name in the odl is the same as the functi
 The data syntax:
 
 ```odl
-<!ftab[:function_name]>
+<!ftab[:function_name]!>
 ```
 
 Example:
@@ -870,6 +924,23 @@ While in this example, the odl parser is instructed to use the function table re
 ```odl
 variant echo(%in %mandatory variant message)<!ftab!>;
 ```
+
+In both examples, the **ftab** resolver is the only resolver used. If no function pointer is returned by the **ftab** resolver, the function is considered unresolved.
+
+Warnings or extra information is dumped to `stdout` of your application when a function can not be resolved.
+
+> NOTE
+>
+> The **ftab** resolver provides some parameter validation callback functions that can be used in parameter validation action definitions `on action validate call ....`.
+
+The function names that are available are: 
+
+- check_minimum
+- check_minimum_length
+- check_maximum
+- check_maximum_length
+- check_range
+- check_enum
 
 #### Import resolver data
 

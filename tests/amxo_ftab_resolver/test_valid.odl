@@ -67,5 +67,6 @@
         void TestFunc2()<!ftab!>;
         void TestFunc3()<!ftab:internal_name!>;
         void TestFunc4();  /* auto resolver used */
+        void TestFunc5();  /* auto resolver used */
     }
 }

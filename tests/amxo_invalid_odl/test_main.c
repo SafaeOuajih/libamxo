@@ -91,6 +91,8 @@ int main(void) {
         cmocka_unit_test(test_not_resolved_action),
         cmocka_unit_test(test_add_not_existing_mib),
         cmocka_unit_test(test_add_mib_with_duplicates),
+        cmocka_unit_test(test_invalid_regexp_in_filter),
+        cmocka_unit_test(test_invalid_key_params),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

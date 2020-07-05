@@ -85,5 +85,7 @@ void test_invalid_parameter_actions(void **state);
 void test_not_resolved_action(void **state);
 void test_add_not_existing_mib(void **state);
 void test_add_mib_with_duplicates(void **state);
+void test_invalid_regexp_in_filter(void **state);
+void test_invalid_key_params(void **state);
 
 #endif // __TEST_INVALID_ODL_H__

@@ -230,29 +230,30 @@ static void amxo_resolver_import_parse_data(const char *data,
                                             char **lib,
                                             char **symbol) {
     amxc_string_t str_data;
-    amxc_llist_t *parts = NULL;
+    amxc_llist_t parts;
     size_t length = 0;
     amxc_llist_it_t *it = NULL;
 
+    amxc_llist_init(&parts);
     amxc_string_init(&str_data, 0);
     amxc_string_push_buffer(&str_data, (char *) data, strlen(data) + 1);
-    parts = amxc_string_split_llist(&str_data, ":");
-    length = amxc_llist_size(parts);
+    amxc_string_split_to_llist(&str_data, &parts, ':');
+    length = amxc_llist_size(&parts);
 
     when_true(length > 2, exit);
 
-    it = amxc_llist_get_first(parts);
+    it = amxc_llist_get_first(&parts);
     amxc_string_trim(amxc_string_from_llist_it(it), NULL);
     *lib = amxc_string_take_buffer(amxc_string_from_llist_it(it));
 
     if(length > 1) {
-        it = amxc_llist_get_last(parts);
+        it = amxc_llist_get_last(&parts);
         amxc_string_trim(amxc_string_from_llist_it(it), NULL);
         *symbol = amxc_string_take_buffer(amxc_string_from_llist_it(it));
     }
 
 exit:
-    amxc_llist_delete(&parts, amxc_string_list_it_free);
+    amxc_llist_clean(&parts, amxc_string_list_it_free);
     return;
 }
 

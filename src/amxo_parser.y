@@ -146,7 +146,7 @@
 %type <integer> action_header action deprecated_action dep_action
 %type <bitmap>  attributes unset_attributes
 %type <value>   value
-%type <cptr>    name path
+%type <cptr>    name path filter
 
 %{
     int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void * yyscanner);
@@ -220,7 +220,8 @@
                                     (1 << attr_template) |
                                     (1 << attr_instance) |
                                     (1 << attr_variable) |
-                                    (1 << attr_readonly));
+                                    (1 << attr_readonly) |
+                                    (1 << attr_key));
 
     const uint64_t amxo_func_attrs = ((1 << attr_private) | 
                                     (1 << attr_template) | 
@@ -455,9 +456,13 @@ param_header
       amxc_var_clean(&$4);
     }
   | attributes TYPE name '=' value {
+      bool key_attr_is_set = ($1 & (1 << attr_key));
       $3.txt[$3.length] = 0;
       YY_ASSERT_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
                        $3.txt,
+                       amxc_var_clean(&$5));
+      YY_ASSERT_ACTION(key_attr_is_set,
+                       "Key parameters can not have a default value",
                        amxc_var_clean(&$5));
       YY_ASSERT_ACTION(!amxo_parser_push_param(parser_ctx, $3.txt, $1, $2),
                        $3.txt,
@@ -752,27 +757,33 @@ event_populate
       $3.txt[$3.length] = 0;
       $5.txt[$5.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, "auto");
-      YY_ASSERT(retval == -1, $5.txt);
-      YY_WARNING(retval == 1, $5.txt);
-      YY_WARNING(!amxo_parser_subscribe(parser_ctx, $3.txt, NULL), $5.txt);
+      YY_ASSERT(retval < 0, $5.txt);
+      YY_WARNING(retval > 0, $5.txt);
+      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, NULL);
+      YY_ASSERT(retval < 0, $5.txt);
+      YY_WARNING(retval > 0, $5.txt);
     }
   | ON EVENT TEXT CALL name RESOLVER ';' {
       $3.txt[$3.length] = 0;
       $5.txt[$5.length] = 0;
       $6.txt[$6.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, $6.txt);
-      YY_ASSERT(retval == -1, $5.txt);
-      YY_WARNING(retval == 1, $5.txt);
-      YY_WARNING(!amxo_parser_subscribe(parser_ctx, $3.txt, NULL), $5.txt);
+      YY_ASSERT(retval < 0, $5.txt);
+      YY_WARNING(retval > 0, $5.txt);
+      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, NULL);
+      YY_ASSERT(retval < 0, $5.txt);
+      YY_WARNING(retval > 0, $5.txt);
     }
   | ON EVENT TEXT OF TEXT CALL name';' {
       $3.txt[$3.length] = 0;
       $5.txt[$5.length] = 0;
       $7.txt[$7.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $7.txt, "auto");
-      YY_ASSERT(retval == -1, $7.txt);
-      YY_WARNING(retval == 1, $7.txt);
-      YY_WARNING(!amxo_parser_subscribe(parser_ctx, $3.txt, $5.txt), $7.txt);
+      YY_ASSERT(retval < 0, $7.txt);
+      YY_WARNING(retval > 0, $7.txt);
+      retval = amxo_parser_subscribe(parser_ctx, $3.txt, $5.txt, NULL);
+      YY_ASSERT(retval < 0, $7.txt);
+      YY_WARNING(retval > 0, $7.txt);
     }
   | ON EVENT TEXT OF TEXT CALL name RESOLVER';' {
       $3.txt[$3.length] = 0;
@@ -780,31 +791,41 @@ event_populate
       $7.txt[$7.length] = 0;
       $8.txt[$8.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $7.txt, $8.txt);
-      YY_ASSERT(retval == -1, $7.txt);
-      YY_WARNING(retval == 1, $7.txt);
-      YY_WARNING(!amxo_parser_subscribe(parser_ctx, $3.txt, $5.txt), $7.txt);
+      YY_ASSERT(retval < 0, $7.txt);
+      YY_WARNING(retval > 0, $7.txt);
+      retval = amxo_parser_subscribe(parser_ctx, $3.txt, $5.txt, NULL);
+      YY_ASSERT(retval < 0, $7.txt);
+      YY_WARNING(retval > 0, $7.txt);
     }
   | ON EVENT TEXT CALL name FILTER filter {
       $3.txt[$3.length] = 0;
       $5.txt[$5.length] = 0;
+      $7.txt[$7.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, "auto");
-      YY_ASSERT(retval == -1, $5.txt);
-      YY_WARNING(retval == 1, $5.txt);
-      YY_WARNING(!amxo_parser_subscribe(parser_ctx, $3.txt, NULL), $5.txt);
+      YY_ASSERT(retval < 0, $5.txt);
+      YY_WARNING(retval > 0, $5.txt);
+      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, $7.txt);
+      YY_ASSERT(retval < 0, $7.txt);
+      YY_WARNING(retval > 0, $7.txt);
     }
   | ON EVENT TEXT CALL name RESOLVER FILTER filter  {
       $3.txt[$3.length] = 0;
       $5.txt[$5.length] = 0;
       $6.txt[$6.length] = 0;
+      $8.txt[$8.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, $6.txt);
-      YY_ASSERT(retval == -1, $5.txt);
-      YY_WARNING(retval == 1, $5.txt);
-      YY_WARNING(!amxo_parser_subscribe(parser_ctx, $3.txt, NULL), $5.txt);
+      YY_ASSERT(retval < 0, $5.txt);
+      YY_WARNING(retval > 0, $5.txt);
+      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, $8.txt);
+      YY_ASSERT(retval < 0, $8.txt);
+      YY_WARNING(retval > 0, $8.txt);
     }
   ;
 
 filter
-  : '{' data_options '}' 
+  : TEXT ';' {
+      $$ = $1;
+    }
   ;
 
 object_populate
@@ -855,6 +876,13 @@ object_pop_header
   | INSTANCE OF '(' DIGIT ',' name ')' {
       $6.txt[$6.length] = 0;
       YY_ASSERT(!amxo_parser_add_instance(parser_ctx, $4, $6.txt), $6.txt);
+    }
+  | INSTANCE OF '(' DIGIT ',' name ',' data_options ')' {
+      $6.txt[$6.length] = 0;
+      YY_ASSERT(!amxo_parser_add_instance(parser_ctx, $4, $6.txt), $6.txt);
+    }
+  | INSTANCE OF '(' data_options ')' {
+      YY_ASSERT(!amxo_parser_add_instance(parser_ctx, 0, NULL), "");
     }
   | INSTANCE OF '(' ')' {
       YY_ASSERT(!amxo_parser_add_instance(parser_ctx, 0, NULL), "");

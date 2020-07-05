@@ -147,6 +147,7 @@ void test_ftab_resolver_resolves(UNUSED void **state) {
     assert_int_equal(amxo_resolver_ftab_add(&parser, "TestFunc1", AMXO_FUNC(dm_method_impl)), 0);
     assert_int_equal(amxo_resolver_ftab_add(&parser, "TestFunc2", AMXO_FUNC(dm_method_impl)), 0);
     assert_int_equal(amxo_resolver_ftab_add(&parser, "internal_name", AMXO_FUNC(dm_method_impl)), 0);
+    assert_int_equal(amxo_resolver_ftab_add(&parser, "TestObject.TestFunc5", AMXO_FUNC(dm_method_impl)), 0);
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
 
     check_can_invoke_functions(&dm, true);

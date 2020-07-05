@@ -104,7 +104,8 @@ typedef enum _amxo_parser_attr {
     attr_in,
     attr_out,
     attr_mandatory,
-    attr_strict
+    attr_strict,
+    attr_key
 } amxo_parser_attr_t;
 
 typedef enum _amxo_action {
@@ -212,9 +213,10 @@ bool AMXO_PRIVATE amxo_parser_add_arg(amxo_parser_t *pctx,
 bool amxo_parser_set_counter(amxo_parser_t *pctx,
                              const char *param_name);
 
-bool amxo_parser_subscribe(amxo_parser_t *pctx,
-                           const char *event_regexp,
-                           const char *path_regexp);
+int amxo_parser_subscribe(amxo_parser_t *pctx,
+                          const char *event_regexp,
+                          const char *path_regexp,
+                          const char *full_expr);
 
 bool amxo_parser_subscribe_item(amxo_parser_t *pctx);
 

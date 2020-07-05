@@ -162,6 +162,15 @@ import "test_plugin.so" as test_plugin;
             }
         }
 
+        object TestObjectTemplateWithKeys[] {
+            %key string KeyPart1;
+            %key uint32 KeyPart2;
+            %key string KeyPart3;
+
+            string Param1;
+            bool Param2;
+        }
+
         %read-only object TestChangeAttr {
             %private string Param1;
             %private void Func1();
@@ -201,12 +210,34 @@ import "test_plugin.so" as test_plugin;
         instance add(0, "");
     }
 
+    object TestObjectRoot.TestObjectTemplateWithKeys {
+        instance add(1,"", 
+                     KeyPart1 = "Key1A",
+                     KeyPart2 = 100,
+                     KeyPart3 = "Key1B") {
+            parameter Param1= "Some Text";
+            parameter Param2 = true;
+        }
+        instance add(0,"Test", 
+                     KeyPart1 = "Key2A",
+                     KeyPart2 = 100,
+                     KeyPart3 = "Key2B") {
+            parameter Param1= "Some Text";
+            parameter Param2 = true;
+        }
+        instance add(KeyPart1 = "Key3A",
+                     KeyPart2 = 1,
+                     KeyPart3 = "Key3B") {
+            parameter Param1= "Some Text";
+            parameter Param2 = true;
+        }
+    }
+
     !read-only %persistent object TestObjectRoot.TestChangeAttr {
         !private %read-only parameter Param1;
     }
 
     on event ".*" of ".*" call handle_event;
-    on event ".*" call handle_events filter {
-        "object" = "TestObjectRoot\.TestObjectTempl.*"
-    }
+    on event ".*" call handle_events 
+                  filter "object matches \"TestObjectRoot\.TestObjectTempl.*\"";
 }

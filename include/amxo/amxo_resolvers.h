@@ -316,15 +316,24 @@ amxc_htable_t *amxo_parser_get_resolver_data(amxo_parser_t *parser,
    added multiple times using a different name. This makes it possible
    to use the same inmplenentation for different data model methods.
 
+   Function names can be prepended with the full object path.
+
    For an example see @ref amxo_resolver_ftab
 
    @note
    Supply function pointers to the function table resolver prior to parsing
-   an odl file. By default the function table is empty.
+   an odl file. By default the function table contains some parameter validation
+   functions:
+     - check_minimum
+     - check_minimum_length
+     - check_maximum
+     - check_maximum_length
+     - check_range
+     - check_enum
    When using the same parser instance for parsing multiple odl files, there is
    no need to add the functions again, the function table is not cleared after
    parsing. The function @ref amxo_parser_clean will remove all functions from
-   the table
+   the table, including the default parameter validation functions.
 
    @param parser the odl parser instance
    @param fn_name the data model method name

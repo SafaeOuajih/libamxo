@@ -94,6 +94,13 @@ static amxd_status_t test_dummy_action(UNUSED amxd_object_t * const object,
     return amxd_status_ok;
 }
 
+static void _print_event(const char * const sig_name,
+                         UNUSED const amxc_var_t * const data,
+                         UNUSED void * const priv) {
+
+    printf("Event received %s\n", sig_name);
+}
+
 void test_invalid_object_attrs(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
@@ -526,4 +533,109 @@ void test_add_mib_with_duplicates(UNUSED void **state) {
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
+}
+
+void test_invalid_regexp_in_filter(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+
+    const char *odl =
+        "%define {\n"
+        "    object Test { string text = \"Hallo\"; }\n"
+        "}\n"
+        "%populate {\n"
+        "    on event \".*\" call print_event \n"
+        "        filter {\n"
+        "            \'object matches \"[(adsads[\"';\n"
+        "        }\n"
+        "}\n";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_invalid_key_params(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+
+    const char *odl_1 =
+        "%define {\n"
+        "    object TestRoot {\n"
+        "        object Test[] {\n"
+        "            %key string text;\n"
+        "        }\n"
+        "    }\n"
+        "}\n"
+        "%populate {\n"
+        "   object TestRoot.Test {\n"
+        "       instance add();\n"
+        "   }\n"
+        "}\n";
+
+    const char *odl_2 =
+        "%define {\n"
+        "    object TestRoot {\n"
+        "        object Test[] {\n"
+        "            %key string text;\n"
+        "        }\n"
+        "    }\n"
+        "}\n"
+        "%populate {\n"
+        "   object TestRoot.Test {\n"
+        "       instance add() {\n"
+        "           parameter text = \"KeyValue\";\n"
+        "       }\n"
+        "   }\n"
+        "}\n";
+
+    const char *odl_3 =
+        "%define {\n"
+        "    object TestRoot {\n"
+        "        object Test[] {\n"
+        "            %key string text;\n"
+        "        }\n"
+        "    }\n"
+        "}\n"
+        "%populate {\n"
+        "   object TestRoot.Test {\n"
+        "       instance add(text = \"key1\");\n"
+        "       instance add(text = \"key1\");\n"
+        "   }\n"
+        "}\n";
+
+    const char *odl_4 =
+        "%define {\n"
+        "    object TestRoot {\n"
+        "        object Test[] {\n"
+        "            %key string text = \"Hallo\";\n"
+        "        }\n"
+        "    }\n"
+        "}\n";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    printf("%s\n", odl_1);
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl_1, amxd_dm_get_root(&dm)), 0);
+    amxd_dm_clean(&dm);
+
+    printf("%s\n", odl_2);
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl_2, amxd_dm_get_root(&dm)), 0);
+    amxd_dm_clean(&dm);
+
+    printf("%s\n", odl_3);
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl_3, amxd_dm_get_root(&dm)), 0);
+    amxd_dm_clean(&dm);
+
+    printf("%s\n", odl_4);
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl_4, amxd_dm_get_root(&dm)), 0);
+    amxd_dm_clean(&dm);
+
+    amxo_parser_clean(&parser);
 }

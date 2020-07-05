@@ -233,9 +233,13 @@ int amxo_parser_new(amxo_parser_t **parser) {
     when_null((*parser), exit);
 
     retval = amxo_parser_init(*parser);
-    when_failed(retval, exit);
 
 exit:
+    if((retval != 0) && (*parser != NULL)) {
+        amxo_parser_clean(*parser);
+        free(*parser);
+        *parser = NULL;
+    }
     return retval;
 }
 
@@ -284,7 +288,7 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
     real_path = realpath(file_path, NULL);
     if(real_path != NULL) {
         dir_name = dirname(real_path);
-        chdir(dir_name);
+        when_true(chdir(dir_name) == -1, exit);
         dir_name[strlen(dir_name)] = '/';
     }
 
@@ -297,7 +301,7 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
     amxo_hooks_end(parser);
 
     if(real_path != NULL) {
-        chdir(current_wd);
+        when_true(chdir(current_wd) == -1, exit);
     }
 
 exit:

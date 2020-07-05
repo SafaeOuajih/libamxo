@@ -8,6 +8,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.1.3 - 2020-07-16(09:27:35 +0000)
+
+### Changes
+
+- Full path can be added to function name when registering functions to ftab resolver
+- Documentation update (ftab API)
+- Documentation update (odl)
+
+### New
+
+- Supports %key attributes for parameters
+
+## Release 0.1.2 - 2020-07-13(06:19:29 +0000)
+
+### Changes 
+
+- Use new string split API from lib_amxc
+- Adds alias names for parameter validation functions
+- Update README.md
+- Updates make files for SAH legacy build system
+
+### Fixes
+
+- Fixes ignoring return value of chdir
+- Key-values inconsistencies
+
+## Release 0.1.1 - 2020-07-06(09:12:12 +0000)
+
+### Fixes
+
+- Fixes tests - take new event data structure into account
+
+## Release 0.1.0 - 2020-07-05(16:59:09 +0000)
+
+### Changes
+
+- Uses logical expression (lib_amxp) for event filtering instead of regexp filtering
+- Uses std=c11 instead of std=c18
+- Update odl.md
+
 ## Release 0.0.11 - 2020-06-30(07:45:20 +0000)
 
 ### Changes

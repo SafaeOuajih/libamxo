@@ -151,19 +151,20 @@ void test_event_subscription_filter(UNUSED void **state) {
     amxd_trans_t transaction;
 
     const char *odl =
-        "%define {"
-        "    object Test { string text = \"Hallo\"; }"
-        "}"
-        "%populate {"
-        "    on event \".*\" call print_event filter {"
-        "      \"object\" = \"Test\", \"text.from\" = \"Hallo\" "
-        "    }"
-        "}";
+        "%define {\n"
+        "    object Test { string text = \"Hallo\"; }\n"
+        "}\n"
+        "%populate {\n"
+        "    on event \".*\" call print_event \n"
+        "        filter 'object == \"Test\" && parameters.text.from == \"Hallo\"';\n"
+        "}\n";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
     amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
+    printf("%s\n", odl);
+    fflush(stdout);
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
 
     event_counter = 0;

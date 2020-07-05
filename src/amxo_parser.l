@@ -106,7 +106,7 @@
     }
 %}
 
-%x MULTI_LINE_COMMENT SINGLE_LINE_COMMENT LONG_TEXT FUNC_RESOLVER
+%x MULTI_LINE_COMMENT SINGLE_LINE_COMMENT LONG_TEXT LONG_TEXT_SQ FUNC_RESOLVER
 
 NEWLINE  \r?\n
 
@@ -130,6 +130,21 @@ NEWLINE  \r?\n
 <SINGLE_LINE_COMMENT>{NEWLINE}         { BEGIN(INITIAL); }
 <SINGLE_LINE_COMMENT>"*"               { }
 <SINGLE_LINE_COMMENT>[^*\n]+           { }
+
+"'"                                   { BEGIN(LONG_TEXT_SQ); }
+<LONG_TEXT_SQ>{
+    "*"              { yymore(); }
+    {NEWLINE}        { yymore(); }
+    [^'']+           { yymore(); }
+    [\\].            { yymore(); }
+    "'"              { yylval->cptr.txt = yytext;
+                       yylval->cptr.length = yyleng - 1;
+                       BEGIN(INITIAL);
+                       return TEXT;
+                     }
+    .                { yymore(); }
+}
+
 
 "\""                                   { BEGIN(LONG_TEXT); }
 <LONG_TEXT>{
@@ -266,6 +281,9 @@ mandatory                 { yylval->integer = 1 << attr_mandatory;
                             return SET_ATTRIBUTE; 
                           }
 %strict                   { yylval->integer = 1 << attr_strict; 
+                            return SET_ATTRIBUTE; 
+                          }
+%key                      { yylval->integer = 1 << attr_key; 
                             return SET_ATTRIBUTE; 
                           }
 
