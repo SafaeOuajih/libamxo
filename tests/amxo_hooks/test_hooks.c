@@ -310,6 +310,7 @@ void test_hooks_are_called(UNUSED void **state) {
 
     amxo_parser_set_hooks(&parser, &test_hooks);
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxc_aqueue_size(&expected_order), 0);
 
     amxd_dm_clean(&dm);
@@ -317,6 +318,7 @@ void test_hooks_are_called(UNUSED void **state) {
     amxo_parser_unset_hooks(&parser, &test_hooks);
     amxc_aqueue_add(&expected_order, "start");
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxc_aqueue_size(&expected_order), 1);
 
     amxc_aqueue_clean(&expected_order, NULL);
@@ -333,6 +335,7 @@ void test_hooks_empty_hooks(UNUSED void **state) {
 
     amxo_parser_set_hooks(&parser, &test_empty_hooks);
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -353,6 +356,7 @@ void test_hooks_add_remove_hooks(UNUSED void **state) {
     assert_int_equal(amxo_parser_unset_hooks(&parser, &test_empty_hooks), 0);
 
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     assert_int_not_equal(amxo_parser_set_hooks(NULL, &test_hooks), 0);
     assert_int_not_equal(amxo_parser_set_hooks(&parser, NULL), 0);

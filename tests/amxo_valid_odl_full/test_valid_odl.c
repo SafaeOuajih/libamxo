@@ -264,6 +264,7 @@ void test_can_parse_odl_file(UNUSED void **state) {
     amxc_var_dump(&parser.config, STDOUT_FILENO);
 
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     check_options_are_available(&parser);
     check_objects_exist(&dm);
@@ -284,6 +285,7 @@ void test_can_parse_empty_file(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_equal(amxo_parser_parse_file(&parser, "empty.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -304,6 +306,7 @@ void test_can_parse_fd(UNUSED void **state) {
     amxc_var_dump(&parser.config, STDOUT_FILENO);
 
     assert_int_equal(amxo_parser_parse_fd(&parser, fd, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     close(fd);
 
     check_options_are_available(&parser);
@@ -324,7 +327,9 @@ void test_can_parse_string(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_equal(amxo_parser_parse_string(&parser, "%config {} %define{} %populate { } %config { }", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxo_parser_parse_string(&parser, " ", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -339,6 +344,7 @@ void test_duplicate_func_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

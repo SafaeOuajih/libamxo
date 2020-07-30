@@ -499,12 +499,13 @@ uint32_t amxo_parser_get_line(amxo_parser_t *parser) {
 /**
    @ingroup amxo_parser
    @brief
-   Gets a configuration option of the parser
+   Gets a configuration option
 
-   The configuration options can be used by the function resolvers or
-   by the parser itself.
+   The configuration options can be used by the function resolvers, the
+   parser or the application itslef
 
-   Configuration options change the behaviour of the parser or resolvers
+   Configuration options change the behaviour of the parser, resolvers or the
+   application itself
 
    @param parser the odl parser instance
    @param name the name of the option
@@ -519,12 +520,36 @@ amxc_var_t *amxo_parser_get_config(amxo_parser_t *parser,
 /**
    @ingroup amxo_parser
    @brief
-   Sets a configuration option of the parser
+   Gets or creates a configuration option.
+
+   The configuration options can be used by the function resolvers, the
+   parser or the application itslef
+
+   Configuration options change the behaviour of the parser, resolvers or the
+   application itself
+
+   If the configuration option does not exists, it is added and intialized to
+   a "null" variant.
+
+   @param parser the odl parser instance
+   @param name the name of the option
+
+   @return
+   Returns the config option as a variant.
+ */
+amxc_var_t *amxo_parser_claim_config(amxo_parser_t *parser,
+                                     const char *name);
+
+/**
+   @ingroup amxo_parser
+   @brief
+   Sets a configuration option
 
    The configuration options can be used by the function resolvers or
    by the parser itself.
 
-   Configuration options change the behaviour of the parser or resolvers
+   Configuration options change the behaviour of the parser, resolvers or the
+   application.
 
    If the configuration option does not exists, it is added. If it exists it's
    value is changed

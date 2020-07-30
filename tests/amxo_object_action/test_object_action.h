@@ -58,14 +58,11 @@
 **
 ****************************************************************************/
 
-#ifndef __TEST_EVENTS_H__
-#define __TEST_EVENTS_H__
+#ifndef __TEST_OBJECT_ACIOTN_H__
+#define __TEST_OBJECT_ACTION_H__
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+void test_can_add_action_on_object(void **state);
+void test_failing_object_validation_makes_parser_fail(void **state);
+void test_can_proivide_data_to_object_action(void **state);
 
-#endif // __TEST_FTAB_RESOLVER_H__
+#endif // __TEST_CONFIG_SECTION_H__

@@ -81,110 +81,115 @@
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
-#include "test_include.h"
+#include "test_object_action.h"
 
 #define UNUSED __attribute__((unused))
 
-void test_can_include_empty_file(UNUSED void **state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-    const char *odl = "include \"empty.odl\";";
+static bool called = false;
 
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
-    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
-
-    amxo_parser_clean(&parser);
-    amxd_dm_clean(&dm);
+static amxd_status_t failing_action(UNUSED amxd_object_t * const object,
+                                    UNUSED amxd_param_t * const param,
+                                    UNUSED amxd_action_t reason,
+                                    UNUSED const amxc_var_t * const args,
+                                    UNUSED amxc_var_t * const retval,
+                                    UNUSED void *priv) {
+    called = true;
+    return amxd_status_invalid_value;
 }
 
-void test_can_include_between_sections(UNUSED void **state) {
+static amxd_status_t success_action(UNUSED amxd_object_t * const object,
+                                    UNUSED amxd_param_t * const param,
+                                    UNUSED amxd_action_t reason,
+                                    UNUSED const amxc_var_t * const args,
+                                    UNUSED amxc_var_t * const retval,
+                                    UNUSED void *priv) {
+    called = true;
+    return amxd_status_ok;
+}
+
+static amxd_status_t data_action(UNUSED amxd_object_t * const object,
+                                 UNUSED amxd_param_t * const param,
+                                 UNUSED amxd_action_t reason,
+                                 UNUSED const amxc_var_t * const args,
+                                 UNUSED amxc_var_t * const retval,
+                                 void *priv) {
+    amxc_var_t *data = (amxc_var_t *) priv;
+
+    assert_int_equal(amxc_var_type_of(data), AMXC_VAR_ID_HTABLE);
+    assert_ptr_not_equal(amxc_var_get_path(data, "In", AMXC_VAR_FLAG_DEFAULT), NULL);
+    assert_ptr_not_equal(amxc_var_get_path(data, "Out", AMXC_VAR_FLAG_DEFAULT), NULL);
+    called = true;
+    return amxd_status_ok;
+}
+
+void test_can_add_action_on_object(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     const char *odl =
-        "include \"empty.odl\";" \
-        "%config { }" \
-        "include \"empty.odl\";" \
-        "%define { }" \
-        "include \"empty.odl\";" \
-        "%populate { }" \
-        "include \"empty.odl\";";
+        "%define {\n"
+        "    object MyObject {"
+        "        on action validate call myvalidator;"
+        "    }"
+        "}";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
+    amxo_resolver_ftab_add(&parser, "myvalidator", AMXO_FUNC(success_action));
+
+    called = false;
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_true(called);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
 
-void test_none_existing_include_file(UNUSED void **state) {
+void test_can_proivide_data_to_object_action(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"does_not_exists.odl\";";
+    const char *odl =
+        "%define {\n"
+        "    object MyObject {"
+        "        on action validate call myvalidator { In = 1, Out = 2 };"
+        "    }"
+        "}";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
+    amxo_resolver_ftab_add(&parser, "myvalidator", AMXO_FUNC(data_action));
 
-    amxo_parser_clean(&parser);
-    amxd_dm_clean(&dm);
-}
-
-void test_none_existing_optional_include_file(UNUSED void **state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-    const char *odl = "#include \"does_not_exists.odl\";";
-
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
+    called = false;
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_true(called);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
 
-void test_recursive_include_detection(UNUSED void **state) {
+void test_failing_object_validation_makes_parser_fail(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"test1.odl\";";
+    const char *odl =
+        "%define {\n"
+        "    object MyObject {"
+        "        on action validate call myvalidator;"
+        "    }"
+        "}";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
+    amxo_resolver_ftab_add(&parser, "myvalidator", AMXO_FUNC(failing_action));
+
+    called = false;
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_unknown_error);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
+    assert_true(called);
 
-    amxo_parser_clean(&parser);
-    amxd_dm_clean(&dm);
-}
-
-void test_include_absolute_path(UNUSED void **state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-    char *abs_path = realpath("empty.odl", NULL);
-    char odl[8192];
-
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
-    sprintf(odl, "include \"%s\";", abs_path);
-    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
-
-    sprintf(odl, "include \"/tmp/fake.odl\";");
-    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
-
-    free(abs_path);
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }

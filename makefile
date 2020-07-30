@@ -33,6 +33,7 @@ CFLAGS += -Werror -Wall -Wextra \
           -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
           -Wredundant-decls -Wnested-externs -Wmissing-include-dirs \
 		  -Wpedantic -Wmissing-declarations -Wno-attributes \
+		  -Wno-format-nonliteral \
           -fPIC --std=c11 -g3 $(addprefix -I ,$(INCDIRS)) -I $(SRCDIR) -I$(OBJDIR) 
 LDFLAGS += $(LIBDIR) -shared -fPIC -Wl,--version-script=libamxo.version -lamxc -lamxp -lamxd -ldl
 

@@ -58,14 +58,21 @@
 **
 ****************************************************************************/
 
-#ifndef __TEST_EVENTS_H__
-#define __TEST_EVENTS_H__
+#include <stdlib.h>
+#include <setjmp.h>
+#include <stdarg.h>
+#include <cmocka.h>
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+#include "test_populate_behavior.h"
 
-#endif // __TEST_FTAB_RESOLVER_H__
+int main(void) {
+    const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_none_existing_param_default_behavior),
+        cmocka_unit_test(test_none_existing_param_can_add),
+        cmocka_unit_test(test_none_existing_param_warning),
+        cmocka_unit_test(test_duplicate_instance_default_behavior),
+        cmocka_unit_test(test_duplicate_instance_can_update),
+        cmocka_unit_test(test_duplicate_instance_with_keys_can_update),
+    };
+    return cmocka_run_group_tests(tests, NULL, NULL);
+}

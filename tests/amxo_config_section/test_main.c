@@ -69,6 +69,7 @@ int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parsing_array),
         cmocka_unit_test(test_parsing_key_value_pairs),
+        cmocka_unit_test(test_global_setting_are_made_available_in_main_odl),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -62,7 +62,6 @@
 #include <sys/resource.h>
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>

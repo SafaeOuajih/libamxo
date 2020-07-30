@@ -1,0 +1,20 @@
+%populate {
+    object MyRootObject.ChildObject.TemplateObject {
+        instance add(0, Text="Key1") {
+            parameter Number = 111;
+        }
+        instance add(0, Text="Key2") {
+            parameter Number = 222;
+        }
+    }
+
+    object MyRootObject.TemplateObject {
+        instance add(0, Instance1) {
+            parameter Number = 111;
+        }
+        instance add(0, Instance2) {
+            extend using mib MyMib;
+            parameter Number = 222;
+        }
+    }
+}

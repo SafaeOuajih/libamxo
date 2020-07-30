@@ -81,36 +81,114 @@
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
-#include "test_include.h"
+#include "test_define_behavior.h"
 
 #define UNUSED __attribute__((unused))
 
-void test_can_include_empty_file(UNUSED void **state) {
+void test_duplicate_objects_default_behavior(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"empty.odl\";";
+    const char *main_odl = "%define { object MyObject; }";
+    const char *second_odl = "%define { object MyObject; }";
+    const char *odls[] = {
+        "%define { object MyObject; object MyObject; }",
+        "%define { object MyObject; } %define { object MyObject; }",
+        NULL
+    };
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    for(int i = 0; odls[i] != NULL; i++) {
+        assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
+        amxd_dm_clean(&dm);
+    }
 
-    amxo_parser_clean(&parser);
+    assert_int_equal(amxo_parser_parse_string(&parser, main_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_int_not_equal(amxo_parser_parse_string(&parser, second_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
+
     amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
 }
 
-void test_can_include_between_sections(UNUSED void **state) {
+void test_duplicate_objects_can_update(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char *main_odl = "%define { object MyObject; }";
+    const char *second_odl = "%config { define_behavior = { existing_object = \"update\" }; } %define { object MyObject; }";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, main_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_int_equal(amxo_parser_parse_string(&parser, second_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
+}
+
+void test_duplicate_objects_can_add_parameter(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxd_object_t *object = NULL;
+    amxd_param_t *param = NULL;
+    amxo_parser_t parser;
+    const char *main_odl = "%define { object MyObject { string Text; } }";
+    const char *second_odl =
+        "%config { define_behavior = { existing_object = \"update\" }; }"
+        "%define {"
+        "    object MyObject {"
+        "        string TestParam;"
+        "    }"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, main_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_int_equal(amxo_parser_parse_string(&parser, second_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    object = amxd_dm_findf(&dm, "MyObject");
+    assert_ptr_not_equal(object, NULL);
+    param = amxd_object_get_param_def(object, "TestParam");
+    assert_ptr_not_equal(param, NULL);
+    param = amxd_object_get_param_def(object, "Text");
+    assert_ptr_not_equal(param, NULL);
+
+    amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
+}
+
+void test_duplicate_parameters_default_behavior(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     const char *odl =
-        "include \"empty.odl\";" \
-        "%config { }" \
-        "include \"empty.odl\";" \
-        "%define { }" \
-        "include \"empty.odl\";" \
-        "%populate { }" \
-        "include \"empty.odl\";";
+        "%define { object MyObject { string TestParam; uint32 TestParam; } }";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
+
+    amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
+}
+
+void test_duplicate_parameters_can_update(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxd_object_t *object = NULL;
+    amxd_param_t *param = NULL;
+    const char *odl =
+        "%config { define_behavior = { existing_parameter = \"update\" }; }"
+        "%define { object MyObject { string TestParam; uint32 TestParam; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -118,73 +196,28 @@ void test_can_include_between_sections(UNUSED void **state) {
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
-    amxo_parser_clean(&parser);
+    object = amxd_dm_findf(&dm, "MyObject");
+    param = amxd_object_get_param_def(object, "TestParam");
+    assert_ptr_not_equal(param, NULL);
+    assert_int_equal(amxd_param_get_type(param), AMXC_VAR_ID_UINT32);
+
     amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
 }
 
-void test_none_existing_include_file(UNUSED void **state) {
+void test_duplicate_parameters_change_to_invalid_type_fails(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"does_not_exists.odl\";";
+    const char *odl =
+        "%config { define_behavior = { existing_parameter = \"update\" }; }"
+        "%define { object MyObject { string TestParam; htable TestParam; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_type);
 
-    amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
-}
-
-void test_none_existing_optional_include_file(UNUSED void **state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-    const char *odl = "#include \"does_not_exists.odl\";";
-
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
-    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
-
     amxo_parser_clean(&parser);
-    amxd_dm_clean(&dm);
-}
-
-void test_recursive_include_detection(UNUSED void **state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-    const char *odl = "include \"test1.odl\";";
-
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
-    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_unknown_error);
-
-    amxo_parser_clean(&parser);
-    amxd_dm_clean(&dm);
-}
-
-void test_include_absolute_path(UNUSED void **state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-    char *abs_path = realpath("empty.odl", NULL);
-    char odl[8192];
-
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
-    sprintf(odl, "include \"%s\";", abs_path);
-    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
-
-    sprintf(odl, "include \"/tmp/fake.odl\";");
-    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
-
-    free(abs_path);
-    amxo_parser_clean(&parser);
-    amxd_dm_clean(&dm);
 }

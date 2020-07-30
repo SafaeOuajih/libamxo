@@ -66,6 +66,7 @@
 #include <amxp/amxp_slot.h>
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
+#include <amxd/amxd_action.h>
 #include <amxd/amxd_transaction.h>
 #include <amxb/amxb.h>
 
@@ -217,11 +218,15 @@ int _test_failing_entry_point(AMXB_UNUSED int reason,
     return -1;
 }
 
-amxd_status_t _test_dummy_action(AMXB_UNUSED amxd_object_t * const object,
-                                 AMXB_UNUSED amxd_param_t * const param,
-                                 AMXB_UNUSED amxd_action_t reason,
-                                 AMXB_UNUSED const amxc_var_t * const args,
-                                 AMXB_UNUSED amxc_var_t * const retval,
-                                 AMXB_UNUSED void *priv) {
-    return amxd_status_ok;
+amxd_status_t _test_dummy_action(amxd_object_t * const object,
+                                 amxd_param_t * const param,
+                                 amxd_action_t reason,
+                                 const amxc_var_t * const args,
+                                 amxc_var_t * const retval,
+                                 void *priv) {
+    amxd_status_t status = amxd_status_ok;
+    if(reason == action_param_read) {
+        status = amxd_action_param_read(object, param, reason, args, retval, priv);
+    }
+    return status;
 }

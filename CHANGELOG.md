@@ -8,6 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.2.2 - 2020-07-27(11:42:22 +0000)
+
+### Fixes
+
+- Fixes string variable resolving
+- list action must not be in quotes
+- Fixes memory leak
+
+## Release 0.2.1 - 2020-07-24(12:24:01 +0000)
+
+### Changes
+
+- ODL Syntax: regular expressions must be explicitly indicated using "regexp()"
+- Import resolver also checks none-prefixed symbols 
+
+### Fixes
+
+- Only delete action data if the action is owned by the parameter or object on which it is executed.
+
+## Release 0.2.0 - 2020-07-22(18:49:14 +0000)
+
+### New
+
+- Save data model or configuration options API's
+- Configuration options can be declared global
+- Parser configuration options to change behavior of the odl parser
+- Conditional includes
+
+### Changes
+
+- Adds RAW_VERSION to makefile.inc, VERSION must be X.Y.Z or X.Y.Z-HASH
+- Updates tests, renamed macro YY_ASSERT macro
+- Completes odl parsing tests
+
+### Fixes
+
+- Compilation issue with fortified  musl
+- Too long functions
+- Scanbuild warnings
+- Memory leak (detected with unittests)
+- Object type detection
+
 ## Release 0.1.3 - 2020-07-16(09:27:35 +0000)
 
 ### Changes

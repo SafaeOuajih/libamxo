@@ -63,5 +63,6 @@
 
 void test_parsing_array(void **state);
 void test_parsing_key_value_pairs(void **state);
+void test_global_setting_are_made_available_in_main_odl(void **state);
 
 #endif // __TEST_CONFIG_SECTION_H__

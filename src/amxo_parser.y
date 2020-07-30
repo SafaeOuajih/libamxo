@@ -93,6 +93,7 @@
 	amxo_txt_t cptr;
   bool boolean;
   amxc_var_t value;
+  amxo_txt_regexp_t cregexp;
 }
 
 %token <integer> INCLUDE
@@ -117,6 +118,7 @@
 %token <integer> EVENT
 %token <integer> FILTER
 %token <integer> OF
+%token <integer> GLOBAL
 %token <integer> CALL
 %token <integer> ACTION
 %token <integer> ACTION_KW
@@ -128,6 +130,7 @@
 %token <boolean> BOOL
 %token <bitmap>  SET_ATTRIBUTE
 %token <bitmap>  UNSET_ATTRIBUTE
+%token <integer> REGEXP
 
 %token <integer> CONSTRAINT
 %token <integer> MIN
@@ -146,7 +149,8 @@
 %type <integer> action_header action deprecated_action dep_action
 %type <bitmap>  attributes unset_attributes
 %type <value>   value
-%type <cptr>    name path filter
+%type <cptr>    name path filter instance_id
+%type <cregexp> text_or_regexp
 
 %{
     int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void * yyscanner);
@@ -206,8 +210,8 @@
 
     #define scanner x->scanner
     #define parser_ctx ((amxo_parser_t *)yyget_extra(ctx))
-    #define YY_ASSERT_ACTION(c,m,a) if(c) { yyerror(&yylloc, ctx, m); a; YYERROR; }
-    #define YY_ASSERT(c,m) if(c) { yyerror(&yylloc, ctx, m); YYERROR; }
+    #define YY_CHECK_ACTION(c,m,a) if(c) { yyerror(&yylloc, ctx, m); a; YYERROR; }
+    #define YY_CHECK(c,m) if(c) { yyerror(&yylloc, ctx, m); YYERROR; }
     #define YY_WARNING(c,m) if(c) { yywarning(&yylloc, ctx, m); }
     #define NOOP
 
@@ -280,12 +284,26 @@ config_options
 config_option
   : STRING '=' data ';' {
       $1.txt[$1.length] = 0;
-      amxo_hooks_set_config(parser_ctx, $1.txt, parser_ctx->data);
-      YY_ASSERT_ACTION(amxo_parser_set_config(parser_ctx, $1.txt, parser_ctx->data) != 0,
+      YY_CHECK_ACTION(amxo_parser_set_config_internal(parser_ctx, $1.txt, parser_ctx->data) != 0,
                        $1.txt,
                        amxc_var_delete(&parser_ctx->data);
                       );
-      amxc_var_delete(&parser_ctx->data);
+      amxo_hooks_set_config(parser_ctx, $1.txt, parser_ctx->data);
+      parser_ctx->data = NULL;
+      $$ = 0;
+    }
+  | GLOBAL STRING '=' data ';' {
+      $2.txt[$2.length] = 0;
+      YY_CHECK_ACTION(amxo_parser_set_config_internal(parser_ctx, $2.txt, parser_ctx->data) != 0,
+                       $2.txt,
+                       amxc_var_delete(&parser_ctx->data);
+                      );
+      amxc_string_t *name;
+      amxc_string_new(&name, 0);
+      amxc_string_append(name, $2.txt, $2.length);
+      amxc_llist_append(&parser_ctx->global_config, &name->it);
+      amxo_hooks_set_config(parser_ctx, $2.txt, parser_ctx->data);
+      parser_ctx->data = NULL;
       $$ = 0;
     }
   ;
@@ -294,32 +312,43 @@ include
   : INCLUDE TEXT ';' {
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_include(parser_ctx, $2.txt);
-      YY_ASSERT(retval != 0 && !(retval == 2 && $1 == token_optional_include),
-                $2.txt); 
+      YY_CHECK(retval != 0 && !(retval == 2 && $1 == token_optional_include),
+                $2.txt);
+      parser_ctx->status = amxd_status_ok;
     }
+  | INCLUDE TEXT ':' TEXT ';' {
+      $2.txt[$2.length] = 0;
+      $4.txt[$4.length] = 0;
+      int retval = amxo_parser_include(parser_ctx, $2.txt);
+      if (retval == 2) {
+          parser_ctx->status = amxd_status_ok;
+          retval = amxo_parser_include(parser_ctx, $4.txt);
+      }
+      YY_CHECK(retval != 0, $2.txt); 
+  }
   ;
 
 import
   : IMPORT TEXT ';' {
       $2.txt[$2.length] = 0;
-      YY_ASSERT(amxo_resolver_import_open(parser_ctx, $2.txt, $2.txt, RTLD_LAZY) != 0,
+      YY_CHECK(amxo_resolver_import_open(parser_ctx, $2.txt, $2.txt, RTLD_LAZY) != 0,
                 $2.txt);
     }
-  | IMPORT TEXT AS STRING ';' {
+  | IMPORT TEXT AS name ';' {
       $2.txt[$2.length] = 0;
       $4.txt[$4.length] = 0;
-      YY_ASSERT(amxo_resolver_import_open(parser_ctx, $2.txt, $4.txt, RTLD_LAZY) != 0,
+      YY_CHECK(amxo_resolver_import_open(parser_ctx, $2.txt, $4.txt, RTLD_LAZY) != 0,
                 $2.txt);
     }
   | IMPORT TEXT ldflags ';' {
       $2.txt[$2.length] = 0;
-      YY_ASSERT(amxo_resolver_import_open(parser_ctx, $2.txt, $2.txt, $3) != 0,
+      YY_CHECK(amxo_resolver_import_open(parser_ctx, $2.txt, $2.txt, $3) != 0,
                 $2.txt);
     }
-  | IMPORT TEXT ldflags AS STRING ';' {
+  | IMPORT TEXT ldflags AS name ';' {
       $2.txt[$2.length] = 0;
       $5.txt[$5.length] = 0;
-      YY_ASSERT(amxo_resolver_import_open(parser_ctx, $2.txt, $5.txt, $3) != 0,
+      YY_CHECK(amxo_resolver_import_open(parser_ctx, $2.txt, $5.txt, $3) != 0,
                 $2.txt);
     }
   ;
@@ -349,15 +378,15 @@ object_def
   : object_def_header ';' {
       int type = amxd_object_get_type(parser_ctx->object);
       YY_WARNING(type == amxd_object_mib, "Empty MIB object defined");
-      amxo_parser_pop_object(parser_ctx);
+      YY_CHECK(!amxo_parser_pop_object(parser_ctx), "Validation failed");
     }
   | object_def_header '{' '}' {
       int type = amxd_object_get_type(parser_ctx->object);
       YY_WARNING(type == amxd_object_mib, "Empty MIB object defined");
-      amxo_parser_pop_object(parser_ctx);
+      YY_CHECK(!amxo_parser_pop_object(parser_ctx), "Validation failed");
     }
   | object_def_header '{' object_body '}' {
-      amxo_parser_pop_object(parser_ctx);
+      YY_CHECK(!amxo_parser_pop_object(parser_ctx), "Validation failed");
     }
   ;
 
@@ -365,7 +394,7 @@ entry_point
   : ENTRY name '.' name ';' {
       $2.txt[$2.length] = 0;
       $4.txt[$4.length] = 0;
-      YY_ASSERT(amxo_parser_call_entry_point(parser_ctx, $2.txt, $4.txt) != 0,
+      YY_CHECK(amxo_parser_call_entry_point(parser_ctx, $2.txt, $4.txt) != 0,
                 $2.txt);
 
     }
@@ -375,27 +404,27 @@ object_def_header
   : OBJECT name {
       amxd_object_type_t type = ($1 == token_mib)?amxd_object_mib:amxd_object_singleton;
       $2.txt[$2.length] = 0;
-      YY_ASSERT(!amxo_parser_create_object(parser_ctx, $2.txt, 0, type), $2.txt);
+      YY_CHECK(amxo_parser_create_object(parser_ctx, $2.txt, 0, type) < 0, $2.txt);
     }
   | attributes OBJECT name {
-      amxd_object_type_t type = ($1 == token_mib)?amxd_object_mib:amxd_object_singleton;
+      amxd_object_type_t type = ($2 == token_mib)?amxd_object_mib:amxd_object_singleton;
       $3.txt[$3.length] = 0;
       YY_WARNING(type == amxd_object_mib, "Attributes declared on mib object are ignored");
       if (type != amxd_object_mib) {
-        YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
+        YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
       }
-      YY_ASSERT(!amxo_parser_create_object(parser_ctx, $3.txt, $1, amxd_object_singleton), $3.txt);
+      YY_CHECK(amxo_parser_create_object(parser_ctx, $3.txt, $1, amxd_object_singleton) < 0, $3.txt);
     }
   | OBJECT name multi {
       $2.txt[$2.length] = 0;
-      YY_ASSERT($1 == token_mib, "Mib objects can not be multi-instance");
-      YY_ASSERT(!amxo_parser_create_object(parser_ctx, $2.txt, 0, amxd_object_template), $2.txt);
+      YY_CHECK($1 == token_mib, "Mib objects can not be multi-instance");
+      YY_CHECK(amxo_parser_create_object(parser_ctx, $2.txt, 0, amxd_object_template) < 0, $2.txt);
     }
   | attributes OBJECT name multi {
       $3.txt[$3.length] = 0;
-      YY_ASSERT($2 == token_mib, "Mib objects can not be multi-instance");
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
-      YY_ASSERT(!amxo_parser_create_object(parser_ctx, $3.txt, $1, amxd_object_template), $3.txt);
+      YY_CHECK($2 == token_mib, "Mib objects can not be multi-instance");
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
+      YY_CHECK(amxo_parser_create_object(parser_ctx, $3.txt, $1, amxd_object_template) < 0, $3.txt);
     }
   ;
 
@@ -425,51 +454,52 @@ object_content
 
 parameter_def
   : param_header ';' { 
-      YY_ASSERT(!amxo_parser_pop_param(parser_ctx), "Validate"); 
+      YY_CHECK(!amxo_parser_pop_param(parser_ctx), "Validate"); 
     }
   | param_header '{' '}' {
-      YY_ASSERT(!amxo_parser_pop_param(parser_ctx), "Validate"); 
+      YY_CHECK(!amxo_parser_pop_param(parser_ctx), "Validate"); 
     }
   | param_header '{' param_body '}' {
-      YY_ASSERT(!amxo_parser_pop_param(parser_ctx), "Validate"); 
+      YY_CHECK(!amxo_parser_pop_param(parser_ctx), "Validate"); 
     }
   ; 
 
 param_header
   : TYPE name {
       $2.txt[$2.length] = 0;
-      YY_ASSERT(!amxo_parser_push_param(parser_ctx, $2.txt, 0, $1), $2.txt);
+      YY_CHECK(!amxo_parser_push_param(parser_ctx, $2.txt, 0, $1), $2.txt);
     }
   | attributes TYPE name {
       $3.txt[$3.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs), $3.txt);
-      YY_ASSERT(!amxo_parser_push_param(parser_ctx, $3.txt, $1, $2), $3.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs), $3.txt);
+      YY_CHECK(!amxo_parser_push_param(parser_ctx, $3.txt, $1, $2), $3.txt);
     }
   | TYPE name '=' value {
+      int retval = 0;
       $2.txt[$2.length] = 0;
-      YY_ASSERT_ACTION(!amxo_parser_push_param(parser_ctx, $2.txt, 0, $1),
+      YY_CHECK_ACTION(!amxo_parser_push_param(parser_ctx, $2.txt, 0, $1),
                        $2.txt,
                        amxc_var_clean(&$4));
-      YY_ASSERT_ACTION(!amxo_parser_set_param(parser_ctx, $2.txt, &$4),
-                       $2.txt,
-                       amxc_var_clean(&$4));
+      retval = amxo_parser_set_param(parser_ctx, $2.txt, &$4);
+      YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_clean(&$4));
       amxc_var_clean(&$4);
     }
   | attributes TYPE name '=' value {
       bool key_attr_is_set = ($1 & (1 << attr_key));
+      int retval = 0;
       $3.txt[$3.length] = 0;
-      YY_ASSERT_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
+      YY_CHECK_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
                        $3.txt,
                        amxc_var_clean(&$5));
-      YY_ASSERT_ACTION(key_attr_is_set,
+      YY_CHECK_ACTION(key_attr_is_set,
                        "Key parameters can not have a default value",
+                       parser_ctx->status = amxd_status_invalid_value;
                        amxc_var_clean(&$5));
-      YY_ASSERT_ACTION(!amxo_parser_push_param(parser_ctx, $3.txt, $1, $2),
+      YY_CHECK_ACTION(!amxo_parser_push_param(parser_ctx, $3.txt, $1, $2),
                        $3.txt,
                        amxc_var_clean(&$5));
-      YY_ASSERT_ACTION(!amxo_parser_set_param(parser_ctx, $3.txt, &$5),
-                       $3.txt,
-                       amxc_var_clean(&$5));
+      retval = amxo_parser_set_param(parser_ctx, $3.txt, &$5);
+      YY_CHECK_ACTION(retval < 0, $3.txt, amxc_var_clean(&$5));
       amxc_var_clean(&$5);
     }
   ;
@@ -484,7 +514,8 @@ param_content
   | dep_action
   | CONSTRAINT param_constraint ';'
   | DEFAULT value ';' {
-      YY_ASSERT_ACTION(!amxo_parser_set_param(parser_ctx, NULL, &$2),
+      int retval = amxo_parser_set_param(parser_ctx, NULL, &$2);
+      YY_CHECK_ACTION(retval < 0,
                        amxd_param_get_name(parser_ctx->param),
                        amxc_var_clean(&$2));
       amxc_var_clean(&$2);
@@ -494,12 +525,12 @@ param_content
 action
   : action_header action_function ';' {
       int retval = amxo_parser_set_action(parser_ctx, $1);
-      YY_ASSERT(retval < 0, "Action");
+      YY_CHECK(retval < 0, "Action");
       YY_WARNING(retval > 0, "Action");
     }
   | action_header action_function data ';' {
       int retval = amxo_parser_set_action(parser_ctx, $1);
-      YY_ASSERT(retval < 0, "Action");
+      YY_CHECK(retval < 0, "Action");
       YY_WARNING(retval > 0, "Action");
     }
   ;
@@ -510,10 +541,14 @@ action_header
         $3.txt[$3.length] = 0;
       }
       $$ = amxo_parser_get_action_id(parser_ctx, $3.txt);
-      YY_ASSERT($$ < 0 , $3.txt);
+      YY_CHECK($$ < 0 , $3.txt);
     }
   | ON ACTION_KW ACTION {
       $$ = $3;
+    }
+  | ON ACTION_KW TYPE {
+      YY_CHECK($3 != AMXC_VAR_ID_LIST , "Invalid action");
+      $$ = 3;
     }
   ;
 
@@ -521,65 +556,65 @@ action_function
   : CALL name {
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, "auto");
-      YY_ASSERT(retval < 0, $2.txt);
+      YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
   | CALL name RESOLVER {
       $2.txt[$2.length] = 0;
       $3.txt[$3.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, $3.txt);
-      YY_ASSERT(retval < 0, $2.txt);
+      YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
 
 param_constraint
     : MIN DIGIT { // deprecated - must be removed at 01/01/2022
       int retval = amxo_parser_resolve_internal(parser_ctx, "check_minimum", "auto");
-      YY_ASSERT(retval < 0, "check_minimum");
+      YY_CHECK(retval < 0, "check_minimum");
       YY_WARNING(retval > 0, "check_minimum");
       amxc_var_new(&parser_ctx->data);
       amxc_var_set(int64_t, parser_ctx->data, $2);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_ASSERT(retval < 0, "check_minimum");
+      YY_CHECK(retval < 0, "check_minimum");
       YY_WARNING(retval > 0, "check_minimum");
     }
   | MAX DIGIT { // deprecated - must be removed at 01/01/2022
       int retval = amxo_parser_resolve_internal(parser_ctx, "check_maximum", "auto");
-      YY_ASSERT(retval < 0, "check_maximum");
+      YY_CHECK(retval < 0, "check_maximum");
       YY_WARNING(retval > 0, "check_maximum");
       amxc_var_new(&parser_ctx->data);
       amxc_var_set(int64_t, parser_ctx->data, $2);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_ASSERT(retval < 0, "check_maximum");
+      YY_CHECK(retval < 0, "check_maximum");
       YY_WARNING(retval > 0, "check_maximum");
     }
   | RANGE '[' DIGIT ',' DIGIT ']' { // deprecated - must be removed at 01/01/2022
       int retval = amxo_parser_resolve_internal(parser_ctx, "check_range", "auto");
-      YY_ASSERT(retval < 0, "check_range");
+      YY_CHECK(retval < 0, "check_range");
       YY_WARNING(retval > 0, "check_range");
       amxc_var_new(&parser_ctx->data);
       amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_HTABLE);
       amxc_var_add_key(int64_t, parser_ctx->data, "min", $3);
       amxc_var_add_key(int64_t, parser_ctx->data, "max", $5);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_ASSERT(retval < 0, "check_range");
+      YY_CHECK(retval < 0, "check_range");
       YY_WARNING(retval > 0, "check_range");
     }
   | ENUM '[' values ']' { // deprecated - must be removed at 01/01/2022
       int retval = amxo_parser_resolve_internal(parser_ctx, "check_enum", "auto");
-      YY_ASSERT(retval < 0, "check_enum");
+      YY_CHECK(retval < 0, "check_enum");
       YY_WARNING(retval > 0, "check_enum");
       retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_ASSERT(retval < 0, "check_enum");
+      YY_CHECK(retval < 0, "check_enum");
       YY_WARNING(retval > 0, "check_enum");
     }
   | CUSTOM name { // deprecated - must be removed at 01/01/2022
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, "auto");
-      YY_ASSERT(retval < 0, $2.txt);
+      YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_ASSERT(retval < 0, $2.txt);
+      YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
   | CUSTOM name IMPORT name { // deprecated - must be removed at 01/01/2022
@@ -587,10 +622,10 @@ param_constraint
       $4.txt[$4.length] = 0;
       char *resolver = amxo_parser_build_import_resolver_data($2.txt, $4.txt);
       int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, resolver);
-      YY_ASSERT_ACTION(retval < 0, $2.txt, free(resolver));
+      YY_CHECK_ACTION(retval < 0, $2.txt, free(resolver));
       YY_WARNING(retval > 0, $2.txt);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_ASSERT_ACTION(retval < 0, $2.txt, free(resolver));
+      YY_CHECK_ACTION(retval < 0, $2.txt, free(resolver));
       YY_WARNING(retval > 0, $2.txt);
       free(resolver);
     }
@@ -600,13 +635,13 @@ dep_action
   : deprecated_action WITH name ';' { // deprecated - must be removed at 01/01/2022
       $3.txt[$3.length] = 0; 
       int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, "auto");
-      YY_ASSERT(retval < 0, $3.txt);
+      YY_CHECK(retval < 0, $3.txt);
       YY_WARNING(retval > 0, $3.txt);
       if ($1 == action_write) {
         YY_WARNING(!amxo_parser_subscribe_item(parser_ctx), $3.txt);
       } else {
         retval = amxo_parser_set_action(parser_ctx, $1);
-        YY_ASSERT(retval < 0, $3.txt);
+        YY_CHECK(retval < 0, $3.txt);
         YY_WARNING(retval > 0, $3.txt);
       }
     }
@@ -615,13 +650,13 @@ dep_action
       $5.txt[$5.length] = 0;
       char *resolver = amxo_parser_build_import_resolver_data($3.txt, $5.txt);
       int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, resolver);
-      YY_ASSERT_ACTION(retval < 0, $3.txt, free(resolver));
+      YY_CHECK_ACTION(retval < 0, $3.txt, free(resolver));
       YY_WARNING(retval > 0, $3.txt);
       if ($1 == action_write) {
         YY_WARNING(!amxo_parser_subscribe_item(parser_ctx), $3.txt);
       } else {
         retval = amxo_parser_set_action(parser_ctx, $1);
-        YY_ASSERT_ACTION(retval < 0, $3.txt, free(resolver));
+        YY_CHECK_ACTION(retval < 0, $3.txt, free(resolver));
         YY_WARNING(retval > 0, $3.txt);
       }
       free(resolver);
@@ -644,14 +679,14 @@ function_def
   : function_header '(' ')' ';' {
       const char *func_name = amxd_function_get_name(parser_ctx->func);
       int retval = amxo_parser_resolve_internal(parser_ctx, func_name, "auto");
-      YY_ASSERT(retval < 0, func_name);
+      YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
     }
   | function_header '(' arguments ')' ';' { 
       const char *func_name = amxd_function_get_name(parser_ctx->func);
       int retval = amxo_parser_resolve_internal(parser_ctx, func_name, "auto");
-      YY_ASSERT(retval < 0, func_name);
+      YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
     } 
@@ -661,7 +696,7 @@ function_def
       }
       const char *func_name = amxd_function_get_name(parser_ctx->func);
       int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $4.txt);
-      YY_ASSERT(retval < 0, func_name);
+      YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
     }
@@ -671,7 +706,7 @@ function_def
       }
       const char *func_name = amxd_function_get_name(parser_ctx->func);
       int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $5.txt);
-      YY_ASSERT(retval < 0, func_name);
+      YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
     }
@@ -681,14 +716,14 @@ function_header
   : TYPE name {
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_push_func(parser_ctx, $2.txt, 0, $1);
-      YY_ASSERT(retval < 0, $2.txt);
+      YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
   | attributes TYPE name {
       $3.txt[$3.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_func_attrs), $3.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_func_attrs), $3.txt);
       int retval = amxo_parser_push_func(parser_ctx, $3.txt, $1, $2);
-      YY_ASSERT(retval < 0, $3.txt);
+      YY_CHECK(retval < 0, $3.txt);
       YY_WARNING(retval > 0, $3.txt);
     }
   ;
@@ -701,26 +736,26 @@ arguments
 argument_def
   : TYPE name { 
       $2.txt[$2.length] = 0;
-      YY_ASSERT(!amxo_parser_add_arg(parser_ctx, $2.txt, 0, $1, NULL), $2.txt);
+      YY_CHECK(!amxo_parser_add_arg(parser_ctx, $2.txt, 0, $1, NULL), $2.txt);
     }
   | attributes TYPE name { 
       $3.txt[$3.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_arg_attrs), $3.txt);
-      YY_ASSERT(!amxo_parser_add_arg(parser_ctx, $3.txt, $1, $2, NULL), $3.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_arg_attrs), $3.txt);
+      YY_CHECK(!amxo_parser_add_arg(parser_ctx, $3.txt, $1, $2, NULL), $3.txt);
     }
   | TYPE name '=' value {
       $2.txt[$2.length] = 0;
-      YY_ASSERT_ACTION(!amxo_parser_add_arg(parser_ctx, $2.txt, 0, $1, &$4),
+      YY_CHECK_ACTION(!amxo_parser_add_arg(parser_ctx, $2.txt, 0, $1, &$4),
                        $2.txt,
                        amxc_var_clean(&$4));
       amxc_var_clean(&$4);
     }
   | attributes TYPE name '=' value {
       $3.txt[$3.length] = 0;
-      YY_ASSERT_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_arg_attrs),
+      YY_CHECK_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_arg_attrs),
                        $3.txt,
                        amxc_var_clean(&$5));
-      YY_ASSERT_ACTION(!amxo_parser_add_arg(parser_ctx, $3.txt, $1, $2, &$5),
+      YY_CHECK_ACTION(!amxo_parser_add_arg(parser_ctx, $3.txt, $1, $2, &$5),
                        $3.txt,
                        amxc_var_clean(&$5));
       amxc_var_clean(&$5);
@@ -730,20 +765,20 @@ argument_def
 counted
   : COUNTER WITH name ';' {
       $3.txt[$3.length] = 0;
-      YY_ASSERT(!amxo_parser_set_counter(parser_ctx, $3.txt), $3.txt);
+      YY_CHECK(!amxo_parser_set_counter(parser_ctx, $3.txt), $3.txt);
     }
   ;
 
 add_mib
   : EXTEND IMPORT OBJECT name ';' {
       $4.txt[$4.length] = 0;
-      YY_ASSERT($3 != token_mib, $4.txt);
-      YY_ASSERT(!amxo_parser_add_mib(parser_ctx, $4.txt), $4.txt);
+      YY_CHECK($3 != token_mib, $4.txt);
+      YY_CHECK(!amxo_parser_add_mib(parser_ctx, $4.txt), $4.txt);
     } 
   | EXTEND WITH OBJECT name ';' {
       $4.txt[$4.length] = 0;
-      YY_ASSERT($3 != token_mib, $4.txt);
-      YY_ASSERT(!amxo_parser_add_mib(parser_ctx, $4.txt), $4.txt);
+      YY_CHECK($3 != token_mib, $4.txt);
+      YY_CHECK(!amxo_parser_add_mib(parser_ctx, $4.txt), $4.txt);
     } 
   ;
 
@@ -753,140 +788,144 @@ populate
   ; 
 
 event_populate
-  : ON EVENT TEXT CALL name ';' {
-      $3.txt[$3.length] = 0;
-      $5.txt[$5.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, "auto");
-      YY_ASSERT(retval < 0, $5.txt);
-      YY_WARNING(retval > 0, $5.txt);
-      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, NULL);
-      YY_ASSERT(retval < 0, $5.txt);
-      YY_WARNING(retval > 0, $5.txt);
+  : ON EVENT text_or_regexp event_func ';' {
+      int retval = amxo_parser_subscribe(parser_ctx, 
+                                         $3.txt, $3.is_regexp, 
+                                         NULL, false,
+                                         NULL);
+      YY_CHECK(retval < 0, $3.txt);
+      YY_WARNING(retval > 0, $3.txt);
     }
-  | ON EVENT TEXT CALL name RESOLVER ';' {
-      $3.txt[$3.length] = 0;
-      $5.txt[$5.length] = 0;
-      $6.txt[$6.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, $6.txt);
-      YY_ASSERT(retval < 0, $5.txt);
-      YY_WARNING(retval > 0, $5.txt);
-      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, NULL);
-      YY_ASSERT(retval < 0, $5.txt);
-      YY_WARNING(retval > 0, $5.txt);
+  | ON EVENT text_or_regexp OF text_or_regexp event_func';' {
+      int retval = amxo_parser_subscribe(parser_ctx,
+                                         $3.txt, $3.is_regexp,
+                                         $5.txt, $5.is_regexp,
+                                         NULL);
+      YY_CHECK(retval < 0, $3.txt);
+      YY_WARNING(retval > 0, $3.txt);
     }
-  | ON EVENT TEXT OF TEXT CALL name';' {
-      $3.txt[$3.length] = 0;
+  | ON EVENT text_or_regexp event_func filter';' {
       $5.txt[$5.length] = 0;
-      $7.txt[$7.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $7.txt, "auto");
-      YY_ASSERT(retval < 0, $7.txt);
-      YY_WARNING(retval > 0, $7.txt);
-      retval = amxo_parser_subscribe(parser_ctx, $3.txt, $5.txt, NULL);
-      YY_ASSERT(retval < 0, $7.txt);
-      YY_WARNING(retval > 0, $7.txt);
+      int retval = amxo_parser_subscribe(parser_ctx, 
+                                         $3.txt, $3.is_regexp,
+                                         NULL, false,
+                                         $5.txt);
+      YY_CHECK(retval < 0, $3.txt);
+      YY_WARNING(retval > 0, $3.txt);
     }
-  | ON EVENT TEXT OF TEXT CALL name RESOLVER';' {
-      $3.txt[$3.length] = 0;
-      $5.txt[$5.length] = 0;
-      $7.txt[$7.length] = 0;
-      $8.txt[$8.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $7.txt, $8.txt);
-      YY_ASSERT(retval < 0, $7.txt);
-      YY_WARNING(retval > 0, $7.txt);
-      retval = amxo_parser_subscribe(parser_ctx, $3.txt, $5.txt, NULL);
-      YY_ASSERT(retval < 0, $7.txt);
-      YY_WARNING(retval > 0, $7.txt);
+  ;
+
+text_or_regexp
+  : TEXT {
+      $1.txt[$1.length] = 0;
+      $$.txt = $1.txt;
+      $$.is_regexp = false;  
     }
-  | ON EVENT TEXT CALL name FILTER filter {
+  | REGEXP '(' TEXT ')' {
       $3.txt[$3.length] = 0;
-      $5.txt[$5.length] = 0;
-      $7.txt[$7.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, "auto");
-      YY_ASSERT(retval < 0, $5.txt);
-      YY_WARNING(retval > 0, $5.txt);
-      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, $7.txt);
-      YY_ASSERT(retval < 0, $7.txt);
-      YY_WARNING(retval > 0, $7.txt);
+      $$.txt = $3.txt;
+      $$.is_regexp = true;  
     }
-  | ON EVENT TEXT CALL name RESOLVER FILTER filter  {
+  ;
+
+event_func
+  : CALL name {
+      $2.txt[$2.length] = 0;
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, "auto");
+      YY_CHECK(retval < 0, $2.txt);
+      YY_WARNING(retval > 0, $2.txt);
+    }
+  | CALL name RESOLVER {
+      $2.txt[$2.length] = 0;
       $3.txt[$3.length] = 0;
-      $5.txt[$5.length] = 0;
-      $6.txt[$6.length] = 0;
-      $8.txt[$8.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $5.txt, $6.txt);
-      YY_ASSERT(retval < 0, $5.txt);
-      YY_WARNING(retval > 0, $5.txt);
-      retval = amxo_parser_subscribe(parser_ctx, $3.txt, NULL, $8.txt);
-      YY_ASSERT(retval < 0, $8.txt);
-      YY_WARNING(retval > 0, $8.txt);
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, $3.txt);
+      YY_CHECK(retval < 0, $2.txt);
+      YY_WARNING(retval > 0, $2.txt);
     }
   ;
 
 filter
-  : TEXT ';' {
-      $$ = $1;
+  : FILTER TEXT {
+      $$ = $2;
     }
   ;
 
 object_populate
   : object_pop_header ';' { 
-      YY_ASSERT(!amxo_parser_pop_object(parser_ctx), "Validation");
+      YY_CHECK(!amxo_parser_pop_object(parser_ctx), "Validation failed");
     }
   | object_pop_header '{' '}' { 
-      YY_ASSERT(!amxo_parser_pop_object(parser_ctx), "Validation"); 
+      YY_CHECK(!amxo_parser_pop_object(parser_ctx), "Validation failed"); 
     }
   | object_pop_header '{' object_pop_body '}' {
-      YY_ASSERT(!amxo_parser_pop_object(parser_ctx), "Validation");
+      YY_CHECK(!amxo_parser_pop_object(parser_ctx), "Validation failed");
     }
   ;
 
 object_pop_header
   : OBJECT path { 
       $2.txt[$2.length] = 0;
-      YY_ASSERT(!amxo_parser_push_object(parser_ctx, $2.txt), $2.txt);
+      YY_CHECK(!amxo_parser_push_object(parser_ctx, $2.txt), $2.txt);
     }
   | unset_attributes attributes OBJECT path { 
       $4.txt[$4.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $4.txt);
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $2, amxo_object_attrs), $4.txt);
-      YY_ASSERT(!amxo_parser_push_object(parser_ctx, $4.txt), $4.txt);
-      YY_ASSERT(!amxo_parser_set_object_attrs(parser_ctx, $1, false), $4.txt);
-      YY_ASSERT(!amxo_parser_set_object_attrs(parser_ctx, $2, true), $4.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $4.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $2, amxo_object_attrs), $4.txt);
+      YY_CHECK(!amxo_parser_push_object(parser_ctx, $4.txt), $4.txt);
+      YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $1, false), $4.txt);
+      YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $2, true), $4.txt);
     }
   | attributes unset_attributes OBJECT path { 
       $4.txt[$4.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $4.txt);
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $2, amxo_object_attrs), $4.txt);
-      YY_ASSERT(!amxo_parser_push_object(parser_ctx, $4.txt), $4.txt);
-      YY_ASSERT(!amxo_parser_set_object_attrs(parser_ctx, $1, true), $4.txt);
-      YY_ASSERT(!amxo_parser_set_object_attrs(parser_ctx, $2, false), $4.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $4.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $2, amxo_object_attrs), $4.txt);
+      YY_CHECK(!amxo_parser_push_object(parser_ctx, $4.txt), $4.txt);
+      YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $1, true), $4.txt);
+      YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $2, false), $4.txt);
     }
   | unset_attributes OBJECT path { 
       $3.txt[$3.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
-      YY_ASSERT(!amxo_parser_push_object(parser_ctx, $3.txt), $3.txt);
-      YY_ASSERT(!amxo_parser_set_object_attrs(parser_ctx, $1, false),  $3.txt);
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
+      YY_CHECK(!amxo_parser_push_object(parser_ctx, $3.txt), $3.txt);
+      YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $1, false),  $3.txt);
     }
   | attributes OBJECT path { 
       $3.txt[$3.length] = 0;
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
-      YY_ASSERT(!amxo_parser_push_object(parser_ctx, $3.txt), $3.txt);
-      YY_ASSERT(!amxo_parser_set_object_attrs(parser_ctx, $1, true), $3.txt);
-    }
-  | INSTANCE OF '(' DIGIT ',' name ')' {
-      $6.txt[$6.length] = 0;
-      YY_ASSERT(!amxo_parser_add_instance(parser_ctx, $4, $6.txt), $6.txt);
-    }
-  | INSTANCE OF '(' DIGIT ',' name ',' data_options ')' {
-      $6.txt[$6.length] = 0;
-      YY_ASSERT(!amxo_parser_add_instance(parser_ctx, $4, $6.txt), $6.txt);
-    }
-  | INSTANCE OF '(' data_options ')' {
-      YY_ASSERT(!amxo_parser_add_instance(parser_ctx, 0, NULL), "");
+      YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
+      YY_CHECK(!amxo_parser_push_object(parser_ctx, $3.txt), $3.txt);
+      YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $1, true), $3.txt);
     }
   | INSTANCE OF '(' ')' {
-      YY_ASSERT(!amxo_parser_add_instance(parser_ctx, 0, NULL), "");
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, NULL), "");
     }
+  | INSTANCE OF '(' DIGIT ')' {
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $4, NULL), "");
+    }
+  | INSTANCE OF '(' instance_id ')' {
+      if ($4.txt != NULL) {
+          $4.txt[$4.length] = 0;
+      }
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, $4.txt), "");
+    }
+  | INSTANCE OF '(' DIGIT ',' instance_id ')' {
+      if ($6.txt != NULL) {
+          $6.txt[$6.length] = 0;
+      }
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $4, $6.txt), "");
+    }
+  ;
+
+instance_id
+  : name {
+      $$ = $1;
+    }
+  | name ',' data_options {
+      $$ = $1;
+    }
+  | data_options {
+      $$.txt = NULL;
+      $$.length = 0;
+  }
   ;
 
 object_pop_body
@@ -899,39 +938,47 @@ object_pop_content
       amxo_parser_pop_param(parser_ctx); 
     }
   | unset_attributes attributes parameter {
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $2, amxo_param_attrs),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_set_param_attrs(parser_ctx, $1, false),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_set_param_attrs(parser_ctx, $2, true),
-                amxd_param_get_name(parser_ctx->param));
+        if (parser_ctx->param != NULL) {
+            YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
+                      amxd_param_get_name(parser_ctx->param));
+            YY_CHECK(!amxo_parser_check_attr(parser_ctx, $2, amxo_param_attrs),
+                      amxd_param_get_name(parser_ctx->param));
+            YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $1, false),
+                      amxd_param_get_name(parser_ctx->param));
+            YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $2, true),
+                      amxd_param_get_name(parser_ctx->param));
+      }
       amxo_parser_pop_param(parser_ctx); 
     }
   | attributes unset_attributes parameter {
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $2, amxo_param_attrs),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_set_param_attrs(parser_ctx, $1, true), 
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_set_param_attrs(parser_ctx, $2, false),
-                amxd_param_get_name(parser_ctx->param));
+      if (parser_ctx->param != NULL) {
+          YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
+                    amxd_param_get_name(parser_ctx->param));
+          YY_CHECK(!amxo_parser_check_attr(parser_ctx, $2, amxo_param_attrs),
+                    amxd_param_get_name(parser_ctx->param));
+          YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $1, true), 
+                    amxd_param_get_name(parser_ctx->param));
+          YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $2, false),
+                    amxd_param_get_name(parser_ctx->param));
+      }
       amxo_parser_pop_param(parser_ctx); 
     }
   | unset_attributes parameter {
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_set_param_attrs(parser_ctx, $1, false),
-                amxd_param_get_name(parser_ctx->param));
+      if (parser_ctx->param != NULL) {
+          YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
+                    amxd_param_get_name(parser_ctx->param));
+          YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $1, false),
+                    amxd_param_get_name(parser_ctx->param));
+      }
       amxo_parser_pop_param(parser_ctx); 
     }
   | attributes parameter {
-      YY_ASSERT(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
-                amxd_param_get_name(parser_ctx->param));
-      YY_ASSERT(!amxo_parser_set_param_attrs(parser_ctx, $1, true),
-                amxd_param_get_name(parser_ctx->param));
+      if (parser_ctx->param != NULL) {
+          YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
+                    amxd_param_get_name(parser_ctx->param));
+          YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $1, true),
+                    amxd_param_get_name(parser_ctx->param));
+      }
       amxo_parser_pop_param(parser_ctx); 
     }
   | object_populate
@@ -941,14 +988,16 @@ object_pop_content
 parameter
   : PARAMETER name '=' value ';' {
       $2.txt[$2.length] = 0;
-      YY_ASSERT_ACTION(!amxo_parser_set_param(parser_ctx, $2.txt, &$4),
-                       $2.txt,
-                       amxc_var_clean(&$4));
+      int retval = amxo_parser_set_param(parser_ctx, $2.txt, &$4);
+      YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_clean(&$4));
+      YY_WARNING(retval > 0, $2.txt);
       amxc_var_clean(&$4);
     }
   | PARAMETER name ';' {
       $2.txt[$2.length] = 0;
-      YY_ASSERT(!amxo_parser_set_param(parser_ctx, $2.txt, NULL), $2.txt);
+      int retval = amxo_parser_set_param(parser_ctx, $2.txt, NULL);
+      YY_CHECK(retval < 0, $2.txt);
+      YY_WARNING(retval > 0, $2.txt);
     }
   ;
 
@@ -993,18 +1042,14 @@ data
   ;
 
 data_options
-  : {
-      amxc_var_new(&parser_ctx->data); 
-      amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_HTABLE);
-    }
-  | data_option ',' data_options
+  : data_option ',' data_options
   | data_option
   ;
 
 data_option
   : name '=' value {
       $1.txt[$1.length] = 0;
-      YY_ASSERT_ACTION(!amxo_parser_set_data_option(parser_ctx, $1.txt, &$3),
+      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $1.txt, &$3),
                        $1.txt,
                        amxc_var_clean(&$3));
       amxc_var_clean(&$3);
@@ -1012,19 +1057,15 @@ data_option
   ;
 
 values
-  : {
-      amxc_var_new(&parser_ctx->data); 
-      amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_LIST);
-    }
-  | value ',' values {
-      YY_ASSERT_ACTION(!amxo_parser_set_data_option(parser_ctx, NULL, &$1),
-                       "array",
-                       amxc_var_clean(&$1));
-      amxc_var_clean(&$1);
+  : values ',' value {
+      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, NULL, &$3),
+                       "array 1",
+                       amxc_var_clean(&$3));
+      amxc_var_clean(&$3);
     }
   | value {
-      YY_ASSERT_ACTION(!amxo_parser_set_data_option(parser_ctx, NULL, &$1),
-                       "array",
+      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, NULL, &$1),
+                       "array 2",
                        amxc_var_clean(&$1));
       amxc_var_clean(&$1);
     }
@@ -1034,11 +1075,12 @@ value
   : TEXT { 
       $1.txt[$1.length] = 0;
       amxc_string_t txt;
-      amxc_string_init(&txt, 0);
-      amxc_string_push_buffer(&txt, $1.txt, $1.length + 1);
+      amxc_string_init(&txt, $1.length + 1);
+      amxc_string_append(&txt, $1.txt, $1.length);
       amxc_string_trim(&txt, NULL);
+      amxc_string_resolve(&txt, &parser_ctx->config);
       amxc_var_init(&$$); 
-      amxc_var_set(cstring_t, &$$, amxc_string_take_buffer(&txt)); 
+      amxc_var_push(cstring_t, &$$, amxc_string_take_buffer(&txt));
     }
   | STRING { 
       $1.txt[$1.length] = 0;

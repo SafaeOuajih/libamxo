@@ -120,6 +120,7 @@ void test_invalid_object_attrs(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_attr);
         amxd_dm_clean(&dm);
     }
 
@@ -143,6 +144,7 @@ void test_invalid_param_attrs(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_attr);
         amxd_dm_clean(&dm);
     }
 
@@ -169,6 +171,7 @@ void test_invalid_func_attrs(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_attr);
         amxd_dm_clean(&dm);
     }
 
@@ -187,6 +190,7 @@ void test_add_inst_on_singelton(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_type);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -203,6 +207,7 @@ void test_duplicate_inst_index(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -219,6 +224,7 @@ void test_duplicate_inst_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -235,11 +241,28 @@ void test_invalid_inst_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
 
+void test_instance_of_singleton(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char *odl =
+        "%define { object Test; }" \
+        "%populate { object Test { instance add(0,\"Text\"); instance add(0,\"AB\"); } }";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_type);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
 
 void test_duplicate_obj_name(UNUSED void **state) {
     amxd_dm_t dm;
@@ -250,6 +273,7 @@ void test_duplicate_obj_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -264,6 +288,7 @@ void test_invalid_obj_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -278,6 +303,7 @@ void test_duplicate_param_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -292,6 +318,7 @@ void test_duplicate_param_name_with_counter(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -306,6 +333,7 @@ void test_invalid_param_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -320,6 +348,7 @@ void test_invalid_func_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -334,6 +363,7 @@ void test_duplicate_func_arg_name(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -348,6 +378,7 @@ void test_select_none_existing_obj(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_object_not_found);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -362,6 +393,7 @@ void test_select_none_existing_param(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_parameter_not_found);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -376,6 +408,7 @@ void test_invalid_param_value(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -398,11 +431,58 @@ void test_invalid_param_value_validate(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
 
+void test_invalid_action_name(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char *odl =
+        "%define {"
+        "    object Test {"
+        "        uint32 P1 {"
+        "            default 50;"
+        "            on action reset call dummy;"
+        "        }"
+        "    }"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxo_resolver_ftab_add(&parser, "dummy", AMXO_FUNC(test_dummy_action));
+
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_action);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_invalid_object_action_name(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char *odl =
+        "%define {"
+        "    object Test {"
+        "        on action reset call dummy;"
+        "    }"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxo_resolver_ftab_add(&parser, "dummy", AMXO_FUNC(test_dummy_action));
+
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_action);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
 
 void test_invalid_resolvers(UNUSED void **state) {
     amxd_dm_t dm;
@@ -421,6 +501,7 @@ void test_invalid_resolvers(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
         amxd_dm_clean(&dm);
     }
 
@@ -441,6 +522,7 @@ void test_not_existing_entry_point(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_function_not_found);
         amxd_dm_clean(&dm);
     }
 
@@ -465,6 +547,7 @@ void test_invalid_parameter_actions(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_action);
         amxd_dm_clean(&dm);
     }
 
@@ -487,6 +570,7 @@ void test_not_resolved_action(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         amxd_dm_clean(&dm);
     }
 
@@ -507,6 +591,7 @@ void test_add_not_existing_mib(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_object_not_found);
         amxd_dm_clean(&dm);
     }
 
@@ -528,6 +613,7 @@ void test_add_mib_with_duplicates(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
         amxd_dm_clean(&dm);
     }
 
@@ -545,9 +631,7 @@ void test_invalid_regexp_in_filter(UNUSED void **state) {
         "}\n"
         "%populate {\n"
         "    on event \".*\" call print_event \n"
-        "        filter {\n"
-        "            \'object matches \"[(adsads[\"';\n"
-        "        }\n"
+        "        filter \'object matches \"[(adsads[\"';\n"
         "}\n";
 
     amxd_dm_init(&dm);
@@ -555,6 +639,7 @@ void test_invalid_regexp_in_filter(UNUSED void **state) {
 
     amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -623,18 +708,22 @@ void test_invalid_key_params(UNUSED void **state) {
 
     printf("%s\n", odl_1);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_1, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_missing_key);
     amxd_dm_clean(&dm);
 
     printf("%s\n", odl_2);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_2, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_missing_key);
     amxd_dm_clean(&dm);
 
     printf("%s\n", odl_3);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_3, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
     amxd_dm_clean(&dm);
 
     printf("%s\n", odl_4);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_4, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
     amxd_dm_clean(&dm);
 
     amxo_parser_clean(&parser);

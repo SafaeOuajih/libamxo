@@ -1,0 +1,4 @@
+%config {
+    local_setting = "local test";
+    %global global_setting = "global test";
+}

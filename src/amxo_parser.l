@@ -66,7 +66,6 @@
 
 %{
     #define GNU_SOURCE
-    #include <stdio.h>
     #include <string.h>
     #include <sys/types.h>
     #include <dlfcn.h>
@@ -135,7 +134,7 @@ NEWLINE  \r?\n
 <LONG_TEXT_SQ>{
     "*"              { yymore(); }
     {NEWLINE}        { yymore(); }
-    [^'']+           { yymore(); }
+    [^\\']+          { yymore(); }
     [\\].            { yymore(); }
     "'"              { yylval->cptr.txt = yytext;
                        yylval->cptr.length = yyleng - 1;
@@ -213,6 +212,9 @@ parameter                 { yylval->integer = token_keyword;
 #include                  { yylval->integer = token_optional_include;
                             return INCLUDE;
                           }
+\?include                 { yylval->integer = token_conditional_include;
+                            return INCLUDE;
+                          }
 include                   { yylval->integer = token_include;
                             return INCLUDE;
                           }
@@ -286,7 +288,9 @@ mandatory                 { yylval->integer = 1 << attr_mandatory;
 %key                      { yylval->integer = 1 << attr_key; 
                             return SET_ATTRIBUTE; 
                           }
-
+%global                   { yylval->integer = token_keyword;
+                            return GLOBAL;
+                          }
 !read-only                { yylval->integer = 1 << attr_readonly; 
                             return UNSET_ATTRIBUTE; 
                           }
@@ -423,7 +427,9 @@ delete                    { yylval->integer = action_del_inst;
 write                     { yylval->integer = action_write;
                             return ACTION;
                           }
-
+regexp                    { yylval->integer = token_keyword;
+                            return REGEXP;
+                          }
 
 [[:digit:]]+              { char *endptr = NULL;
                             yylval->integer = strtoll(yytext, &endptr, 0);; 

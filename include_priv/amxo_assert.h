@@ -72,6 +72,8 @@ extern "C"
 #define when_failed(x, l) if(x != 0) { goto l; }
 #define when_str_empty(x, l) if(x == NULL || x[0] == '\0') { goto l; }
 
+#define when_true_status(x, l, c) if(x) { c; goto l; }
+
 #ifdef __cplusplus
 }
 #endif

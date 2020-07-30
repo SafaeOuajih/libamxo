@@ -71,6 +71,8 @@ int main(void) {
         cmocka_unit_test(test_event_subscription_filter),
         cmocka_unit_test(test_deprecated_event_subscription_write_with_object),
         cmocka_unit_test(test_deprecated_event_subscription_write_with_param),
+        cmocka_unit_test(test_subscription_warns_if_function_not_resolved),
+        cmocka_unit_test(test_deprecated_subscription_warns_if_function_not_resolved),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

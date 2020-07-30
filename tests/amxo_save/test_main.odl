@@ -1,0 +1,43 @@
+%define {
+    mib MyMib {
+        %persistent string MibText = "Hello World";
+    }
+
+    %persistent object MyRootObject {
+        %persistent string Text;
+        %persistent int32 Number;
+        bool Enable;
+
+        %persistent object ChildObject {
+            %persistent string Text;
+            %persistent int32 Number;
+            bool Enable;
+
+            %persistent object TemplateObject[] {
+                %key string Text;
+                %persistent int32 Number;
+                bool Enable;
+
+                %persistent object TemplateChild {
+                    %persistent string Text;
+                    %persistent int32 Number;
+                    bool Enable;
+                }
+            }
+        }
+
+        %persistent object TemplateObject[] {
+            %persistent string Text;
+            %persistent int32 Number;
+            bool Enable;
+        }
+
+        object NotPersistent {
+            %persistent string Text;
+            %persistent int32 Number;
+            bool Enable;
+        }
+    }
+}
+
+?include "test_save.odl":"test_defaults.odl";

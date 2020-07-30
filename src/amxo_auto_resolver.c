@@ -62,7 +62,6 @@
 #include <sys/resource.h>
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -80,7 +79,7 @@
 
 static void amxo_resolver_auto_defaults(amxo_parser_t *parser,
                                         AMXO_UNUSED void *priv) {
-    amxc_var_t *config = amxo_parser_get_config(parser, "auto-resolver-order");
+    amxc_var_t *config = amxo_parser_claim_config(parser, "auto-resolver-order");
     amxc_var_set_type(config, AMXC_VAR_ID_LIST);
 
     amxc_var_add(cstring_t, config, "ftab");
@@ -95,7 +94,7 @@ static amxo_fn_ptr_t amxo_resolver_auto(amxo_parser_t *parser,
                                         AMXO_UNUSED const char *data,
                                         AMXO_UNUSED void *priv) {
     int retval = -1;
-    amxc_var_t *config = amxo_parser_get_config(parser, "auto-resolver-order");
+    amxc_var_t *config = amxo_parser_claim_config(parser, "auto-resolver-order");
     const amxc_llist_t *order = amxc_var_constcast(amxc_llist_t, config);
     amxc_htable_t *resolvers = amxo_parser_get_resolvers();
     amxc_var_t used_resolvers;

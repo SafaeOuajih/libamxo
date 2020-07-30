@@ -58,14 +58,32 @@
 **
 ****************************************************************************/
 
-#ifndef __TEST_EVENTS_H__
-#define __TEST_EVENTS_H__
+#if !defined(__AMXO_SAVE_H__)
+#define __AMXO_SAVE_H__
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-#endif // __TEST_FTAB_RESOLVER_H__
+int amxo_parser_save(amxo_parser_t *pctx,
+                     const char *filename,
+                     amxd_object_t *object,
+                     uint32_t depth,
+                     amxc_var_t *config,
+                     bool append);
+
+int amxo_parser_save_config(amxo_parser_t *pctx,
+                            const char *filename,
+                            amxc_var_t *config,
+                            bool append);
+
+int amxo_parser_save_object(amxo_parser_t *pctx,
+                            const char *filename,
+                            amxd_object_t *object,
+                            bool append);
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __AMXO_SAVE_H__

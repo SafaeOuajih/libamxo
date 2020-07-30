@@ -80,6 +80,9 @@
 #include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 
+#define GET_OPTION(parser, name) \
+    amxo_parser_get_config(parser, name)
+
 typedef struct _amxo_import_lib {
     amxc_htable_it_t hit;
     uint32_t references;
@@ -105,16 +108,16 @@ static void amxo_import_lib_free(AMXO_UNUSED const char *key,
 
 static void amxo_resolver_import_defaults(amxo_parser_t *parser,
                                           AMXO_UNUSED void *priv) {
-    amxc_var_t *config = amxo_parser_get_config(parser, "import-dirs");
+    amxc_var_t *config = amxo_parser_claim_config(parser, "import-dirs");
 
     amxc_var_set_type(config, AMXC_VAR_ID_LIST);
     amxc_var_add(cstring_t, config, ".");
 
-    config = amxo_parser_get_config(parser, "import-dbg");
+    config = amxo_parser_claim_config(parser, "import-dbg");
     amxc_var_set_type(config, AMXC_VAR_ID_BOOL);
     amxc_var_set(bool, config, false);
 
-    config = amxo_parser_get_config(parser, "import-pcb-compat");
+    config = amxo_parser_claim_config(parser, "import-pcb-compat");
     amxc_var_set_type(config, AMXC_VAR_ID_BOOL);
     amxc_var_set(bool, config, false);
 
@@ -122,18 +125,27 @@ static void amxo_resolver_import_defaults(amxo_parser_t *parser,
 }
 
 static char *amxo_resolver_import_get_symbol(amxo_parser_t *parser,
-                                             const char *fn_name) {
+                                             const char *fn_name,
+                                             bool prefix) {
     amxc_string_t symbol;
     amxc_string_init(&symbol, 0);
 
     if(parser->param != NULL) {
         const char *param_name = amxd_param_get_name(parser->param);
-        amxc_string_setf(&symbol, "_%s_%s", param_name, fn_name);
+        if(prefix) {
+            amxc_string_setf(&symbol, "_%s_%s", param_name, fn_name);
+        } else {
+            amxc_string_setf(&symbol, "_%s", fn_name);
+        }
     } else {
         const char *obj_name = amxd_object_get_name(parser->object,
                                                     AMXD_OBJECT_NAMED);
         if(obj_name != NULL) {
-            amxc_string_setf(&symbol, "_%s_%s", obj_name, fn_name);
+            if(prefix) {
+                amxc_string_setf(&symbol, "_%s_%s", obj_name, fn_name);
+            } else {
+                amxc_string_setf(&symbol, "_%s", fn_name);
+            }
         } else {
             amxc_string_setf(&symbol, "_%s", fn_name);
         }
@@ -146,7 +158,8 @@ static amxo_fn_ptr_t amxo_resolver_try(amxo_parser_t *parser,
                                        const char *fn_name,
                                        const char *symbol,
                                        const char *lib_name,
-                                       amxo_import_lib_t *lib) {
+                                       amxo_import_lib_t *lib,
+                                       amxc_string_t *msg) {
     char *dl_error = NULL;
     fn_caster_t helper;
     bool dbg = amxc_var_constcast(bool,
@@ -167,12 +180,12 @@ static amxo_fn_ptr_t amxo_resolver_try(amxo_parser_t *parser,
         lib->references++;
     } else {
         if(dbg) {
-            fprintf(stderr,
-                    "[IMPORT-DBG] - resolving symbol %s (for %s) from %s failed - [%s]\n",
-                    symbol,
-                    fn_name,
-                    lib_name,
-                    dl_error);
+            amxc_string_appendf(msg,
+                                "[IMPORT-DBG] - resolving symbol %s (for %s) from %s failed - [%s]\n",
+                                symbol,
+                                fn_name,
+                                lib_name,
+                                dl_error);
         }
     }
     return helper.amxo_fn;
@@ -185,14 +198,18 @@ static amxo_fn_ptr_t amxo_resolver_pcb_compat(amxo_parser_t *parser,
     amxo_fn_ptr_t fn = NULL;
     amxc_string_t symbol;
     const char *obj_name = amxd_object_get_name(parser->object, AMXD_OBJECT_NAMED);
+    amxc_string_t msg;
+
     amxc_string_init(&symbol, 0);
+    amxc_string_init(&msg, 0);
 
     // 1 __objectname_function
     amxc_string_setf(&symbol, "__%s_%s", obj_name, fn_name);
     fn = amxo_resolver_try(parser,
                            fn_name, amxc_string_get(&symbol, 0),
                            lib_name,
-                           lib);
+                           lib,
+                           &msg);
     when_not_null(fn, exit);
 
     // 2 objectname_function
@@ -201,7 +218,8 @@ static amxo_fn_ptr_t amxo_resolver_pcb_compat(amxo_parser_t *parser,
                            fn_name,
                            amxc_string_get(&symbol, 0),
                            lib_name,
-                           lib);
+                           lib,
+                           &msg);
     when_not_null(fn, exit);
 
     // 3 __function
@@ -210,7 +228,8 @@ static amxo_fn_ptr_t amxo_resolver_pcb_compat(amxo_parser_t *parser,
                            fn_name,
                            amxc_string_get(&symbol, 0),
                            lib_name,
-                           lib);
+                           lib,
+                           &msg);
     when_not_null(fn, exit);
 
     // 4 function
@@ -219,9 +238,15 @@ static amxo_fn_ptr_t amxo_resolver_pcb_compat(amxo_parser_t *parser,
                            fn_name,
                            amxc_string_get(&symbol, 0),
                            lib_name,
-                           lib);
+                           lib,
+                           &msg);
+
+    if((fn == NULL) && !amxc_string_is_empty(&msg)) {
+        fprintf(stderr, "%s", amxc_string_get(&msg, 0));
+    }
 
 exit:
+    amxc_string_clean(&msg);
     amxc_string_clean(&symbol);
     return fn;
 }
@@ -264,31 +289,51 @@ static amxo_fn_ptr_t amxo_resolver_import_data(amxo_parser_t *parser,
     amxo_fn_ptr_t fn = NULL;
     char *lib = NULL;
     char *symbol = NULL;
+    amxc_string_t res_name;
     amxc_htable_it_t *it = NULL;
     amxo_import_lib_t *import = NULL;
+    amxc_string_t msg;
     bool pcb = amxc_var_constcast(bool,
                                   amxo_parser_get_config(parser, "import-pcb-compat"));
-
+    amxc_string_init(&msg, 0);
+    amxc_string_init(&res_name, 0);
     amxo_resolver_import_parse_data(data, &lib, &symbol);
+
+    if(amxc_string_set_resolved(&res_name, lib, &parser->config) > 0) {
+        free(lib);
+        lib = amxc_string_take_buffer(&res_name);
+    }
+
     it = amxc_htable_get(import_data, lib);
     import = amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
     if(import == NULL) {
         amxo_parser_msg(parser, "No import library found with name \"%s\"", lib);
-        parser->status = amxd_status_invalid_value;
+        parser->status = amxd_status_file_not_found;
         goto exit;
     }
+
     if(symbol != NULL) {
-        fn = amxo_resolver_try(parser, fn_name, symbol, lib, import);
+        fn = amxo_resolver_try(parser, fn_name, symbol, lib, import, &msg);
     } else {
         if(pcb) {
             fn = amxo_resolver_pcb_compat(parser, fn_name, lib, import);
         } else {
-            symbol = amxo_resolver_import_get_symbol(parser, fn_name);
-            fn = amxo_resolver_try(parser, fn_name, symbol, lib, import);
+            symbol = amxo_resolver_import_get_symbol(parser, fn_name, true);
+            fn = amxo_resolver_try(parser, fn_name, symbol, lib, import, &msg);
+            when_true(fn != NULL, exit);
+            free(symbol);
+            symbol = amxo_resolver_import_get_symbol(parser, fn_name, false);
+            fn = amxo_resolver_try(parser, fn_name, symbol, lib, import, &msg);
         }
     }
 
+    if((fn == NULL) && !amxc_string_is_empty(&msg)) {
+        fprintf(stderr, "%s", amxc_string_get(&msg, 0));
+    }
+
 exit:
+    amxc_string_clean(&res_name);
+    amxc_string_clean(&msg);
     free(lib);
     free(symbol);
 
@@ -303,6 +348,9 @@ static amxo_fn_ptr_t amxo_resolver_import(amxo_parser_t *parser,
     bool pcb = amxc_var_constcast(bool,
                                   amxo_parser_get_config(parser, "import-pcb-compat"));
     amxo_fn_ptr_t fn = NULL;
+    amxc_string_t msg;
+
+    amxc_string_init(&msg, 0);
 
     if((data != NULL) && (data[0] != 0)) {
         fn = amxo_resolver_import_data(parser, import_data, fn_name, data);
@@ -314,9 +362,14 @@ static amxo_fn_ptr_t amxo_resolver_import(amxo_parser_t *parser,
             if(pcb) {
                 fn = amxo_resolver_pcb_compat(parser, fn_name, lib_name, import);
             } else {
-                char *symbol = amxo_resolver_import_get_symbol(parser, fn_name);
-                fn = amxo_resolver_try(parser, fn_name, symbol, lib_name, import);
+                char *symbol = amxo_resolver_import_get_symbol(parser, fn_name, true);
+                fn = amxo_resolver_try(parser, fn_name, symbol, lib_name, import, &msg);
                 free(symbol);
+                if(fn == NULL) {
+                    symbol = amxo_resolver_import_get_symbol(parser, fn_name, false);
+                    fn = amxo_resolver_try(parser, fn_name, symbol, lib_name, import, &msg);
+                    free(symbol);
+                }
             }
             if(fn != NULL) {
                 break;
@@ -324,6 +377,11 @@ static amxo_fn_ptr_t amxo_resolver_import(amxo_parser_t *parser,
         }
     }
 
+    if((fn == NULL) && !amxc_string_is_empty(&msg)) {
+        fprintf(stderr, "%s", amxc_string_get(&msg, 0));
+    }
+
+    amxc_string_clean(&msg);
     return fn;
 }
 
@@ -401,29 +459,40 @@ int amxo_resolver_import_open(amxo_parser_t *parser,
                               const char *alias,
                               int flags) {
     int retval = -1;
-    bool dbg = amxc_var_constcast(bool,
-                                  amxo_parser_get_config(parser, "import-dbg"));
     void *handle = NULL;
-    amxc_var_t *config = amxo_parser_get_config(parser, "import-dirs");
-    const amxc_llist_t *impdirs = amxc_var_constcast(amxc_llist_t, config);
     amxo_import_lib_t *import_lib = NULL;
-    amxc_htable_t *import_data = amxo_parser_claim_resolver_data(parser, "import");
     char *full_path = NULL;
+    bool dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
+    const amxc_llist_t *impdirs =
+        amxc_var_constcast(amxc_llist_t, GET_OPTION(parser, "import-dirs"));
+    amxc_htable_t *import_data = amxo_parser_claim_resolver_data(parser, "import");
+    amxc_string_t res_so_name;
+    amxc_string_t res_alias;
+    amxc_string_init(&res_so_name, 0);
+    amxc_string_init(&res_alias, 0);
 
     when_null(parser, exit);
+    parser->status = amxd_status_invalid_arg;
     when_str_empty(so_name, exit);
     when_true(alias != NULL && alias[0] == 0, exit);
 
-    if(amxo_resolver_import_alias_exists(import_data, alias)) {
-        retval = 0;
-        goto exit;
+    parser->status = amxd_status_ok;
+    if(amxc_string_set_resolved(&res_alias, alias, &parser->config) > 0) {
+        alias = amxc_string_get(&res_alias, 0);
     }
+    if(amxc_string_set_resolved(&res_so_name, so_name, &parser->config) > 0) {
+        so_name = amxc_string_get(&res_so_name, 0);
+    }
+
+    when_true_status(amxo_resolver_import_alias_exists(import_data, alias),
+                     exit,
+                     retval = 0);
 
     if(!amxo_parser_find_file(impdirs, so_name, &full_path)) {
         if(dbg) {
             fprintf(stderr, "[IMPORT-DBG] - file not found %s\n", so_name);
         }
-        parser->status = amxd_status_unknown_error;
+        parser->status = amxd_status_file_not_found;
         amxo_parser_msg(parser, "Import file not found !!! \"%s\"", so_name);
         goto exit;
     }
@@ -431,13 +500,15 @@ int amxo_resolver_import_open(amxo_parser_t *parser,
     handle = amxo_resolver_import_lib(parser, so_name, full_path, flags);
 
     import_lib = calloc(1, sizeof(amxo_import_lib_t));
-    when_null(import_lib, exit);
+    when_true_status(import_lib == NULL, exit, parser->status = amxd_status_out_of_mem);
 
     import_lib->handle = handle;
     amxc_htable_insert(import_data, alias, &import_lib->hit);
     retval = 0;
 
 exit:
+    amxc_string_clean(&res_alias);
+    amxc_string_clean(&res_so_name);
     free(full_path);
     if((retval != 0) && (handle != NULL)) {
         dlclose(handle);

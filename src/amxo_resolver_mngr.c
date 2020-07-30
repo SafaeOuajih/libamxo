@@ -87,6 +87,12 @@ int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t *parser,
     int retval = -1;
     amxo_resolver_t *resolver = NULL;
     amxc_htable_it_t *hit = NULL;
+    amxc_string_t res_name;
+    amxc_string_init(&res_name, 0);
+
+    if(amxc_string_set_resolved(&res_name, resolver_name, &parser->config) > 0) {
+        resolver_name = amxc_string_get(&res_name, 0);
+    }
 
     hit = amxc_htable_get(&resolvers, resolver_name);
     when_null(hit, exit);
@@ -104,6 +110,7 @@ int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t *parser,
     }
 
 exit:
+    amxc_string_clean(&res_name);
     return retval;
 }
 

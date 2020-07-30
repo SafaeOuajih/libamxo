@@ -107,10 +107,10 @@ void test_event_subscription(UNUSED void **state) {
         "    object Test[] { string text = \"Hallo\"; }"
         "}"
         "%populate {"
-        "    on event \".*\" call print_event;"
+        "    on event regexp(\".*\") call print_event;"
         "}";
     const char *odl_2 = "%populate {"
-        "     on event \"dm:instance-.*\" of \"Test\" call print_event;"
+        "     on event regexp(\"dm:instance-.*\") of \"Test\" call print_event;"
         "}";
 
     amxd_dm_init(&dm);
@@ -118,6 +118,7 @@ void test_event_subscription(UNUSED void **state) {
 
     amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     while(amxp_signal_read() == 0) {
     }
@@ -125,6 +126,7 @@ void test_event_subscription(UNUSED void **state) {
 
     amxp_slot_disconnect_all(_print_event);
     assert_int_equal(amxo_parser_parse_string(&parser, odl_2, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     amxd_trans_init(&transaction);
     amxd_trans_select_pathf(&transaction, "Test");
@@ -155,7 +157,7 @@ void test_event_subscription_filter(UNUSED void **state) {
         "    object Test { string text = \"Hallo\"; }\n"
         "}\n"
         "%populate {\n"
-        "    on event \".*\" call print_event \n"
+        "    on event regexp(\".*\") call print_event \n"
         "        filter 'object == \"Test\" && parameters.text.from == \"Hallo\"';\n"
         "}\n";
 
@@ -166,6 +168,7 @@ void test_event_subscription_filter(UNUSED void **state) {
     printf("%s\n", odl);
     fflush(stdout);
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     event_counter = 0;
     while(amxp_signal_read() == 0) {
@@ -220,6 +223,7 @@ void test_deprecated_event_subscription_write_with_object(UNUSED void **state) {
 
     amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     event_counter = 0;
     while(amxp_signal_read() == 0) {
@@ -277,6 +281,7 @@ void test_deprecated_event_subscription_write_with_param(UNUSED void **state) {
 
     amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     event_counter = 0;
     while(amxp_signal_read() == 0) {
@@ -308,6 +313,52 @@ void test_deprecated_event_subscription_write_with_param(UNUSED void **state) {
     while(amxp_signal_read() == 0) {
     }
     assert_int_equal(event_counter, 3);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_subscription_warns_if_function_not_resolved(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+
+    const char *odl = "%define {"
+        "    object Test[] { string text = \"Hallo\"; }"
+        "}"
+        "%populate {"
+        "    on event regexp(\".*\") call print_event;"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_deprecated_subscription_warns_if_function_not_resolved(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+
+    const char *odl =
+        "%define {"
+        "    object Test {"
+        "        string text {"
+        "            write with print_event;"
+        "            default \"Hallo\";"
+        "        }"
+        "        uint32 Other = 123;"
+        "    }"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

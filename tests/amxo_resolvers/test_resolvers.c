@@ -64,7 +64,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
@@ -90,7 +89,7 @@ static const char *priv_data = "PRIVATE";
 
 static void test_resolver_get(amxo_parser_t *parser,
                               void *priv) {
-    amxc_var_t *config = amxo_parser_get_config(parser, "test-data");
+    amxc_var_t *config = amxo_parser_claim_config(parser, "test-data");
     assert_ptr_not_equal(config, NULL);
     amxc_var_set(int32_t, config, 666);
     assert_ptr_equal(priv, &priv_data);
@@ -153,6 +152,7 @@ void test_register_resolver(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         amxd_dm_clean(&dm);
     }
 
@@ -167,10 +167,10 @@ void test_invalid_resolver_names(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     const char *odls[] = {
-        "%define { object Test { void Func<!!>(); } }",
-        "%define { object Test { void Func<!:data!>(); } }",
-        "%define { object Test { void Func<! :data!>(); } }",
-        "%define { object Test { void Func<!invalid-resolver:data!>(); } }",
+        "%define { object Test { void Func()<!!>; } }",
+        "%define { object Test { void Func()<!:data!>; } }",
+        "%define { object Test { void Func()<! :data!>; } }",
+        "%define { object Test { void Func()<!invalid-resolver:data!>; } }",
         NULL
     };
 
@@ -179,6 +179,7 @@ void test_invalid_resolver_names(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_name);
         amxd_dm_clean(&dm);
     }
 
@@ -207,6 +208,7 @@ void test_auto_resolver_order_no_any(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         amxd_dm_clean(&dm);
     }
 

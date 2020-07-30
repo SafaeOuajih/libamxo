@@ -15,7 +15,8 @@ ECHO = $(shell which echo)
 CAT = $(shell which cat)
 
 # the current version
-VERSION ?= $(subst v,,$(strip $(if $(shell git describe --tags 2> /dev/null),$(shell git describe --tags),v0.0.0)))
+RAW_VERSION ?= $(if $(shell git describe --tags 2> /dev/null),$(shell git describe --tags),v0.0.0)
+VERSION = $(subst v,,$(strip $(RAW_VERSION)))
 VERSION_PARTS = $(subst ., ,$(VERSION))
 VMAJOR = $(word 1,$(VERSION_PARTS))
 VMINOR = $(word 2,$(VERSION_PARTS))

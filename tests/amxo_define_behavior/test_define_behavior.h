@@ -58,14 +58,14 @@
 **
 ****************************************************************************/
 
-#ifndef __TEST_EVENTS_H__
-#define __TEST_EVENTS_H__
+#ifndef __TEST_DEFINE_BEHAVIOR_H__
+#define __TEST_DEFINE_BEHAVIOR_H__
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+void test_duplicate_objects_default_behavior(void **state);
+void test_duplicate_objects_can_update(void **state);
+void test_duplicate_objects_can_add_parameter(void **state);
+void test_duplicate_parameters_default_behavior(void **state);
+void test_duplicate_parameters_can_update(void **state);
+void test_duplicate_parameters_change_to_invalid_type_fails(void **state);
 
-#endif // __TEST_FTAB_RESOLVER_H__
+#endif // __TEST_DEFINE_BEHAVIOR_H__

@@ -125,13 +125,37 @@ static void amxc_parser_pop(amxo_parser_t *parent,
     child->include_stack = NULL;
     child->hooks = NULL;
     child->entry_points = NULL;
+    amxc_llist_for_each(it, (&child->global_config)) {
+        amxc_string_t *str_name = amxc_string_from_llist_it(it);
+        const char *name = amxc_string_get(str_name, 0);
+        amxc_var_t *option = amxc_var_get_path(&child->config,
+                                               name,
+                                               AMXC_VAR_FLAG_DEFAULT);
+        amxc_var_set_key(&parent->config, name, option, AMXC_VAR_FLAG_UPDATE);
+        amxc_llist_append(&parent->global_config, &str_name->it);
+    }
+}
+
+static amxc_var_t *amxo_parser_can_include(amxo_parser_t *pctx,
+                                           const char *full_path) {
+    amxc_var_t *incstack = NULL;
+    if(amxc_var_get_key(pctx->include_stack, full_path, AMXC_VAR_FLAG_DEFAULT) != NULL) {
+        goto exit;
+    }
+    if(pctx->include_stack == NULL) {
+        amxc_var_new(&pctx->include_stack);
+        amxc_var_set_type(pctx->include_stack, AMXC_VAR_ID_HTABLE);
+    }
+    incstack = amxc_var_add_key(bool, pctx->include_stack, full_path, true);
+
+exit:
+    return incstack;
 }
 
 bool amxo_parser_file_exists(amxc_var_t *dir,
                              const char *file_path,
                              char **full_path) {
     const char *incdir = amxc_var_constcast(cstring_t, dir);
-    struct stat buffer;
     bool retval = false;
     amxc_string_t concat_path;
     amxc_string_init(&concat_path, 0);
@@ -143,11 +167,7 @@ bool amxo_parser_file_exists(amxc_var_t *dir,
     }
     *full_path = realpath(amxc_string_get(&concat_path, 0), NULL);
     if(*full_path != NULL) {
-        retval = (stat(*full_path, &buffer) == 0);
-        if(!retval) {
-            free(*full_path);
-            *full_path = NULL;
-        }
+        retval = true;
     }
     amxc_string_clean(&concat_path);
 
@@ -178,22 +198,6 @@ exit:
     return retval;
 }
 
-static amxc_var_t *amxo_parser_can_include(amxo_parser_t *pctx,
-                                           const char *full_path) {
-    amxc_var_t *incstack = NULL;
-    if(amxc_var_get_key(pctx->include_stack, full_path, AMXC_VAR_FLAG_DEFAULT) != NULL) {
-        goto exit;
-    }
-    if(pctx->include_stack == NULL) {
-        amxc_var_new(&pctx->include_stack);
-        amxc_var_set_type(pctx->include_stack, AMXC_VAR_ID_HTABLE);
-    }
-    incstack = amxc_var_add_key(bool, pctx->include_stack, full_path, true);
-
-exit:
-    return incstack;
-}
-
 void amxo_parser_msg(amxo_parser_t *parser, const char *format, ...) {
     va_list args;
     va_start(args, format);
@@ -209,6 +213,15 @@ int amxo_parser_printf(const char *format, ...) {
     return 0;
 }
 
+int amxo_parser_set_config_internal(amxo_parser_t *parser,
+                                    const char *name,
+                                    amxc_var_t *value) {
+    return amxc_var_set_key(&parser->config,
+                            name,
+                            value,
+                            AMXC_VAR_FLAG_UPDATE);
+}
+
 int amxo_parser_include(amxo_parser_t *pctx, const char *file_path) {
     int retval = -1;
     amxo_parser_t parser;
@@ -216,17 +229,22 @@ int amxo_parser_include(amxo_parser_t *pctx, const char *file_path) {
     const amxc_llist_t *incdirs = amxc_var_constcast(amxc_llist_t, config);
     char *full_path = NULL;
     amxc_var_t *incstack = NULL;
+    amxc_string_t res_file_path;
+    amxc_string_init(&res_file_path, 0);
+    if(amxc_string_set_resolved(&res_file_path, file_path, &pctx->config) > 0) {
+        file_path = amxc_string_get(&res_file_path, 0);
+    }
 
     if(!amxo_parser_find_file(incdirs, file_path, &full_path)) {
         retval = 2;
-        pctx->status = amxd_status_unknown_error;
+        pctx->status = amxd_status_file_not_found;
         amxo_parser_msg(pctx, "Include file not found \"%s\"", file_path);
         goto exit;
     }
 
     incstack = amxo_parser_can_include(pctx, full_path);
     if(incstack == NULL) {
-        pctx->status = amxd_status_unknown_error;
+        pctx->status = amxd_status_recursion;
         amxo_parser_msg(pctx, "Recursive include detected \"%s\"", file_path);
         goto exit;
     }
@@ -240,12 +258,15 @@ int amxo_parser_include(amxo_parser_t *pctx, const char *file_path) {
     amxo_parser_clean(&parser);
 
     if(retval != 0) {
-        retval = 2;
-        pctx->status = amxd_status_unknown_error;
+        retval = 3;
+        if(pctx->status == amxd_status_ok) {
+            pctx->status = amxd_status_unknown_error;
+        }
         amxo_parser_msg(pctx, "Error found in %s", file_path);
     }
 
 exit:
+    amxc_string_clean(&res_file_path);
     amxc_var_delete(&incstack);
     free(full_path);
     return retval;
@@ -260,12 +281,14 @@ int amxo_parser_resolve_internal(amxo_parser_t *pctx,
 
     if((data == NULL) || (data[0] == '\0')) {
         amxo_parser_msg(pctx, "Resolver name must be provide (is empty)");
+        pctx->status = amxd_status_invalid_name;
         goto exit;
     }
 
     name = amxo_parser_get_resolver_name(data);
     if((name == NULL) || (name[0] == '\0')) {
         amxo_parser_msg(pctx, "Resolver name must be provide (is empty)");
+        pctx->status = amxd_status_invalid_name;
         goto exit;
     }
     res_data = data + strlen(name);
@@ -276,8 +299,10 @@ int amxo_parser_resolve_internal(amxo_parser_t *pctx,
     pctx->resolved_fn = NULL;
     retval = amxo_parser_resolve(pctx, name, fn_name, res_data);
     if(retval == -1) {
+        pctx->status = amxd_status_invalid_name;
         amxo_parser_msg(pctx, "No function resolver found with name \"%s\"", name);
     } else if(retval == 1) {
+        pctx->status = amxd_status_function_not_found;
         amxo_parser_msg(pctx,
                         "No function implemention found for \"%s\" using \"%s\"",
                         fn_name,
@@ -304,6 +329,7 @@ int amxo_parser_call_entry_point(amxo_parser_t *pctx,
                         "No entry point \"%s\" found using \"%s\"",
                         fn_name,
                         "import");
+        pctx->status = amxd_status_function_not_found;
     }
 
     if(pctx->resolved_fn != NULL) {
@@ -365,6 +391,7 @@ int amxo_parser_get_action_id(amxo_parser_t *pctx,
     }
 
     if(action_id < 0) {
+        pctx->status = amxd_status_invalid_action;
         amxo_parser_msg(pctx,
                         "Invalid action name \"%s\"",
                         action_name);

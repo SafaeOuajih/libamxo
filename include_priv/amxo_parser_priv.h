@@ -84,6 +84,7 @@ enum amxo_parser_tokens_t
 {
     token_include,
     token_optional_include,
+    token_conditional_include,
     token_import,
     token_config,
     token_define,
@@ -125,6 +126,11 @@ typedef struct _amxo_txt {
     int length;
 } amxo_txt_t;
 
+typedef struct _amxo_txt_regexp {
+    char *txt;
+    bool is_regexp;
+} amxo_txt_regexp_t;
+
 typedef struct _amxo_res_data {
     amxc_htable_it_t hit;
     amxc_htable_t data;
@@ -152,6 +158,10 @@ void AMXO_PRIVATE amxo_parser_msg(amxo_parser_t *parser, const char *format, ...
 int AMXO_PRIVATE amxo_parser_printf(const char *format, ...) \
     __attribute__ ((format(printf, 1, 2)));
 
+int AMXO_PRIVATE amxo_parser_set_config_internal(amxo_parser_t *parser,
+                                                 const char *name,
+                                                 amxc_var_t *value);
+
 bool AMXO_PRIVATE amxo_parser_file_exists(amxc_var_t *dir,
                                           const char *file_path,
                                           char **full_path);
@@ -172,10 +182,10 @@ bool AMXO_PRIVATE amxo_parser_set_object_attrs(amxo_parser_t *pctx,
                                                uint64_t attr,
                                                bool enable);
 
-bool AMXO_PRIVATE amxo_parser_create_object(amxo_parser_t *pctx,
-                                            const char *name,
-                                            int64_t attr_bitmask,
-                                            amxd_object_type_t type);
+int AMXO_PRIVATE amxo_parser_create_object(amxo_parser_t *pctx,
+                                           const char *name,
+                                           int64_t attr_bitmask,
+                                           amxd_object_type_t type);
 
 bool AMXO_PRIVATE amxo_parser_add_instance(amxo_parser_t *pctx,
                                            uint32_t index,
@@ -191,9 +201,9 @@ bool AMXO_PRIVATE amxo_parser_push_param(amxo_parser_t *pctx,
                                          int64_t attr_bitmask,
                                          amxd_object_type_t type);
 
-bool AMXO_PRIVATE amxo_parser_set_param(amxo_parser_t *pctx,
-                                        const char *name,
-                                        amxc_var_t *value);
+int AMXO_PRIVATE amxo_parser_set_param(amxo_parser_t *pctx,
+                                       const char *name,
+                                       amxc_var_t *value);
 
 bool AMXO_PRIVATE amxo_parser_pop_param(amxo_parser_t *pctx);
 
@@ -214,8 +224,10 @@ bool amxo_parser_set_counter(amxo_parser_t *pctx,
                              const char *param_name);
 
 int amxo_parser_subscribe(amxo_parser_t *pctx,
-                          const char *event_regexp,
+                          const char *event,
+                          bool event_is_regexp,
                           const char *path_regexp,
+                          bool path_is_regexp,
                           const char *full_expr);
 
 bool amxo_parser_subscribe_item(amxo_parser_t *pctx);

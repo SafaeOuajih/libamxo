@@ -98,6 +98,7 @@ static int amxo_parser_parse_fd_internal(amxo_parser_t *parser,
     parser->fd = fd;
     parser->object = object;
     parser->reader = amxo_parser_fd_reader;
+    parser->status = amxd_status_ok;
 
     amxo_parser_create_lex(parser);
     retval = yyparse(parser->scanner);
@@ -144,6 +145,7 @@ int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t *parser,
     when_true(fd == -1, exit);
     parser->file = file_path;
     retval = amxo_parser_parse_fd_internal(parser, fd, object);
+    parser->file = NULL;
     close(fd);
 
 exit:
@@ -170,6 +172,7 @@ void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t *parser) {
     amxc_string_init(&parser->msg, 0);
     amxc_astack_init(&parser->object_stack);
     amxc_var_init(&parser->config);
+    amxc_llist_init(&parser->global_config);
 
     parser->file = "<unknown>";
 
@@ -179,14 +182,14 @@ exit:
 
 int amxo_parser_init(amxo_parser_t *parser) {
     int retval = -1;
-    amxc_var_t *config = NULL;
+    amxc_var_t *inc_dirs = NULL;
     when_null(parser, exit);
 
     amxo_parser_child_init(parser);
 
     amxc_var_set_type(&parser->config, AMXC_VAR_ID_HTABLE);
-    config = amxc_var_add_key(amxc_llist_t, &parser->config, "include-dirs", NULL);
-    amxc_var_add(cstring_t, config, ".");
+    inc_dirs = amxc_var_add_key(amxc_llist_t, &parser->config, "include-dirs", NULL);
+    amxc_var_add(cstring_t, inc_dirs, ".");
 
     amxo_parser_init_resolvers(parser);
 
@@ -209,6 +212,7 @@ void amxo_parser_clean(amxo_parser_t *parser) {
     amxc_rbuffer_clean(&parser->rbuffer);
     amxc_string_clean(&parser->msg);
     amxc_astack_clean(&parser->object_stack, NULL);
+    amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
 
     amxo_parser_clean_resolvers(parser);
     if(parser->resolvers != NULL) {
@@ -270,6 +274,7 @@ int amxo_parser_parse_fd(amxo_parser_t *parser,
 
     amxo_hooks_start(parser);
     retval = amxo_parser_parse_fd_internal(parser, fd, object);
+    amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
     amxo_hooks_end(parser);
 
 exit:
@@ -284,6 +289,11 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
     char *real_path = NULL;
     char *dir_name = NULL;
     when_str_empty(file_path, exit);
+    amxc_string_t res_file_path;
+    amxc_string_init(&res_file_path, 0);
+    if(amxc_string_set_resolved(&res_file_path, file_path, &parser->config) > 0) {
+        file_path = amxc_string_get(&res_file_path, 0);
+    }
 
     real_path = realpath(file_path, NULL);
     if(real_path != NULL) {
@@ -292,12 +302,11 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
         dir_name[strlen(dir_name)] = '/';
     }
 
-    parser->file = real_path == NULL ? file_path : real_path;
-
     amxo_hooks_start(parser);
     retval = amxo_parser_parse_file_impl(parser,
-                                         parser->file,
+                                         real_path == NULL ? file_path : real_path,
                                          object);
+    amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
     amxo_hooks_end(parser);
 
     if(real_path != NULL) {
@@ -305,6 +314,7 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
     }
 
 exit:
+    amxc_string_clean(&res_file_path);
     free(current_wd);
     free(real_path);
     return retval;
@@ -321,6 +331,7 @@ int amxo_parser_parse_string(amxo_parser_t *parser,
     amxc_rbuffer_write(&parser->rbuffer, text, strlen(text));
     parser->object = object;
     parser->reader = amxo_parser_string_reader;
+    parser->status = amxd_status_ok;
 
     amxo_parser_create_lex(parser);
     retval = yyparse(parser->scanner);
@@ -333,6 +344,21 @@ exit:
     return retval;
 }
 
+amxc_var_t *amxo_parser_claim_config(amxo_parser_t *parser,
+                                     const char *name) {
+    amxc_var_t *retval = NULL;
+    when_null(parser, exit);
+    when_str_empty(name, exit);
+
+    retval = amxo_parser_get_config(parser, name);
+    if(retval == NULL) {
+        retval = amxc_var_add_new_key(&parser->config, name);
+    }
+
+exit:
+    return retval;
+}
+
 amxc_var_t *amxo_parser_get_config(amxo_parser_t *parser,
                                    const char *name) {
     amxc_var_t *retval = NULL;
@@ -340,9 +366,6 @@ amxc_var_t *amxo_parser_get_config(amxo_parser_t *parser,
     when_str_empty(name, exit);
 
     retval = amxc_var_get_key(&parser->config, name, AMXC_VAR_FLAG_DEFAULT);
-    if(retval == NULL) {
-        retval = amxc_var_add_new_key(&parser->config, name);
-    }
 
 exit:
     return retval;

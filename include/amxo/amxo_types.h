@@ -227,7 +227,9 @@ struct _amxo_parser {
                                    */
     amxc_var_t config;            /** An variant containing a htable with configuration options
                                       Can be used by resolvers or the parser itself.
-
+                                   */
+    amxc_llist_t global_config;   /**< List of global config settings, contains the names of the
+                                       global config options
                                    */
     amxc_rbuffer_t rbuffer;       /**< Ring buffer, used to parse text
                                    */

@@ -103,6 +103,7 @@ void test_parsing_array(UNUSED void **state) {
         amxc_var_t *option = NULL;
         const amxc_llist_t *list = NULL;
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         option = amxo_parser_get_config(&parser, "MyOption");
         assert_ptr_not_equal(option, NULL);
         assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_LIST);
@@ -154,6 +155,7 @@ void test_parsing_key_value_pairs(UNUSED void **state) {
         amxc_var_t *option = NULL;
         const amxc_htable_t *table = NULL;
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         option = amxo_parser_get_config(&parser, "MyOption");
         assert_ptr_not_equal(option, NULL);
         assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_HTABLE);
@@ -182,6 +184,42 @@ void test_parsing_key_value_pairs(UNUSED void **state) {
             break;
         }
     }
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_global_setting_are_made_available_in_main_odl(UNUSED void **state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxc_var_t *setting = NULL;
+    const char *odls[] = {
+        "%config { Key1 = 1; Key2 = 2; Key3 = 3; } include \"global_config.odl\";",
+        NULL
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odls[0], amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+
+    setting = amxo_parser_get_config(&parser, "local_setting");
+    assert_ptr_equal(setting, NULL);
+    assert_true(amxc_var_is_null(setting));
+    amxc_var_delete(&setting);
+
+    setting = amxo_parser_get_config(&parser, "Key1");
+    assert_ptr_not_equal(setting, NULL);
+    assert_false(amxc_var_is_null(setting));
+    amxc_var_dump(setting, STDOUT_FILENO);
+    assert_int_equal(amxc_var_dyncast(uint32_t, setting), 1);
+
+    setting = amxo_parser_get_config(&parser, "global_setting");
+    assert_ptr_not_equal(setting, NULL);
+    assert_false(amxc_var_is_null(setting));
+    assert_string_equal(amxc_var_constcast(cstring_t, setting), "global test");
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

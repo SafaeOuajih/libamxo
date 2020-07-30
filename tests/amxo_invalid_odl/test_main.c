@@ -67,6 +67,7 @@
 
 int main(void) {
     const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_invalid_key_params),
         cmocka_unit_test(test_invalid_object_attrs),
         cmocka_unit_test(test_invalid_param_attrs),
         cmocka_unit_test(test_invalid_func_attrs),
@@ -74,6 +75,7 @@ int main(void) {
         cmocka_unit_test(test_duplicate_inst_index),
         cmocka_unit_test(test_duplicate_inst_name),
         cmocka_unit_test(test_invalid_inst_name),
+        cmocka_unit_test(test_instance_of_singleton),
         cmocka_unit_test(test_duplicate_obj_name),
         cmocka_unit_test(test_invalid_obj_name),
         cmocka_unit_test(test_duplicate_param_name),
@@ -85,6 +87,8 @@ int main(void) {
         cmocka_unit_test(test_select_none_existing_param),
         cmocka_unit_test(test_invalid_param_value),
         cmocka_unit_test(test_invalid_param_value_validate),
+        cmocka_unit_test(test_invalid_action_name),
+        cmocka_unit_test(test_invalid_object_action_name),
         cmocka_unit_test(test_invalid_resolvers),
         cmocka_unit_test(test_not_existing_entry_point),
         cmocka_unit_test(test_invalid_parameter_actions),
@@ -92,7 +96,6 @@ int main(void) {
         cmocka_unit_test(test_add_not_existing_mib),
         cmocka_unit_test(test_add_mib_with_duplicates),
         cmocka_unit_test(test_invalid_regexp_in_filter),
-        cmocka_unit_test(test_invalid_key_params),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -116,6 +116,7 @@ void test_import_resolver_resolves_pcb_style(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid1.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     check_can_invoke_functions(&dm);
 
@@ -132,6 +133,7 @@ void test_import_resolver_resolves(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid2.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
     check_can_invoke_functions(&dm);
 
@@ -156,6 +158,7 @@ void test_import_resolver_invalid_data(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
         amxd_dm_clean(&dm);
     }
 
@@ -182,6 +185,7 @@ void test_import_resolver_multiple_import(UNUSED void **state) {
 
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         amxd_dm_clean(&dm);
         amxo_parser_clean(&parser);
         amxo_parser_init(&parser);
@@ -209,6 +213,7 @@ void test_can_call_entry_point(UNUSED void **state) {
     assert_int_equal(amxo_resolver_import_open(&parser, "../test_plugin/test_plugin.so", "test", 0), 0);
 
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_START), 0);
     assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_STOP), 0);
 
@@ -236,6 +241,7 @@ void test_entry_point_invocation_continues_after_failing_entry_point(UNUSED void
     assert_int_equal(amxo_resolver_import_open(&parser, "../test_plugin/test_plugin.so", "test", 0), 0);
 
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_START), 1);
     assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_STOP), 1);
 
@@ -256,9 +262,11 @@ void test_parsing_fails_when_entry_point_can_not_be_resolved(UNUSED void **state
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
 
     assert_int_equal(amxo_resolver_import_open(&parser, "../test_plugin/test_plugin.so", "test", 0), 0);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_function_not_found);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -283,11 +291,10 @@ void test_entry_point_invoke_does_not_crash_with_invalid_args(UNUSED void **stat
 void test_open_non_existing_file(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "import \"NONE-EXISTING.so\" as fake";
+    const char *odl = "import \"NONE-EXISTING.so\" as fake;";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
-
     assert_int_not_equal(amxo_resolver_import_open(&parser, "NONE-EXISTING.so", "test", 0), 0);
     assert_int_not_equal(amxo_resolver_import_open(NULL, "NONE-EXISTING.so", "test", 0), 0);
     assert_int_not_equal(amxo_resolver_import_open(&parser, "", "test", 0), 0);
@@ -296,6 +303,7 @@ void test_open_non_existing_file(UNUSED void **state) {
     assert_int_not_equal(amxo_resolver_import_open(&parser, "NONE-EXISTING.so", "", 0), 0);
     assert_int_not_equal(amxo_resolver_import_open(&parser, "../test_plugin/test_plugin.so", "", 0), 0);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

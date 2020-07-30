@@ -58,14 +58,22 @@
 **
 ****************************************************************************/
 
-#ifndef __TEST_EVENTS_H__
-#define __TEST_EVENTS_H__
+#ifndef __TEST_CONFIG_SAVE_H__
+#define __TEST_CONFIG_SAVE_H__
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+void test_save_config_array(void **state);
+void test_config_arrays_can_only_contain_primitives(void **state);
+void test_save_config_key_value_pairs(void **state);
+void test_config_tables_can_only_contain_primitives(void **state);
+void test_config_tables_keys_must_be_conform_naming_convention(void **state);
+void test_save_config_values(void **state);
+void test_save_config_fails_when_using_invalid_key_names(void **state);
+void test_save_can_append_config_values(void **state);
+void test_can_save_object(void **state);
+void test_can_save_from_root(void **state);
+void test_can_save_instance(void **state);
+void test_save_fails_if_file_can_not_be_opened(void **state);
+void test_save_fails_if_append_to_none_existing_file(void **state);
+void test_save_takes_rw_data_path_into_account(void **state);
 
-#endif // __TEST_FTAB_RESOLVER_H__
+#endif // __TEST_CONFIG_SAVE_H__

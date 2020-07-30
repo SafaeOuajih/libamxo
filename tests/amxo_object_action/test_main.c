@@ -58,14 +58,18 @@
 **
 ****************************************************************************/
 
-#ifndef __TEST_EVENTS_H__
-#define __TEST_EVENTS_H__
+#include <stdlib.h>
+#include <setjmp.h>
+#include <stdarg.h>
+#include <cmocka.h>
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+#include "test_object_action.h"
 
-#endif // __TEST_FTAB_RESOLVER_H__
+int main(void) {
+    const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_can_add_action_on_object),
+        cmocka_unit_test(test_failing_object_validation_makes_parser_fail),
+        cmocka_unit_test(test_can_proivide_data_to_object_action),
+    };
+    return cmocka_run_group_tests(tests, NULL, NULL);
+}
