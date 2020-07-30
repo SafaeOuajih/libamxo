@@ -288,6 +288,9 @@ mandatory                 { yylval->integer = 1 << attr_mandatory;
 %key                      { yylval->integer = 1 << attr_key; 
                             return SET_ATTRIBUTE; 
                           }
+%unique                   { yylval->integer = 1 << attr_unique; 
+                            return SET_ATTRIBUTE; 
+                          }
 %global                   { yylval->integer = token_keyword;
                             return GLOBAL;
                           }

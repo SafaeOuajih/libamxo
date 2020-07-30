@@ -443,7 +443,7 @@ The most common added action on objects and parameters is the `validate` action.
 
 If private data is added to the object or parameter it is also common to add a `destroy` action.
 
-More details about action implementation and how the actions must behave is described in the document [Actions, Transactions and Events](https://gitlab.com/soft.at.home/ambiorix/libraries/lib_amxd/-/blob/master/doc/actions_transactions_events.md) of the data model library (libamxd).
+More details about action implementation and how the actions must behave is described in the document [Actions, Transactions and Events](https://gitlab.com/soft.at.home/ambiorix/libraries/libamxd/-/blob/master/doc/actions_transactions_events.md) of the data model library (libamxd).
 
 ##### Action names
 

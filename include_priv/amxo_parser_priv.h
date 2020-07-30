@@ -106,7 +106,8 @@ typedef enum _amxo_parser_attr {
     attr_out,
     attr_mandatory,
     attr_strict,
-    attr_key
+    attr_key,
+    attr_unique,
 } amxo_parser_attr_t;
 
 typedef enum _amxo_action {

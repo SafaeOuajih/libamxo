@@ -225,7 +225,8 @@
                                     (1 << attr_instance) |
                                     (1 << attr_variable) |
                                     (1 << attr_readonly) |
-                                    (1 << attr_key));
+                                    (1 << attr_key) |
+                                    (1 << attr_unique));
 
     const uint64_t amxo_func_attrs = ((1 << attr_private) | 
                                     (1 << attr_template) | 
@@ -419,12 +420,16 @@ object_def_header
       $2.txt[$2.length] = 0;
       YY_CHECK($1 == token_mib, "Mib objects can not be multi-instance");
       YY_CHECK(amxo_parser_create_object(parser_ctx, $2.txt, 0, amxd_object_template) < 0, $2.txt);
+      YY_WARNING(amxd_object_set_max_instances(parser_ctx->object, $3) != amxd_status_ok,
+                 "Failed to set maximum instances");
     }
   | attributes OBJECT name multi {
       $3.txt[$3.length] = 0;
       YY_CHECK($2 == token_mib, "Mib objects can not be multi-instance");
       YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_object_attrs), $3.txt);
       YY_CHECK(amxo_parser_create_object(parser_ctx, $3.txt, $1, amxd_object_template) < 0, $3.txt);
+      YY_WARNING(amxd_object_set_max_instances(parser_ctx->object, $4) != amxd_status_ok,
+                 "Failed to set maximum instances");
     }
   ;
 

@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.2.3 - 2020-08-04(05:51:11 +0000)
+
+### Changes
+
+- Update contributing guide
+
+### New
+
+- Support for unique key
+
 ## Release 0.2.2 - 2020-07-27(11:42:22 +0000)
 
 ### Fixes
@@ -66,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes 
 
-- Use new string split API from lib_amxc
+- Use new string split API from libamxc
 - Adds alias names for parameter validation functions
 - Update README.md
 - Updates make files for SAH legacy build system
@@ -86,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-- Uses logical expression (lib_amxp) for event filtering instead of regexp filtering
+- Uses logical expression (libamxp) for event filtering instead of regexp filtering
 - Uses std=c11 instead of std=c18
 - Update odl.md
 

@@ -238,6 +238,9 @@ static int64_t amxo_attr_2_param_attr(int64_t attributes) {
     if(amxd_bit_map(attr_key) & attributes) {
         param_attrs |= amxd_bit_map(amxd_pattr_key);
     }
+    if(amxd_bit_map(attr_unique) & attributes) {
+        param_attrs |= amxd_bit_map(amxd_pattr_key);
+    }
     return param_attrs;
 }
 
@@ -540,8 +543,8 @@ bool amxo_parser_add_instance(amxo_parser_t *pctx,
         name = amxc_string_get(&res_name, 0);
     }
 
-    pctx->status = amxd_object_add_instance(pctx->object,
-                                            &object,
+    pctx->status = amxd_object_add_instance(&object,
+                                            pctx->object,
                                             name,
                                             index,
                                             pctx->data);

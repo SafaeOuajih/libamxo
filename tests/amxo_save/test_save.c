@@ -337,7 +337,7 @@ void test_can_save_object(UNUSED void **state) {
     assert_int_equal(amxo_parser_parse_file(&parser, "test_main.odl", amxd_dm_get_root(&dm)), 0);
     object = amxd_dm_findf(&dm, "MyRootObject.ChildObject.TemplateObject");
     assert_ptr_not_equal(object, NULL);
-    assert_int_equal(amxd_object_add_instance(object, &instance, NULL, 3, &values), 0);
+    assert_int_equal(amxd_object_add_instance(&instance, object, NULL, 3, &values), 0);
 
     assert_int_equal(amxo_parser_save_object(&parser, "test_save.odl", object, false), 0);
     amxd_dm_clean(&dm);
