@@ -105,6 +105,12 @@ static void amxo_resolver_ftab_defaults(amxo_parser_t *parser,
     amxo_resolver_ftab_add(parser,
                            "check_enum",
                            AMXO_FUNC(amxd_action_param_check_enum));
+    amxo_resolver_ftab_add(parser,
+                           "check_is_in",
+                           AMXO_FUNC(amxd_action_param_check_is_in));
+    amxo_resolver_ftab_add(parser,
+                           "hide_value",
+                           AMXO_FUNC(amxd_action_param_read_hidden_value));
 }
 
 static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t *parser,

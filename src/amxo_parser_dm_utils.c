@@ -239,7 +239,7 @@ static int64_t amxo_attr_2_param_attr(int64_t attributes) {
         param_attrs |= amxd_bit_map(amxd_pattr_key);
     }
     if(amxd_bit_map(attr_unique) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_key);
+        param_attrs |= amxd_bit_map(amxd_pattr_unique);
     }
     return param_attrs;
 }

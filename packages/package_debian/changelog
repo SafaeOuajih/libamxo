@@ -1,0 +1,205 @@
+libamxo (0.2.7) unstable; urgency=medium
+
+  * Makes new parameter validation and read action implementations available in ODL
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Sun, 23 Aug 2020 15:52:30 +0000
+
+libamxo (0.2.6) unstable; urgency=medium
+
+  * set correct MAJOR number on libraries for internal builds
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Thu, 20 Aug 2020 13:03:54 +0000
+
+libamxo (0.2.5) unstable; urgency=medium
+
+  *  Fixes fetching next connection if last was reached
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Sun, 16 Aug 2020 10:04:36 +0000
+
+libamxo (0.2.4) unstable; urgency=medium
+
+  * Event names can be added in object body definitions
+  * `%unique` parameter attribute is not taken into account
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 13 Aug 2020 13:35:45 +0000
+
+libamxo (0.2.3) unstable; urgency=medium
+
+  * Update contributing guide
+  * Support for unique key
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Tue, 04 Aug 2020 05:51:17 +0000
+
+libamxo (0.2.2) unstable; urgency=medium
+
+  * Fixes string variable resolving
+  * list action must not be in quotes
+  * Fixes memory leak
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 27 Jul 2020 11:42:31 +0000
+
+libamxo (0.2.1) unstable; urgency=medium
+
+  * ODL Syntax: regular expressions must be explicitly indicated using "regexp()"
+  * Import resolver also checks none-prefixed symbols 
+  * Only delete action data if the action is owned by the parameter or object on which it is executed.
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Fri, 24 Jul 2020 12:24:06 +0000
+
+libamxo (0.2.0) unstable; urgency=medium
+
+  * Save data model or configuration options API's
+  * Configuration options can be declared global
+  * Parser configuration options to change behavior of the odl parser
+  * Conditional includes
+  * Adds RAW_VERSION to makefile.inc, VERSION must be X.Y.Z or X.Y.Z-HASH
+  * Updates tests, renamed macro YY_ASSERT macro
+  * Completes odl parsing tests
+  * Fix: Compilation issue with fortified  musl
+  * Fix: Too long functions
+  * Fix: Scanbuild warnings
+  * Fix: Memory leak (detected with unittests)
+  * Fix: Object type detection
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 22 Jul 2020 18:49:21 +0000
+
+libamxo (0.1.3) unstable; urgency=medium
+
+  * Full path can be added to function name when registering functions to ftab resolver
+  * Documentation update (ftab API)
+  * Documentation update (odl)
+  * Supports %key attributes for parameters
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 16 Jul 2020 09:27:41 +0000
+
+libamxo (0.1.2) unstable; urgency=medium
+
+  * Use new string split API from libamxc
+  * Adds alias names for parameter validation functions
+  * Update README.md
+  * Updates make files for SAH legacy build system
+  * Fixes ignoring return value of chdir
+  * Key-values inconsistencies
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 13 Jul 2020 06:19:40 +0000
+
+libamxo (0.1.1) unstable; urgency=medium
+
+  * Fixes tests - take new event data structure into account
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 06 Jul 2020 09:12:28 +0000
+
+libamxo (0.1.0) unstable; urgency=medium
+
+  * Uses logical expression (libamxp) for event filtering instead of regexp filtering
+  * Uses std=c11 instead of std=c18
+  * Update odl.md
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Sun, 05 Jul 2020 16:59:16 +0000
+
+libamxo (0.0.11) unstable; urgency=medium
+
+  * Scrubs Component.* files
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Tue, 30 Jun 2020 07:47:51 +0000
+
+libamxo (0.0.10) unstable; urgency=medium
+
+  * Support for legacy SAH build system
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 29 Jun 2020 16:24:14 +0000
+
+libamxo (0.0.9) unstable; urgency=medium
+
+  * Support for csv_string and ssv_string variant type
+  * Copybara file
+  * Build libraries in target specific output directory
+
+ -- sah4009 <peter.deherdt@softathome.com>  Fri, 26 Jun 2020 18:01:17 +0000
+
+libamxo (0.0.8) unstable; urgency=medium
+
+  * Fixes object attributes
+
+ -- sah4009 <peter.deherdt@softathome.com>  Tue, 23 Jun 2020 16:54:16 +0000
+
+libamxo (0.0.7) unstable; urgency=medium
+
+  * Define mib objects
+  * Extend objects with mibs (define and populate section)
+  * Define datetime type
+  * Datetime type can be used as function return type, parameter type and function argument type
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Mon, 22 Jun 2020 10:49:07 +0000
+
+libamxo (0.0.6) unstable; urgency=medium
+
+  * Event subscription callback with filter
+  * Validates objects and parameters while parsing
+  * Adds deprecated "write with" construct
+  * Support for complex types in config section
+  * Adds pcb backwards compatibility (constraint keyword)
+  * Adds PCB compatibility actions on parameters and objects
+  * Adds actions to objects
+  * Adds actions for parameters and set default in definition block
+  * Extends connections API
+  * Extends valid odl test
+  * Updates odl documentation
+  * update license to BSD+patent
+  * Ignore sign-compare in generated flex file
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Tue, 16 Jun 2020 11:08:11 +0000
+
+libamxo (0.0.5) unstable; urgency=medium
+
+  * Fixes compiler error (musl)
+  * Fixes pipeline testing (first compile lib)
+  * Creates unit test results file (ELK)
+  * Adds more tests and fixes
+  * Adds API documentation
+
+ -- sah4009 <peter.deherdt@softathome.com>  Thu, 04 Jun 2020 13:09:26 +0000
+
+libamxo (0.0.4) unstable; urgency=medium
+
+  * ODL documentation in markdown
+  * Automatic instance counter definition
+  * Function override in definition, does not fail, provides warning
+  * PCB ODL compatibility
+
+ -- sah4009 <peter.deherdt@softathome.com>  Thu, 28 May 2020 06:47:15 +0000
+
+libamxo (0.0.3) unstable; urgency=medium
+
+  * Adds support for shebang
+  * Single line comments can now also start with '#'
+
+ -- sah4009 <peter.deherdt@softathome.com>  Tue, 26 May 2020 10:29:50 +0000
+
+libamxo (0.0.2) unstable; urgency=medium
+
+  * Complete Import resolver
+  * Definition of entry points
+  * Adds dlopen flags support
+  * Removes duplicate hook function typedefs
+
+ -- sah4009 <peter.deherdt@softathome.com>  Tue, 26 May 2020 08:27:35 +0000
+
+libamxo (0.0.1) unstable; urgency=medium
+
+  * Tests
+  * Line tracking
+  * Auto-resolve order option - support for '*' (any)
+  * Less string copy and memory allocation during parsing (flex/bison)
+  * Parser hooks
+  * Adds parser hooks
+  * Recursive include protection
+
+ -- sah4009 <peter.deherdt@softathome.com>  Sun, 24 May 2020 09:59:44 +0000
+
+libamxo (0.0.0) unstable; urgency=medium
+
+  * Initial version, not feature complete
+
+ -- sah4009 <peter.deherdt@softathome.com>  Mon, 18 May 2020 12:47:00 +0000
+ 

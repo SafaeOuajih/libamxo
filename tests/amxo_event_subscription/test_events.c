@@ -91,10 +91,11 @@
 uint32_t event_counter = 0;
 
 static void _print_event(const char * const sig_name,
-                         UNUSED const amxc_var_t * const data,
+                         const amxc_var_t * const data,
                          UNUSED void * const priv) {
 
     printf("Event received %s\n", sig_name);
+    amxc_var_dump(data, STDOUT_FILENO);
     event_counter++;
 }
 
@@ -158,7 +159,7 @@ void test_event_subscription_filter(UNUSED void **state) {
         "}\n"
         "%populate {\n"
         "    on event regexp(\".*\") call print_event \n"
-        "        filter 'object == \"Test\" && parameters.text.from == \"Hallo\"';\n"
+        "        filter 'object == \"Test.\" && parameters.text.from == \"Hallo\"';\n"
         "}\n";
 
     amxd_dm_init(&dm);

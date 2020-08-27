@@ -107,6 +107,10 @@ static int amxo_parser_parse_fd_internal(amxo_parser_t *parser,
     parser->fd = -1;
     parser->object = NULL;
 
+    if(retval == 0) {
+        amxc_string_clean(&parser->msg);
+    }
+
     return retval;
 }
 
@@ -142,7 +146,15 @@ int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t *parser,
     int fd = -1;
 
     fd = open(file_path, O_RDONLY);
-    when_true(fd == -1, exit);
+    if(fd == -1) {
+        retval = errno;
+        if(errno == ENOENT) {
+            amxo_parser_msg(parser, "File not found %s", file_path);
+        } else {
+            amxo_parser_msg(parser, "File open error 0x%8.8X", errno);
+        }
+        goto exit;
+    }
     parser->file = file_path;
     retval = amxo_parser_parse_fd_internal(parser, fd, object);
     parser->file = NULL;
@@ -289,6 +301,8 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
     char *real_path = NULL;
     char *dir_name = NULL;
     when_str_empty(file_path, exit);
+    when_null(object, exit);
+
     amxc_string_t res_file_path;
     amxc_string_init(&res_file_path, 0);
     if(amxc_string_set_resolved(&res_file_path, file_path, &parser->config) > 0) {
@@ -511,7 +525,7 @@ int amxo_connection_remove(amxo_parser_t *parser,
         if(con->fd == fd) {
             amxc_var_t var_fd;
             amxc_var_set(fd_t, &var_fd, fd);
-            amxp_sigmngr_trigger_signal(NULL, "connection-added", &var_fd);
+            amxp_sigmngr_trigger_signal(NULL, "connection-deleted", &var_fd);
             amxc_var_clean(&var_fd);
             amxc_llist_it_clean(&con->it, amxo_parser_connection_free);
             break;
@@ -554,6 +568,7 @@ amxo_connection_t *amxo_connection_get_next(amxo_parser_t *parser,
     when_true(con->it.llist != parser->connections, exit);
 
     it = amxc_llist_it_get_next(&con->it);
+    con = NULL;
     while(it) {
         con = amxc_llist_it_get_data(it, amxo_connection_t, it);
         if(con->type == type) {

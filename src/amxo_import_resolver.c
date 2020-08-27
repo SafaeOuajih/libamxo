@@ -100,9 +100,12 @@ static void amxo_import_lib_free(AMXO_UNUSED const char *key,
                                  amxc_htable_it_t *it) {
     amxo_import_lib_t *import =
         amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
-    dlerror();
-    dlclose(import->handle);
+    char *no_dlclose = secure_getenv("AMXO_NO_DLCLOSE");
 
+    if(no_dlclose == NULL) {
+        dlerror();
+        dlclose(import->handle);
+    }
     free(import);
 }
 

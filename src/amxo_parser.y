@@ -143,7 +143,7 @@
 %type <integer> include import ldflags entry_point
 %type <integer> defines populates populate object_populate event_populate
 %type <integer> define object_def object_def_header multi object_body object_content
-%type <integer> parameter_def counted
+%type <integer> parameter_def counted event_def
 %type <integer> function_def arguments argument_def add_mib
 %type <integer> object_pop_header object_pop_body object_pop_content parameter
 %type <integer> action_header action deprecated_action dep_action
@@ -166,7 +166,6 @@
                                    amxc_string_get(&context->msg, 0),
                                    context->file,
                                    locp->first_line);
-                amxc_string_clean(&context->msg);
             } else {
                 amxo_parser_printf("ERROR %s@%s:line %d\n", 
                                    err,
@@ -180,7 +179,6 @@
                                    amxc_string_get(&context->msg, 0),
                                    context->file,
                                    locp->first_line);
-                amxc_string_clean(&context->msg);
             } else {
                 amxo_parser_printf("ERROR %d - %s - %s@%s:line %d\n",
                                    context->status,
@@ -199,7 +197,6 @@
                                amxc_string_get(&context->msg, 0),
                                context->file,
                                locp->first_line);
-            amxc_string_clean(&context->msg);
         } else {
             amxo_parser_printf("WARNING %s@%s:line %d\n",
                                err,
@@ -455,6 +452,7 @@ object_content
   | action
   | dep_action
   | add_mib
+  | event_def
   ;
 
 parameter_def
@@ -785,6 +783,16 @@ add_mib
       YY_CHECK($3 != token_mib, $4.txt);
       YY_CHECK(!amxo_parser_add_mib(parser_ctx, $4.txt), $4.txt);
     } 
+  ;
+
+event_def
+  : EVENT name ';' {
+      $2.txt[$2.length] = 0;
+      amxd_dm_t *dm = amxd_object_get_dm(parser_ctx->object);
+      YY_CHECK(dm == NULL, "Can't add event");
+      amxp_sigmngr_add_signal(&dm->sigmngr, $2.txt);
+      $$ = 0;
+    }
   ;
 
 populate

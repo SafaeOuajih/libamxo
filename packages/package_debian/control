@@ -1,0 +1,11 @@
+Source: libamxo
+Section: devel
+Priority: optional
+Maintainer: peter.deherdt <peter.deherdt@softathome.com>
+
+Package: libamxo
+Architecture: amd64
+Depends: ${shlibs:Depends}
+Description: Data model ODL parser
+ Data model ODL parser
+ 

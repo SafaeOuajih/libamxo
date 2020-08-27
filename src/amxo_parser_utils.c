@@ -160,7 +160,7 @@ bool amxo_parser_file_exists(amxc_var_t *dir,
     amxc_string_t concat_path;
     amxc_string_init(&concat_path, 0);
 
-    if(dir != NULL) {
+    if((incdir != NULL) && (*incdir != 0)) {
         amxc_string_setf(&concat_path, "%s/%s", incdir, file_path);
     } else {
         amxc_string_setf(&concat_path, "%s", file_path);
@@ -199,6 +199,7 @@ exit:
 }
 
 void amxo_parser_msg(amxo_parser_t *parser, const char *format, ...) {
+    amxc_string_reset(&parser->msg);
     va_list args;
     va_start(args, format);
     amxc_string_vsetf(&parser->msg, format, args);

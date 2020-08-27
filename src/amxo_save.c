@@ -497,7 +497,7 @@ static int amxo_parser_save_leave(int fd,
                                   uint32_t depth,
                                   amxc_string_t *buffer) {
     int retval = 0;
-    amxd_object_t *obj = amxd_container_of(it, amxd_object_t, it);
+    amxd_object_t *obj = amxc_container_of(it, amxd_object_t, it);
     if(!amxd_object_is_attr_set(obj, amxd_oattr_persistent)) {
         goto exit;
     }

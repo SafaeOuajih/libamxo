@@ -8,6 +8,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.2.7 - 2020-08-23(15:52:22 +0000)
+
+### New
+
+- Makes new parameter validation and read action implementations available in ODL
+
+## Release 0.2.6 - 2020-08-20(13:03:39 +0000)
+
+### Fixes
+
+- set correct MAJOR number on libraries for internal builds
+
+## Release 0.2.5 - 2020-08-16(10:04:33 +0000)
+
+### Fixes
+
+- Fixes fetching next connection if last was reached
+
+## Release 0.2.4 - 2020-08-13(13:35:41 +0000)
+
+### New
+
+- Event names can be added in object body definitions
+
+### Fixes
+
+- `%unique` parameter attribute is not taken into account
+
 ## Release 0.2.3 - 2020-08-04(05:51:11 +0000)
 
 ### Changes
