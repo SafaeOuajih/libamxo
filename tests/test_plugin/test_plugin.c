@@ -68,9 +68,10 @@
 #include <amxd/amxd_object.h>
 #include <amxd/amxd_action.h>
 #include <amxd/amxd_transaction.h>
-#include <amxb/amxb.h>
 
 #include <amxo/amxo.h>
+
+#define UNUSED __attribute__((unused))
 
 static amxo_parser_t *local_parser = NULL;
 
@@ -78,9 +79,9 @@ int _test_entry_point(int reason,
                       amxd_dm_t *dm,
                       amxo_parser_t *parser);
 
-int _test_failing_entry_point(AMXB_UNUSED int reason,
-                              AMXB_UNUSED amxd_dm_t *dm,
-                              AMXB_UNUSED amxo_parser_t *parser);
+int _test_failing_entry_point(UNUSED int reason,
+                              UNUSED amxd_dm_t *dm,
+                              UNUSED amxo_parser_t *parser);
 
 amxd_status_t _test_func(amxd_object_t *object,
                          amxd_function_t *func,
@@ -193,9 +194,9 @@ amxd_status_t TestFunc4(amxd_object_t *object,
 }
 //////////////////////////////////////////////////////////////
 
-int _test_entry_point(AMXB_UNUSED int reason,
-                      AMXB_UNUSED amxd_dm_t *dm,
-                      AMXB_UNUSED amxo_parser_t *parser) {
+int _test_entry_point(UNUSED int reason,
+                      UNUSED amxd_dm_t *dm,
+                      UNUSED amxo_parser_t *parser) {
 
     amxc_var_t *counter = amxo_parser_get_config(parser, "counter");
     amxc_var_set(uint32_t, counter, amxc_var_constcast(uint32_t, counter) + 1);
@@ -208,9 +209,9 @@ int _test_entry_point(AMXB_UNUSED int reason,
     return 0;
 }
 
-int _test_failing_entry_point(AMXB_UNUSED int reason,
-                              AMXB_UNUSED amxd_dm_t *dm,
-                              AMXB_UNUSED amxo_parser_t *parser) {
+int _test_failing_entry_point(UNUSED int reason,
+                              UNUSED amxd_dm_t *dm,
+                              UNUSED amxo_parser_t *parser) {
 
     amxc_var_t *counter = amxo_parser_get_config(parser, "counter");
     amxc_var_set(uint32_t, counter, amxc_var_constcast(uint32_t, counter) + 1);

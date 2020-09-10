@@ -21,7 +21,6 @@ LIBDIR = $(if $(STAGINGDIR), -L$(STAGINGDIR)/lib)
 # files
 HEADERS = $(wildcard $(INCDIR_PUB)/$(TARGET_NAME)/*.h)
 SOURCES = $(wildcard $(SRCDIR)/*.c)
-VARIANTS = $(wildcard $(SRCDIR)/variants/*.c)
 OBJECTS = $(addprefix $(OBJDIR)/,$(notdir $(SOURCES:.c=.o)))
 OBJECTS += $(OBJDIR)/lex.amxo_parser.o \
            $(OBJDIR)/amxo_parser.tab.o \
@@ -30,11 +29,17 @@ OBJECTS += $(OBJDIR)/lex.amxo_parser.o \
 # compilation and linking flags
 CFLAGS += -Werror -Wall -Wextra \
           -Wformat=2 -Wshadow \
-          -Wwrite-strings -Wstrict-prototypes -Wold-style-definition \
-          -Wredundant-decls -Wnested-externs -Wmissing-include-dirs \
+          -Wwrite-strings -Wredundant-decls -Wmissing-include-dirs \
 		  -Wpedantic -Wmissing-declarations -Wno-attributes \
 		  -Wno-format-nonliteral \
-          -fPIC --std=c11 -g3 $(addprefix -I ,$(INCDIRS)) -I $(SRCDIR) -I$(OBJDIR) 
+          -fPIC -g3 $(addprefix -I ,$(INCDIRS)) -I $(SRCDIR) -I$(OBJDIR) 
+
+ifeq ($(CC_NAME),g++)
+    CFLAGS += -std=c++2a
+else
+	CFLAGS += -Wstrict-prototypes -Wold-style-definition -Wnested-externs -std=c11
+endif
+		  
 LDFLAGS += $(LIBDIR) -shared -fPIC -Wl,--version-script=libamxo.version -lamxc -lamxp -lamxd -ldl
 
 # helper functions - used in multiple targets
@@ -106,10 +111,12 @@ test:
 	make -C tests coverage
 
 doc: lib$(TARGET_NAME).doxy
+	mkdir -p ./output/doc
 	VERSION=$(VERSION) doxygen $<
 
 clean:
 	rm -rf ./output/ $(TARGET)-*.* $(TARGET)_*.*
+	make -C tests clean
 	find . -name "run_test" -delete
 
 

@@ -94,6 +94,7 @@
   bool boolean;
   amxc_var_t value;
   amxo_txt_regexp_t cregexp;
+  amxo_action_t action;
 }
 
 %token <integer> INCLUDE
@@ -120,9 +121,9 @@
 %token <integer> OF
 %token <integer> GLOBAL
 %token <integer> CALL
-%token <integer> ACTION
+%token <action>  ACTION
 %token <integer> ACTION_KW
-%token <integer> DEP_ACTION
+%token <action>  DEP_ACTION
 %token <cptr>    STRING
 %token <cptr>    MULTILINECOMMENT
 %token <cptr>    TEXT
@@ -146,7 +147,8 @@
 %type <integer> parameter_def counted event_def
 %type <integer> function_def arguments argument_def add_mib
 %type <integer> object_pop_header object_pop_body object_pop_content parameter
-%type <integer> action_header action deprecated_action dep_action
+%type <action> action_header deprecated_action
+%type <integer> action dep_action
 %type <bitmap>  attributes unset_attributes
 %type <value>   value
 %type <cptr>    name path filter instance_id
@@ -551,7 +553,7 @@ action_header
     }
   | ON ACTION_KW TYPE {
       YY_CHECK($3 != AMXC_VAR_ID_LIST , "Invalid action");
-      $$ = 3;
+      $$ = action_list;
     }
   ;
 

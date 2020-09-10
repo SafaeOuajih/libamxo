@@ -58,7 +58,10 @@
 **
 ****************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdlib.h>
@@ -134,9 +137,11 @@ exit:
 }
 
 static amxo_resolver_t res_auto = {
+    .hit = { .ait = NULL, .key = NULL, .next = NULL },
     .get = amxo_resolver_auto_defaults,
     .resolve = amxo_resolver_auto,
-    .clean = NULL
+    .clean = NULL,
+    .priv = NULL
 };
 
 AMXO_CONSTRUCTOR(110) static void amxo_auto_init(void) {

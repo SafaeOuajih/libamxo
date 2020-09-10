@@ -58,7 +58,10 @@
 **
 ****************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdlib.h>
@@ -502,7 +505,7 @@ int amxo_resolver_import_open(amxo_parser_t *parser,
 
     handle = amxo_resolver_import_lib(parser, so_name, full_path, flags);
 
-    import_lib = calloc(1, sizeof(amxo_import_lib_t));
+    import_lib = (amxo_import_lib_t *) calloc(1, sizeof(amxo_import_lib_t));
     when_true_status(import_lib == NULL, exit, parser->status = amxd_status_out_of_mem);
 
     import_lib->handle = handle;
@@ -525,9 +528,11 @@ void amxo_resolver_import_close_all(void) {
 }
 
 static amxo_resolver_t import = {
+    .hit = { .ait = NULL, .key = NULL, .next = NULL },
     .get = amxo_resolver_import_defaults,
     .resolve = amxo_resolver_import,
-    .clean = amxo_resolver_import_clean
+    .clean = amxo_resolver_import_clean,
+    .priv = NULL
 };
 
 AMXO_CONSTRUCTOR(110) static void amxo_import_init(void) {

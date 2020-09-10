@@ -57,7 +57,10 @@
 ** POSSIBILITY OF SUCH DAMAGE.
 **
 ****************************************************************************/
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdio.h>
@@ -370,8 +373,8 @@ exit:
     return retval;
 }
 
-int amxo_parser_get_action_id(amxo_parser_t *pctx,
-                              const char *action_name) {
+amxo_action_t amxo_parser_get_action_id(amxo_parser_t *pctx,
+                                        const char *action_name) {
     static const char *names[] = {
         "read",
         "write",
@@ -382,11 +385,11 @@ int amxo_parser_get_action_id(amxo_parser_t *pctx,
         "del-inst",
         "destroy"
     };
-    int action_id = -1;
+    amxo_action_t action_id = amxo_action_invalid;
 
     for(int i = 0; i <= action_max; i++) {
         if(strcmp(action_name, names[i]) == 0) {
-            action_id = i;
+            action_id = (amxo_action_t) i;
             break;
         }
     }

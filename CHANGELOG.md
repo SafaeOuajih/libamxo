@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Release 0.3.2 - 2020-09-03(14:13:25 +0000)
+
+### Fixes
+
+- Pass version_prefix to make command
+
+## Release 0.3.1 - 2020-09-03(06:13:25 +0000)
+
+### Fixes
+
+- Fixes g++ compilation warnings and errors
+
+### Changes
+
+- Add version prefix to support legacy build system
+
+## Release 0.3.0 - 2020-08-29(21:21:13 +0000)
+
+### Changes
+
+- Needs libamxd v1.0.0 or higher
+- Apply API changes of libamxd
+- Removes uneeded references to libamxb in unit tests
 
 ## Release 0.2.7 - 2020-08-23(15:52:22 +0000)
 

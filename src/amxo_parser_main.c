@@ -58,7 +58,10 @@
 **
 ****************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdlib.h>
@@ -84,7 +87,7 @@ static ssize_t amxo_parser_string_reader(amxo_parser_t *parser,
                                          void *buf,
                                          size_t max_size) {
     ssize_t result = 0;
-    result = amxc_rbuffer_read(&parser->rbuffer, buf, max_size);
+    result = amxc_rbuffer_read(&parser->rbuffer, (char *) buf, max_size);
     errno = 0;
 
     return result;
@@ -171,7 +174,7 @@ void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t *parser) {
     parser->object = NULL;
     parser->param = NULL;
     parser->func = NULL;
-    parser->status = 0;
+    parser->status = amxd_status_ok;
     parser->resolved_fn = NULL;
     parser->resolvers = NULL;
     parser->include_stack = NULL;
@@ -218,7 +221,7 @@ void amxo_parser_clean(amxo_parser_t *parser) {
     parser->object = NULL;
     parser->param = NULL;
     parser->func = NULL;
-    parser->status = 0;
+    parser->status = amxd_status_ok;
     parser->resolved_fn = NULL;
 
     amxc_rbuffer_clean(&parser->rbuffer);
@@ -245,7 +248,7 @@ int amxo_parser_new(amxo_parser_t **parser) {
     int retval = -1;
     when_null(parser, exit);
 
-    *parser = calloc(1, sizeof(amxo_parser_t));
+    *parser = (amxo_parser_t *) calloc(1, sizeof(amxo_parser_t));
     when_null((*parser), exit);
 
     retval = amxo_parser_init(*parser);
@@ -422,7 +425,7 @@ int amxo_parser_add_entry_point(amxo_parser_t *parser,
         }
     }
 
-    ep = calloc(1, sizeof(amxo_entry_t));
+    ep = (amxo_entry_t *) calloc(1, sizeof(amxo_entry_t));
     when_null(ep, exit);
 
     ep->entry_point = fn;
@@ -490,7 +493,7 @@ int amxo_connection_add(amxo_parser_t *parser,
         }
     }
 
-    con = calloc(1, sizeof(amxo_connection_t));
+    con = (amxo_connection_t *) calloc(1, sizeof(amxo_connection_t));
     when_null(con, exit);
 
     con->uri = uri;

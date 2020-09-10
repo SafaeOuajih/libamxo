@@ -58,7 +58,10 @@
 **
 ****************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdlib.h>
@@ -197,7 +200,7 @@ int amxo_resolver_ftab_add(amxo_parser_t *parser,
     when_null(ftab_data, exit);
     when_true(amxc_htable_contains(ftab_data, fn_name), exit);
 
-    ftab_fn = calloc(1, sizeof(amxo_ftab_fn_t));
+    ftab_fn = (amxo_ftab_fn_t *) calloc(1, sizeof(amxo_ftab_fn_t));
     when_null(ftab_fn, exit);
 
     ftab_fn->fn = fn;
@@ -238,9 +241,11 @@ exit:
 }
 
 static amxo_resolver_t ftab = {
+    .hit = { .ait = NULL, .key = NULL, .next = NULL },
     .get = amxo_resolver_ftab_defaults,
     .resolve = amxo_resolver_ftab,
-    .clean = amxo_resolver_ftab_clean
+    .clean = amxo_resolver_ftab_clean,
+    .priv = NULL
 };
 
 AMXO_CONSTRUCTOR(110) static void amxo_ftab_init(void) {

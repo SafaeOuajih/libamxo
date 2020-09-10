@@ -58,7 +58,10 @@
 **
 ****************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdlib.h>
@@ -201,7 +204,7 @@ amxc_htable_t *amxo_parser_claim_resolver_data(amxo_parser_t *parser,
 
     it = amxc_htable_get(parser->resolvers, resolver_name);
     if(it == NULL) {
-        resolver_data = calloc(1, sizeof(amxo_res_data_t));
+        resolver_data = (amxo_res_data_t *) calloc(1, sizeof(amxo_res_data_t));
         when_null(resolver_data, exit);
         amxc_htable_init(&resolver_data->data, 10);
         amxc_htable_insert(parser->resolvers, resolver_name, &resolver_data->hit);

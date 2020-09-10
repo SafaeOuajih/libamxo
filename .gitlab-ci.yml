@@ -1,11 +1,12 @@
 variables:
-  TEST_DEPS: libamxb
   UTEST_COMPILE_FIRST: "yes"
   UTEST_TEST_DIR: tests
   UTEST_TEST_CMD: "make run"
   UTEST_TEST_COV_CMD: "make coverage"
-  BUILD_DEPS: libamxc=0.6.8 libamxd=0.6.6 libamxp=0.4.2 flex bison
+  DOC_GEN_CMD: "make doc"
+  BUILD_DEPS: libamxc=0.6.11 libamxd=1.0.3 libamxp=0.4.4 flex bison
   BUILD_TARGET: libamxo
+  PC_BUILD_COMP_YOCTO: "off"
 
 include:
   # include default templates (needed by the default pipelines)

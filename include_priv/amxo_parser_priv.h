@@ -111,7 +111,8 @@ typedef enum _amxo_parser_attr {
 } amxo_parser_attr_t;
 
 typedef enum _amxo_action {
-    action_read,
+    amxo_action_invalid = -1,
+    action_read = 0,
     action_write,
     action_validate,
     action_list,
@@ -200,7 +201,7 @@ bool AMXO_PRIVATE amxo_parser_pop_object(amxo_parser_t *pctx);
 bool AMXO_PRIVATE amxo_parser_push_param(amxo_parser_t *pctx,
                                          const char *name,
                                          int64_t attr_bitmask,
-                                         amxd_object_type_t type);
+                                         uint32_t type);
 
 int AMXO_PRIVATE amxo_parser_set_param(amxo_parser_t *pctx,
                                        const char *name,
@@ -211,14 +212,14 @@ bool AMXO_PRIVATE amxo_parser_pop_param(amxo_parser_t *pctx);
 int AMXO_PRIVATE amxo_parser_push_func(amxo_parser_t *pctx,
                                        const char *name,
                                        int64_t attr_bitmask,
-                                       amxd_object_type_t type);
+                                       uint32_t type);
 
 void AMXO_PRIVATE amxo_parser_pop_func(amxo_parser_t *pctx);
 
 bool AMXO_PRIVATE amxo_parser_add_arg(amxo_parser_t *pctx,
                                       const char *name,
                                       int64_t attr_bitmask,
-                                      amxd_object_type_t type,
+                                      uint32_t type,
                                       amxc_var_t *def_value);
 
 bool amxo_parser_set_counter(amxo_parser_t *pctx,
@@ -260,8 +261,8 @@ bool AMXO_PRIVATE amxo_parser_set_data_option(amxo_parser_t *pctx,
 int AMXO_PRIVATE amxo_parser_set_action(amxo_parser_t *pctx,
                                         amxo_action_t action);
 
-int AMXO_PRIVATE amxo_parser_get_action_id(amxo_parser_t *pctx,
-                                           const char *action_name);
+amxo_action_t AMXO_PRIVATE amxo_parser_get_action_id(amxo_parser_t *pctx,
+                                                     const char *action_name);
 
 char *AMXO_PRIVATE amxo_parser_build_import_resolver_data(const char *function,
                                                           const char *library);

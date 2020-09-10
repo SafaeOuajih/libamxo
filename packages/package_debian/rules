@@ -3,7 +3,7 @@
 
 PACKAGE=$(shell dh_listpackages)
 MACHINE = $(shell $(CC) -dumpmachine)
-VERSION ?= $(subst v,,$(strip $(shell git describe --tags)))
+VERSION ?= $(subst $(VERSION_PREFIX)v,,$(strip $(shell git describe --tags)))
 VERSION_PARTS = $(subst ., ,$(VERSION))
 VMAJOR = $(word 1,$(VERSION_PARTS))
 VMINOR = $(word 2,$(VERSION_PARTS))

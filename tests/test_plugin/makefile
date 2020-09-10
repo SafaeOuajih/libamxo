@@ -11,7 +11,7 @@ CFLAGS += -Werror -Wall -Wextra \
 		  -Wpedantic -Wmissing-declarations \
           -fPIC --std=c18 -g3 -I../../include/
 LDFLAGS += -shared -fPIC 
-LDFLAGS += -lamxb -lamxc -lamxp -lamxd -lamxo
+LDFLAGS += -lamxc -lamxp -lamxd -lamxo
 
 # targets
 all: $(TARGET)

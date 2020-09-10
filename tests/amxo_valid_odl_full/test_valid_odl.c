@@ -150,13 +150,13 @@ static void check_parameters_exist(amxd_dm_t *dm) {
     };
 
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectParamTypes");
-    assert_int_equal(amxd_object_get_param_count(object, true), 9);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_protected), 9);
     for(int i = 0; types_params[i] != NULL; i++) {
         assert_ptr_not_equal(amxd_object_get_param_def(object, types_params[i]), NULL);
     }
 
     object = amxd_object_findf(root, "TestObjectRoot.TestSingeltonParamAttr");
-    assert_int_equal(amxd_object_get_param_count(object, true), 1);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 1);
     param = amxd_object_get_param_def(object, "Param1");
     assert_ptr_not_equal(param, NULL);
     assert_true(amxd_param_is_attr_set(param, amxd_pattr_private));
@@ -166,7 +166,7 @@ static void check_parameters_exist(amxd_dm_t *dm) {
     assert_true(amxd_param_is_attr_set(param, amxd_pattr_template));
 
     object = amxd_object_findf(root, "TestObjectRoot.TestTemplateParamAttr");
-    assert_int_equal(amxd_object_get_param_count(object, true), 2);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 2);
     param = amxd_object_get_param_def(object, "Param1");
     assert_ptr_not_equal(param, NULL);
     assert_true(amxd_param_is_attr_set(param, amxd_pattr_private));
@@ -190,15 +190,15 @@ static void check_parameters_exist(amxd_dm_t *dm) {
     assert_false(amxd_param_is_attr_set(param, amxd_pattr_template));
 
     object = amxd_object_findf(root, "TestObjectRoot");
-    assert_int_equal(amxd_object_get_param_count(object, true), 1);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 1);
     param = amxd_object_get_param_def(object, "TestObjectTemplateWithChildCounter");
     assert_ptr_not_equal(param, NULL);
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectTemplateWithChild.TemplateChildObject");
-    assert_int_equal(amxd_object_get_param_count(object, true), 1);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 1);
     param = amxd_object_get_param_def(object, "Param1");
     assert_ptr_not_equal(param, NULL);
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectTemplateWithChild.1.TemplateChildObject");
-    assert_int_equal(amxd_object_get_param_count(object, true), 1);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 1);
     param = amxd_object_get_param_def(object, "Param1");
     assert_ptr_not_equal(param, NULL);
 }
@@ -224,13 +224,13 @@ static void check_functions_exist(amxd_dm_t *dm) {
     };
 
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectFunctions");
-    assert_int_equal(amxd_object_get_function_count(object, true), 16); // 12 defined in odl + 4 defaults
+    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 17); // 12 defined in odl + 5 defaults
     for(int i = 0; obj_funcs[i] != NULL; i++) {
         assert_ptr_not_equal(amxd_object_get_function(object, obj_funcs[i]), NULL);
     }
 
     object = amxd_object_findf(root, "TestObjectRoot.TestSingletonFuncAttr");
-    assert_int_equal(amxd_object_get_function_count(object, true), 6); // 2 defined in odl + 4 defaults
+    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 7); // 2 defined in odl + 5 defaults
     func = amxd_object_get_function(object, "TestFunc1");
     assert_true(amxd_function_is_attr_set(func, amxd_fattr_template));
     assert_true(amxd_function_is_attr_set(func, amxd_fattr_instance));

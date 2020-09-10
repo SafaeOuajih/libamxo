@@ -1,3 +1,24 @@
+libamxo (0.3.2) unstable; urgency=medium
+
+  * Pass version_prefix to make command
+
+ -- Steven VAN WEYNSBERGHE <steven.vanweynsberghe@softathome.com>  Thu, 03 Sep 2020 14:13:30 +0000
+
+libamxo (0.3.1) unstable; urgency=medium
+
+  * Fixes g++ compilation warnings and errors
+  * Add version prefix to support legacy build system
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 03 Sep 2020 06:13:30 +0000
+
+libamxo (0.3.0) unstable; urgency=medium
+
+  * Needs libamxd v1.0.0 or higher
+  * Apply API changes of libamxd
+  * Removes uneeded references to libamxb in unit tests
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Sat, 29 Aug 2020 21:21:19 +0000
+
 libamxo (0.2.7) unstable; urgency=medium
 
   * Makes new parameter validation and read action implementations available in ODL

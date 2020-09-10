@@ -13,6 +13,7 @@ test_plugin:
 clean: 
 	rm -rf $(OBJDIR)
 	rm -rf $(OBJDIR)/$(COVERREPORT)
+	make -C test_plugin clean
 
 coverage: $(OBJDIR)/$(COVERREPORT)/
 	@cd $(OBJDIR) && \

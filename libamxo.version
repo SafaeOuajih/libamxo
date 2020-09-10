@@ -1,3 +1,7 @@
-CODEABI_1.0 { 
-    global: *amxo_*; 
-    local: *yy*; };
+AMXO_1.0 { 
+    global: 
+      amxo_*; yyparse;
+    local:
+      yy_*; yyget_*; yypop_*; yypush_*; yyget_*; yyset_*; yyalloc; yyerror; yyfree;
+      yylex*; yyrealloc; yyrestart; yywarning;
+};

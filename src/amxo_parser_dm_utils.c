@@ -57,7 +57,10 @@
 ** POSSIBILITY OF SUCH DAMAGE.
 **
 ****************************************************************************/
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <sys/resource.h>
 
 #include <stdlib.h>
@@ -88,7 +91,7 @@
 #include "amxo_parser.tab.h"
 #include "amxo_parser_hooks_priv.h"
 
-static int64_t object_actions[] = {
+static amxd_action_t object_actions[] = {
     action_object_read,      // action_read,
     action_object_write,     // action_write
     action_object_validate,  // action_validate
@@ -99,14 +102,14 @@ static int64_t object_actions[] = {
     action_object_destroy    // action_destroy
 };
 
-static int64_t param_actions[] = {
+static amxd_action_t param_actions[] = {
     action_param_read,      // action_read,
     action_param_write,     // action_write
     action_param_validate,  // action_validate
-    -1,                     // action_list
+    action_invalid,         // action_list
     action_param_describe,  // action_describe
-    -1,                     // action_add_inst
-    -1,                     // action_del_inst
+    action_invalid,         // action_add_inst
+    action_invalid,         // action_del_inst
     action_param_destroy    // action_destroy
 };
 
@@ -203,74 +206,74 @@ static amxd_status_t amxo_parser_set_object_action(amxd_object_t *object,
 
 static int64_t amxo_attr_2_object_attr(int64_t attributes) {
     int64_t obj_attrs = 0;
-    if(amxd_bit_map(attr_readonly) & attributes) {
-        obj_attrs |= amxd_bit_map(amxd_oattr_read_only);
+    if(SET_BIT(attr_readonly) & attributes) {
+        obj_attrs |= SET_BIT(amxd_oattr_read_only);
     }
-    if(amxd_bit_map(attr_persistent) & attributes) {
-        obj_attrs |= amxd_bit_map(amxd_oattr_persistent);
+    if(SET_BIT(attr_persistent) & attributes) {
+        obj_attrs |= SET_BIT(amxd_oattr_persistent);
     }
-    if(amxd_bit_map(attr_private) & attributes) {
-        obj_attrs |= amxd_bit_map(amxd_oattr_private);
+    if(SET_BIT(attr_private) & attributes) {
+        obj_attrs |= SET_BIT(amxd_oattr_private);
     }
     return obj_attrs;
 }
 
 static int64_t amxo_attr_2_param_attr(int64_t attributes) {
     int64_t param_attrs = 0;
-    if(amxd_bit_map(attr_readonly) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_read_only);
+    if(SET_BIT(attr_readonly) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_read_only);
     }
-    if(amxd_bit_map(attr_persistent) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_persistent);
+    if(SET_BIT(attr_persistent) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_persistent);
     }
-    if(amxd_bit_map(attr_private) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_private);
+    if(SET_BIT(attr_private) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_private);
     }
-    if(amxd_bit_map(attr_template) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_template);
+    if(SET_BIT(attr_template) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_template);
     }
-    if(amxd_bit_map(attr_instance) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_instance);
+    if(SET_BIT(attr_instance) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_instance);
     }
-    if(amxd_bit_map(attr_variable) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_variable);
+    if(SET_BIT(attr_variable) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_variable);
     }
-    if(amxd_bit_map(attr_key) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_key);
+    if(SET_BIT(attr_key) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_key);
     }
-    if(amxd_bit_map(attr_unique) & attributes) {
-        param_attrs |= amxd_bit_map(amxd_pattr_unique);
+    if(SET_BIT(attr_unique) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_unique);
     }
     return param_attrs;
 }
 
 static int64_t amxo_attr_2_func_attr(int64_t attributes) {
     int64_t func_attrs = 0;
-    if(amxd_bit_map(attr_private) & attributes) {
-        func_attrs |= amxd_bit_map(amxd_fattr_private);
+    if(SET_BIT(attr_private) & attributes) {
+        func_attrs |= SET_BIT(amxd_fattr_private);
     }
-    if(amxd_bit_map(attr_template) & attributes) {
-        func_attrs |= amxd_bit_map(amxd_fattr_template);
+    if(SET_BIT(attr_template) & attributes) {
+        func_attrs |= SET_BIT(amxd_fattr_template);
     }
-    if(amxd_bit_map(attr_instance) & attributes) {
-        func_attrs |= amxd_bit_map(amxd_fattr_instance);
+    if(SET_BIT(attr_instance) & attributes) {
+        func_attrs |= SET_BIT(amxd_fattr_instance);
     }
     return func_attrs;
 }
 
 static int64_t amxo_attr_2_arg_attr(int64_t attributes) {
     int64_t arg_attrs = 0;
-    if(amxd_bit_map(attr_in) & attributes) {
-        arg_attrs |= amxd_bit_map(amxd_aattr_in);
+    if(SET_BIT(attr_in) & attributes) {
+        arg_attrs |= SET_BIT(amxd_aattr_in);
     }
-    if(amxd_bit_map(attr_out) & attributes) {
-        arg_attrs |= amxd_bit_map(amxd_aattr_out);
+    if(SET_BIT(attr_out) & attributes) {
+        arg_attrs |= SET_BIT(amxd_aattr_out);
     }
-    if(amxd_bit_map(attr_mandatory) & attributes) {
-        arg_attrs |= amxd_bit_map(amxd_aattr_mandatory);
+    if(SET_BIT(attr_mandatory) & attributes) {
+        arg_attrs |= SET_BIT(amxd_aattr_mandatory);
     }
-    if(amxd_bit_map(attr_strict) & attributes) {
-        arg_attrs |= amxd_bit_map(amxd_aattr_strict);
+    if(SET_BIT(attr_strict) & attributes) {
+        arg_attrs |= SET_BIT(amxd_aattr_strict);
     }
     return arg_attrs;
 }
@@ -593,6 +596,7 @@ bool amxo_parser_pop_object(amxo_parser_t *pctx) {
     bool retval = false;
     amxd_object_type_t type = amxd_object_get_type(pctx->object);
     const char *type_name = (type == amxd_object_mib) ? "mib" : "object";
+    amxd_object_t *object = NULL;
     pctx->status = amxd_object_validate(pctx->object, 0);
 
     if(pctx->status != amxd_status_ok) {
@@ -603,7 +607,7 @@ bool amxo_parser_pop_object(amxo_parser_t *pctx) {
     }
     amxo_hooks_end_object(pctx);
 
-    amxd_object_t *object = amxc_astack_pop(&pctx->object_stack);
+    object = (amxd_object_t *) amxc_astack_pop(&pctx->object_stack);
     pctx->object = object;
 
     retval = true;
@@ -678,7 +682,7 @@ int amxo_parser_set_param(amxo_parser_t *pctx,
         if(amxo_parser_check_config(pctx, "populate_behavior.unknown_parameter", "add")) {
             uint32_t type = amxc_var_is_null(value) ? AMXC_VAR_ID_CSTRING : amxc_var_type_of(value);
             param = amxo_parser_new_param(pctx, name,
-                                          amxd_bit_map(amxd_pattr_persistent),
+                                          SET_BIT(amxd_pattr_persistent),
                                           type);
             when_null(param, exit);
         } else if(amxo_parser_check_config(pctx,
@@ -785,7 +789,7 @@ void amxo_parser_pop_func(amxo_parser_t *pctx) {
 bool amxo_parser_add_arg(amxo_parser_t *pctx,
                          const char *name,
                          int64_t attr_bitmask,
-                         amxd_object_type_t type,
+                         uint32_t type,
                          amxc_var_t *def_value) {
     bool retval = false;
     int64_t aattrs = amxo_attr_2_arg_attr(attr_bitmask);
@@ -931,7 +935,7 @@ int amxo_parser_set_action(amxo_parser_t *pctx,
     }
 
     if(pctx->param != NULL) {
-        if(param_actions[action] == -1) {
+        if(param_actions[action] == action_invalid) {
             pctx->status = amxd_status_invalid_action;
             amxo_parser_msg(pctx, "Invalid parameter action (action id = %d)", action);
             goto exit;

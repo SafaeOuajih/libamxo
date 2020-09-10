@@ -15,8 +15,8 @@ ECHO = $(shell which echo)
 CAT = $(shell which cat)
 
 # the current version
-RAW_VERSION ?= $(if $(shell git describe --tags 2> /dev/null),$(shell git describe --tags),v0.0.0)
-VERSION = $(subst v,,$(strip $(RAW_VERSION)))
+RAW_VERSION ?= $(if $(shell git describe --tags 2> /dev/null),$(shell git describe --tags),$(VERSION_PREFIX)v0.0.0)
+VERSION = $(subst $(VERSION_PREFIX)v,,$(strip $(RAW_VERSION)))
 VERSION_PARTS = $(subst ., ,$(VERSION))
 VMAJOR = $(word 1,$(VERSION_PARTS))
 VMINOR = $(word 2,$(VERSION_PARTS))
@@ -25,6 +25,8 @@ VBUILD = $(word 1,$(subst -, ,$(VBUILD_FULL)))
 
 # the processor architecture 
 MACHINE = $(shell $(CC) -dumpmachine)
+CC_PARTS = $(subst -, ,$(CC))
+CC_NAME = $(word $(words $(CC_PARTS)),$(CC_PARTS))
 
 # Target
 TARGET_NAME = amxo

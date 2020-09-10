@@ -58,7 +58,10 @@
 **
 ****************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -376,7 +379,7 @@ static int amxo_parser_instance_header(amxd_object_t *object,
     }
 
     amxc_var_init(&params);
-    amxd_object_describe_params(object, false, &params);
+    amxd_object_describe_params(object, &params, amxd_dm_access_public);
     ht_params = amxc_var_constcast(amxc_htable_t, &params);
     if(amxo_parser_has_key_params(ht_params)) {
         amxc_htable_for_each(it, ht_params) {
@@ -434,7 +437,7 @@ static int amxo_parser_save_mibs(int fd,
     int retval = 0;
     amxc_array_it_t *it = amxc_array_get_first(&object->mib_names);
     while(it) {
-        const char *name = amxc_array_it_get_data(it);
+        const char *name = (const char *) amxc_array_it_get_data(it);
         amxo_parser_writef(buffer, "extend using mib %s;\n", name);
         retval = amxo_parser_flush_buffer(fd, buffer);
         when_true(retval < 0, exit);
@@ -453,7 +456,7 @@ static int amxo_parser_save_params(int fd,
     amxc_var_t params;
     amxc_var_init(&params);
 
-    amxd_object_describe_params(object, true, &params);
+    amxd_object_describe_params(object, &params, amxd_dm_access_public);
     ht_params = amxc_var_constcast(amxc_htable_t, &params);
 
     amxc_htable_for_each(it, ht_params) {
