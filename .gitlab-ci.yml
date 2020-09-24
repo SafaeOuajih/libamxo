@@ -4,7 +4,7 @@ variables:
   UTEST_TEST_CMD: "make run"
   UTEST_TEST_COV_CMD: "make coverage"
   DOC_GEN_CMD: "make doc"
-  BUILD_DEPS: libamxc=0.6.11 libamxd=1.0.3 libamxp=0.4.4 flex bison
+  BUILD_DEPS: libamxc=0.6.12 libamxd=1.0.7 libamxp=0.4.5 flex bison
   BUILD_TARGET: libamxo
   PC_BUILD_COMP_YOCTO: "off"
 

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## Release 0.3.4 - 2020-09-17(20:44:37 +0000)
+
+### New
+
+- Make it possible to extend object definitions
+- Adds select keyword for %define section
+
+## Release 0.3.3 - 2020-09-17(13:45:59 +0000)
+
+### Fixes
+
+- ODL parser behavior configuration option names are not in line with other configuration options
+- When defining a function or parameter in an existing instance object the %instance attribute must be set automatically
+
+### Changes
+
+- Update ODL documentation
+
+
 ## Release 0.3.2 - 2020-09-03(14:13:25 +0000)
 
 ### Fixes

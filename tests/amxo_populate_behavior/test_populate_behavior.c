@@ -108,7 +108,7 @@ void test_none_existing_param_can_add(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     const char *main_odl =
-        "%config { populate_behavior = { unknown_parameter = \"add\" }; }\n"
+        "%config { populate-behavior = { unknown-parameter = \"add\" }; }\n"
         "%define { object MyObject { string Text; } }\n"
         "%populate { object MyObject { parameter OtherParam = 10; } }\n";
 
@@ -133,7 +133,7 @@ void test_none_existing_param_warning(UNUSED void **state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     const char *main_odl =
-        "%config { populate_behavior = { unknown_parameter = \"warning\" }; }\n"
+        "%config { populate-behavior = { unknown-parameter = \"warning\" }; }\n"
         "%define { object MyObject { string Text; } }\n"
         "%populate { object MyObject { parameter OtherParam = 10; } }\n";
 
@@ -185,7 +185,7 @@ void test_duplicate_instance_can_update(UNUSED void **state) {
     amxd_object_t *object = NULL;
     char *value = NULL;
     const char *main_odl =
-        "%config { populate_behavior = { duplicate_instance = \"update\" }; }\n"
+        "%config { populate-behavior = { duplicate-instance = \"update\" }; }\n"
         "%define {\n"
         "    object MyObject {\n"
         "        object MyTemplate[] {\n"
@@ -223,7 +223,7 @@ void test_duplicate_instance_with_keys_can_update(UNUSED void **state) {
     amxd_object_t *object = NULL;
     uint32_t value = 0;
     const char *main_odl =
-        "%config { populate_behavior = { duplicate_instance = \"update\" }; }\n"
+        "%config { populate-behavior = { duplicate-instance = \"update\" }; }\n"
         "%define {\n"
         "    object MyObject {\n"
         "        object MyTemplate[] {\n"

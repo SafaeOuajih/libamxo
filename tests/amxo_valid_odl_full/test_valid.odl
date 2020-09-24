@@ -61,6 +61,9 @@
     test_option_number = 123;
     test_option_string = "This is a text";
     test_option_bool = true; 
+    counter_name = "TestNumberOfEntries";
+    object_name = "TestSingeltonObjectAttr";
+    instance_name = "Name2";
 }
 
 import "test_plugin.so" as test_plugin;
@@ -127,7 +130,7 @@ import "test_plugin.so" as test_plugin;
                         variant arg10);
         }
 
-        %read-only %persistent object TestSingeltonObjectAttr {
+        %read-only %persistent object "${object_name}" {
             %read-only %persistent %private %template %instance %volatile string Param1;
         }
 
@@ -135,6 +138,7 @@ import "test_plugin.so" as test_plugin;
             %read-only %persistent %private %template %instance %volatile string Param1;
         }
         object TestTemplateParamAttr[] {
+            counted with "${counter_name}";
             %read-only %persistent %private %template %instance %volatile string Param1;
             %template string Param2 {
                 on action validate call check_enum [ "value1", "value2", "value3" ];
@@ -195,7 +199,7 @@ import "test_plugin.so" as test_plugin;
                 parameter Param1 = "Some Text";
             }
         }
-        instance add(2,"Name2") {
+        instance add(2,"${instance_name}") {
             extend using mib TestMib;
         }
     }
@@ -240,4 +244,22 @@ import "test_plugin.so" as test_plugin;
     on event ".*" of ".*" call handle_event;
     on event ".*" call handle_events 
                   filter "object matches \"TestObjectRoot\.TestObjectTempl.*\"";
+}
+
+%config {
+    define-behavior = {
+        existing-object = "update"
+    };
+}
+
+%define {
+    object TestObjectRoot {
+        object TestObjectTemplateWithKeys {
+            object Test {
+                void testfunc(%in string arg);
+                string ExtraParameter = "TEST";
+                void get();
+            }
+        }
+    }
 }

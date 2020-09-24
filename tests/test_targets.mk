@@ -1,7 +1,7 @@
 all: $(TARGET)
 
 run: $(TARGET)
-	set -o pipefail; valgrind --error-exitcode=1 ./$< 2>&1 | tee -a $(OBJDIR)/unit_test_results.txt;
+	set -o pipefail; CMOCKA_TEST_ABORT='1' valgrind --error-exitcode=1 ./$< 2>&1 | tee -a $(OBJDIR)/unit_test_results.txt;
 
 $(TARGET): $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LDFLAGS) -fprofile-arcs -ftest-coverage

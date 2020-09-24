@@ -203,6 +203,9 @@ datamodel                 { yylval->integer = token_populate;
 object                    { yylval->integer = token_object;  
                             return OBJECT; 
                           }
+select                    { yylval->integer = token_object;  
+                            return SELECT; 
+                          }
 mib                       { yylval->integer = token_mib;  
                             return OBJECT; 
                           }

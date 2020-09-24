@@ -1,3 +1,18 @@
+libamxo (0.3.4) unstable; urgency=medium
+
+  * Make it possible to extend object definitions
+  * Adds select keyword for %define section
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 17 Sep 2020 20:44:44 +0000
+
+libamxo (0.3.3) unstable; urgency=medium
+
+  * ODL parser behavior configuration option names are not in line with other configuration options
+  * When defining a function or parameter in an existing instance object the %instance attribute must be set automatically
+  * Update ODL documentation
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 17 Sep 2020 13:46:03 +0000
+
 libamxo (0.3.2) unstable; urgency=medium
 
   * Pass version_prefix to make command

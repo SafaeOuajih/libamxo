@@ -106,6 +106,7 @@
 %token <integer> CONFIG
 %token <integer> POPULATE
 %token <integer> OBJECT
+%token <integer> SELECT
 %token <integer> EXTEND
 %token <integer> EOF_TOKEN
 %token <integer> DIGIT
@@ -168,6 +169,7 @@
                                    amxc_string_get(&context->msg, 0),
                                    context->file,
                                    locp->first_line);
+                amxc_string_reset(&context->msg);
             } else {
                 amxo_parser_printf("ERROR %s@%s:line %d\n", 
                                    err,
@@ -181,6 +183,7 @@
                                    amxc_string_get(&context->msg, 0),
                                    context->file,
                                    locp->first_line);
+                amxc_string_reset(&context->msg);
             } else {
                 amxo_parser_printf("ERROR %d - %s - %s@%s:line %d\n",
                                    context->status,
@@ -199,6 +202,7 @@
                                amxc_string_get(&context->msg, 0),
                                context->file,
                                locp->first_line);
+            amxc_string_reset(&context->msg);
         } else {
             amxo_parser_printf("WARNING %s@%s:line %d\n",
                                err,
@@ -429,6 +433,10 @@ object_def_header
       YY_CHECK(amxo_parser_create_object(parser_ctx, $3.txt, $1, amxd_object_template) < 0, $3.txt);
       YY_WARNING(amxd_object_set_max_instances(parser_ctx->object, $4) != amxd_status_ok,
                  "Failed to set maximum instances");
+    }
+  | SELECT path {
+      $2.txt[$2.length] = 0;
+      YY_CHECK(!amxo_parser_push_object(parser_ctx, $2.txt), $2.txt);
     }
   ;
 

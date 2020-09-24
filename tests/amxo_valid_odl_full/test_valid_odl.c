@@ -190,7 +190,7 @@ static void check_parameters_exist(amxd_dm_t *dm) {
     assert_false(amxd_param_is_attr_set(param, amxd_pattr_template));
 
     object = amxd_object_findf(root, "TestObjectRoot");
-    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 1);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 2);
     param = amxd_object_get_param_def(object, "TestObjectTemplateWithChildCounter");
     assert_ptr_not_equal(param, NULL);
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectTemplateWithChild.TemplateChildObject");

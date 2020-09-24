@@ -308,7 +308,7 @@ static int amxo_parser_can_update_object(amxo_parser_t *pctx,
     int retval = 0;
     const char *type_name = type == amxd_object_mib ? "mib" : "object";
     if(amxo_parser_check_config(pctx,
-                                "define_behavior.existing_object",
+                                "define-behavior.existing-object",
                                 "update")) {
         pctx->status = amxd_status_ok;
         goto exit;
@@ -381,7 +381,7 @@ static amxd_object_t  *amxo_parser_can_update_instance(amxo_parser_t *pctx,
                                                        const char *name) {
     amxd_object_t *object = NULL;
     if(!amxo_parser_check_config(pctx,
-                                 "populate_behavior.duplicate_instance",
+                                 "populate-behavior.duplicate-instance",
                                  "update")) {
         amxo_parser_msg(pctx, "Duplicate instance");
         goto exit;
@@ -633,12 +633,15 @@ bool amxo_parser_push_param(amxo_parser_t *pctx,
     pctx->status = amxd_status_ok;
     param = amxd_object_get_param_def(pctx->object, name);
     if(param == NULL) {
+        if(amxd_object_get_type(pctx->object) == amxd_object_instance) {
+            pattrs |= SET_BIT(amxd_pattr_instance);
+        }
         param = amxo_parser_new_param(pctx, name, pattrs, type);
         when_null(param, exit);
         amxo_hooks_add_param(pctx, name, pattrs, type);
     } else {
         if(!amxo_parser_check_config(pctx,
-                                     "define_behavior.existing_parameter",
+                                     "define-behavior.existing-parameter",
                                      "update")) {
             amxo_parser_msg(pctx, "Duplicate parameter %s", name);
             pctx->status = amxd_status_duplicate;
@@ -679,14 +682,14 @@ int amxo_parser_set_param(amxo_parser_t *pctx,
     pctx->status = amxd_status_ok;
     param = pctx->param == NULL ? amxd_object_get_param_def(pctx->object, name) : pctx->param;
     if(param == NULL) {
-        if(amxo_parser_check_config(pctx, "populate_behavior.unknown_parameter", "add")) {
+        if(amxo_parser_check_config(pctx, "populate-behavior.unknown-parameter", "add")) {
             uint32_t type = amxc_var_is_null(value) ? AMXC_VAR_ID_CSTRING : amxc_var_type_of(value);
             param = amxo_parser_new_param(pctx, name,
                                           SET_BIT(amxd_pattr_persistent),
                                           type);
             when_null(param, exit);
         } else if(amxo_parser_check_config(pctx,
-                                           "populate_behavior.unknown_parameter",
+                                           "populate-behavior.unknown-parameter",
                                            "warning")) {
             amxo_parser_msg(pctx,
                             "Parameter %s not found in object \"%s\"",
@@ -757,10 +760,17 @@ int amxo_parser_push_func(amxo_parser_t *pctx,
         amxo_parser_msg(pctx, "Failed to create function %s", name);
         goto exit;
     }
+
+    if(amxd_object_get_type(pctx->object) == amxd_object_instance) {
+        fattrs |= SET_BIT(amxd_fattr_instance);
+    }
+
     amxd_function_set_attrs(func, fattrs, true);
 
     if(orig_func != NULL) {
-        amxd_function_delete(&orig_func);
+        if(amxd_function_get_owner(orig_func) == pctx->object) {
+            amxd_function_delete(&orig_func);
+        }
         amxo_parser_msg(pctx, "Overriding function %s", name);
         pctx->status = amxd_object_add_function(pctx->object, func);
         retval = 1;
