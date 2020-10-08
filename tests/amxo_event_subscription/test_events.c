@@ -90,27 +90,27 @@
 
 uint32_t event_counter = 0;
 
-static void _print_event(const char * const sig_name,
-                         const amxc_var_t * const data,
-                         UNUSED void * const priv) {
+static void _print_event(const char* const sig_name,
+                         const amxc_var_t* const data,
+                         UNUSED void* const priv) {
 
     printf("Event received %s\n", sig_name);
     amxc_var_dump(data, STDOUT_FILENO);
     event_counter++;
 }
 
-void test_event_subscription(UNUSED void **state) {
+void test_event_subscription(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxd_trans_t transaction;
 
-    const char *odl = "%define {"
+    const char* odl = "%define {"
         "    object Test[] { string text = \"Hallo\"; }"
         "}"
         "%populate {"
         "    on event regexp(\".*\") call print_event;"
         "}";
-    const char *odl_2 = "%populate {"
+    const char* odl_2 = "%populate {"
         "     on event regexp(\"dm:instance-.*\") of \"Test\" call print_event;"
         "}";
 
@@ -132,9 +132,9 @@ void test_event_subscription(UNUSED void **state) {
     amxd_trans_init(&transaction);
     amxd_trans_select_pathf(&transaction, "Test");
     amxd_trans_add_inst(&transaction, 0, NULL);
-    amxd_trans_select_pathf(&transaction, "..");
+    amxd_trans_select_pathf(&transaction, ".^");
     amxd_trans_add_inst(&transaction, 0, NULL);
-    amxd_trans_select_pathf(&transaction, "..");
+    amxd_trans_select_pathf(&transaction, ".^");
     amxd_trans_add_inst(&transaction, 0, NULL);
     assert_int_equal(amxd_trans_apply(&transaction, &dm), 0);
     amxd_trans_clean(&transaction);
@@ -148,12 +148,12 @@ void test_event_subscription(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_event_subscription_filter(UNUSED void **state) {
+void test_event_subscription_filter(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxd_trans_t transaction;
 
-    const char *odl =
+    const char* odl =
         "%define {\n"
         "    object Test { string text = \"Hallo\"; }\n"
         "}\n"
@@ -206,12 +206,12 @@ void test_event_subscription_filter(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_deprecated_event_subscription_write_with_object(UNUSED void **state) {
+void test_deprecated_event_subscription_write_with_object(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxd_trans_t transaction;
 
-    const char *odl =
+    const char* odl =
         "%define {"
         "    object Test {"
         "        write with print_event;"
@@ -261,12 +261,12 @@ void test_deprecated_event_subscription_write_with_object(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_deprecated_event_subscription_write_with_param(UNUSED void **state) {
+void test_deprecated_event_subscription_write_with_param(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxd_trans_t transaction;
 
-    const char *odl =
+    const char* odl =
         "%define {"
         "    object Test {"
         "        string text {"
@@ -319,11 +319,11 @@ void test_deprecated_event_subscription_write_with_param(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_subscription_warns_if_function_not_resolved(UNUSED void **state) {
+void test_subscription_warns_if_function_not_resolved(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
-    const char *odl = "%define {"
+    const char* odl = "%define {"
         "    object Test[] { string text = \"Hallo\"; }"
         "}"
         "%populate {"
@@ -340,11 +340,11 @@ void test_subscription_warns_if_function_not_resolved(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_deprecated_subscription_warns_if_function_not_resolved(UNUSED void **state) {
+void test_deprecated_subscription_warns_if_function_not_resolved(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
-    const char *odl =
+    const char* odl =
         "%define {"
         "    object Test {"
         "        string text {"

@@ -73,62 +73,62 @@
 
 #define UNUSED __attribute__((unused))
 
-static amxo_parser_t *local_parser = NULL;
+static amxo_parser_t* local_parser = NULL;
 
 int _test_entry_point(int reason,
-                      amxd_dm_t *dm,
-                      amxo_parser_t *parser);
+                      amxd_dm_t* dm,
+                      amxo_parser_t* parser);
 
 int _test_failing_entry_point(UNUSED int reason,
-                              UNUSED amxd_dm_t *dm,
-                              UNUSED amxo_parser_t *parser);
+                              UNUSED amxd_dm_t* dm,
+                              UNUSED amxo_parser_t* parser);
 
-amxd_status_t _test_func(amxd_object_t *object,
-                         amxd_function_t *func,
-                         amxc_var_t *args,
-                         amxc_var_t *ret);
-amxd_status_t _TestObject_TestFunc1(amxd_object_t *object,
-                                    amxd_function_t *func,
-                                    amxc_var_t *args,
-                                    amxc_var_t *ret);
-amxd_status_t _TestObject_TestFunc2(amxd_object_t *object,
-                                    amxd_function_t *func,
-                                    amxc_var_t *args,
-                                    amxc_var_t *ret);
-amxd_status_t _TestObject_TestFunc4(amxd_object_t *object,
-                                    amxd_function_t *func,
-                                    amxc_var_t *args,
-                                    amxc_var_t *ret);
+amxd_status_t _test_func(amxd_object_t* object,
+                         amxd_function_t* func,
+                         amxc_var_t* args,
+                         amxc_var_t* ret);
+amxd_status_t _TestObject_TestFunc1(amxd_object_t* object,
+                                    amxd_function_t* func,
+                                    amxc_var_t* args,
+                                    amxc_var_t* ret);
+amxd_status_t _TestObject_TestFunc2(amxd_object_t* object,
+                                    amxd_function_t* func,
+                                    amxc_var_t* args,
+                                    amxc_var_t* ret);
+amxd_status_t _TestObject_TestFunc4(amxd_object_t* object,
+                                    amxd_function_t* func,
+                                    amxc_var_t* args,
+                                    amxc_var_t* ret);
 
-amxd_status_t __TestObject_TestFunc1(amxd_object_t *object,
-                                     amxd_function_t *func,
-                                     amxc_var_t *args,
-                                     amxc_var_t *ret);
-amxd_status_t TestObject_TestFunc2(amxd_object_t *object,
-                                   amxd_function_t *func,
-                                   amxc_var_t *args,
-                                   amxc_var_t *ret);
-amxd_status_t __TestFunc3(amxd_object_t *object,
-                          amxd_function_t *func,
-                          amxc_var_t *args,
-                          amxc_var_t *ret);
-amxd_status_t TestFunc4(amxd_object_t *object,
-                        amxd_function_t *func,
-                        amxc_var_t *args,
-                        amxc_var_t *ret);
+amxd_status_t __TestObject_TestFunc1(amxd_object_t* object,
+                                     amxd_function_t* func,
+                                     amxc_var_t* args,
+                                     amxc_var_t* ret);
+amxd_status_t TestObject_TestFunc2(amxd_object_t* object,
+                                   amxd_function_t* func,
+                                   amxc_var_t* args,
+                                   amxc_var_t* ret);
+amxd_status_t __TestFunc3(amxd_object_t* object,
+                          amxd_function_t* func,
+                          amxc_var_t* args,
+                          amxc_var_t* ret);
+amxd_status_t TestFunc4(amxd_object_t* object,
+                        amxd_function_t* func,
+                        amxc_var_t* args,
+                        amxc_var_t* ret);
 
-amxd_status_t _test_dummy_action(amxd_object_t * const object,
-                                 amxd_param_t * const param,
+amxd_status_t _test_dummy_action(amxd_object_t* const object,
+                                 amxd_param_t* const param,
                                  amxd_action_t reason,
-                                 const amxc_var_t * const args,
-                                 amxc_var_t * const retval,
-                                 void *priv);
+                                 const amxc_var_t* const args,
+                                 amxc_var_t* const retval,
+                                 void* priv);
 
-amxd_status_t _test_func(amxd_object_t *object,
-                         amxd_function_t *func,
-                         amxc_var_t *args,
-                         amxc_var_t *ret) {
-    char *path = amxd_object_get_path(object, AMXD_OBJECT_NAMED);
+amxd_status_t _test_func(amxd_object_t* object,
+                         amxd_function_t* func,
+                         amxc_var_t* args,
+                         amxc_var_t* ret) {
+    char* path = amxd_object_get_path(object, AMXD_OBJECT_NAMED);
     printf("Function call: \n");
     printf("Object   - %s\n", path);
     printf("Function - %s\n", amxd_function_get_name(func));
@@ -141,64 +141,64 @@ amxd_status_t _test_func(amxd_object_t *object,
     return 0;
 }
 
-amxd_status_t _TestObject_TestFunc1(amxd_object_t *object,
-                                    amxd_function_t *func,
-                                    amxc_var_t *args,
-                                    amxc_var_t *ret) {
+amxd_status_t _TestObject_TestFunc1(amxd_object_t* object,
+                                    amxd_function_t* func,
+                                    amxc_var_t* args,
+                                    amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 
-amxd_status_t _TestObject_TestFunc2(amxd_object_t *object,
-                                    amxd_function_t *func,
-                                    amxc_var_t *args,
-                                    amxc_var_t *ret) {
+amxd_status_t _TestObject_TestFunc2(amxd_object_t* object,
+                                    amxd_function_t* func,
+                                    amxc_var_t* args,
+                                    amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 
-amxd_status_t _TestObject_TestFunc4(amxd_object_t *object,
-                                    amxd_function_t *func,
-                                    amxc_var_t *args,
-                                    amxc_var_t *ret) {
+amxd_status_t _TestObject_TestFunc4(amxd_object_t* object,
+                                    amxd_function_t* func,
+                                    amxc_var_t* args,
+                                    amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 
 
 // PCB Style symbols
 //////////////////////////////////////////////////////////////
-amxd_status_t __TestObject_TestFunc1(amxd_object_t *object,
-                                     amxd_function_t *func,
-                                     amxc_var_t *args,
-                                     amxc_var_t *ret) {
+amxd_status_t __TestObject_TestFunc1(amxd_object_t* object,
+                                     amxd_function_t* func,
+                                     amxc_var_t* args,
+                                     amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 
-amxd_status_t TestObject_TestFunc2(amxd_object_t *object,
-                                   amxd_function_t *func,
-                                   amxc_var_t *args,
-                                   amxc_var_t *ret) {
+amxd_status_t TestObject_TestFunc2(amxd_object_t* object,
+                                   amxd_function_t* func,
+                                   amxc_var_t* args,
+                                   amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 
-amxd_status_t __TestFunc3(amxd_object_t *object,
-                          amxd_function_t *func,
-                          amxc_var_t *args,
-                          amxc_var_t *ret) {
+amxd_status_t __TestFunc3(amxd_object_t* object,
+                          amxd_function_t* func,
+                          amxc_var_t* args,
+                          amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 
-amxd_status_t TestFunc4(amxd_object_t *object,
-                        amxd_function_t *func,
-                        amxc_var_t *args,
-                        amxc_var_t *ret) {
+amxd_status_t TestFunc4(amxd_object_t* object,
+                        amxd_function_t* func,
+                        amxc_var_t* args,
+                        amxc_var_t* ret) {
     return _test_func(object, func, args, ret);
 }
 //////////////////////////////////////////////////////////////
 
 int _test_entry_point(UNUSED int reason,
-                      UNUSED amxd_dm_t *dm,
-                      UNUSED amxo_parser_t *parser) {
+                      UNUSED amxd_dm_t* dm,
+                      UNUSED amxo_parser_t* parser) {
 
-    amxc_var_t *counter = amxo_parser_get_config(parser, "counter");
+    amxc_var_t* counter = amxo_parser_get_config(parser, "counter");
     amxc_var_set(uint32_t, counter, amxc_var_constcast(uint32_t, counter) + 1);
 
     if(reason == 0) {
@@ -210,21 +210,21 @@ int _test_entry_point(UNUSED int reason,
 }
 
 int _test_failing_entry_point(UNUSED int reason,
-                              UNUSED amxd_dm_t *dm,
-                              UNUSED amxo_parser_t *parser) {
+                              UNUSED amxd_dm_t* dm,
+                              UNUSED amxo_parser_t* parser) {
 
-    amxc_var_t *counter = amxo_parser_get_config(parser, "counter");
+    amxc_var_t* counter = amxo_parser_get_config(parser, "counter");
     amxc_var_set(uint32_t, counter, amxc_var_constcast(uint32_t, counter) + 1);
 
     return -1;
 }
 
-amxd_status_t _test_dummy_action(amxd_object_t * const object,
-                                 amxd_param_t * const param,
+amxd_status_t _test_dummy_action(amxd_object_t* const object,
+                                 amxd_param_t* const param,
                                  amxd_action_t reason,
-                                 const amxc_var_t * const args,
-                                 amxc_var_t * const retval,
-                                 void *priv) {
+                                 const amxc_var_t* const args,
+                                 amxc_var_t* const retval,
+                                 void* priv) {
     amxd_status_t status = amxd_status_ok;
     if(reason == action_param_read) {
         status = amxd_action_param_read(object, param, reason, args, retval, priv);

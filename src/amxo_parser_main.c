@@ -83,19 +83,19 @@
 #include "amxo_parser_hooks_priv.h"
 #include "amxo_parser.tab.h"
 
-static ssize_t amxo_parser_string_reader(amxo_parser_t *parser,
-                                         void *buf,
+static ssize_t amxo_parser_string_reader(amxo_parser_t* parser,
+                                         void* buf,
                                          size_t max_size) {
     ssize_t result = 0;
-    result = amxc_rbuffer_read(&parser->rbuffer, (char *) buf, max_size);
+    result = amxc_rbuffer_read(&parser->rbuffer, (char*) buf, max_size);
     errno = 0;
 
     return result;
 }
 
-static int amxo_parser_parse_fd_internal(amxo_parser_t *parser,
+static int amxo_parser_parse_fd_internal(amxo_parser_t* parser,
                                          int fd,
-                                         amxd_object_t *object) {
+                                         amxd_object_t* object) {
     int retval = -1;
 
     parser->fd = fd;
@@ -117,19 +117,19 @@ static int amxo_parser_parse_fd_internal(amxo_parser_t *parser,
     return retval;
 }
 
-static void amxo_parser_entry_point_free(amxc_llist_it_t *it) {
-    amxo_entry_t *entry = amxc_llist_it_get_data(it, amxo_entry_t, it);
+static void amxo_parser_entry_point_free(amxc_llist_it_t* it) {
+    amxo_entry_t* entry = amxc_llist_it_get_data(it, amxo_entry_t, it);
     free(entry);
 }
 
-static void amxo_parser_connection_free(amxc_llist_it_t *it) {
-    amxo_connection_t *con = amxc_llist_it_get_data(it, amxo_connection_t, it);
+static void amxo_parser_connection_free(amxc_llist_it_t* it) {
+    amxo_connection_t* con = amxc_llist_it_get_data(it, amxo_connection_t, it);
     free(con);
 }
 
 
-ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t *parser,
-                                           void *buf,
+ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
+                                           void* buf,
                                            size_t max_size) {
     ssize_t result = 0;
     errno = 0;
@@ -142,9 +142,9 @@ ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t *parser,
     return result;
 }
 
-int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t *parser,
-                                             const char *file_path,
-                                             amxd_object_t *object) {
+int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t* parser,
+                                             const char* file_path,
+                                             amxd_object_t* object) {
     int retval = -1;
     int fd = -1;
 
@@ -167,7 +167,7 @@ exit:
     return retval;
 }
 
-void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t *parser) {
+void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     when_null(parser, exit);
 
     parser->fd = -1;
@@ -195,9 +195,9 @@ exit:
     return;
 }
 
-int amxo_parser_init(amxo_parser_t *parser) {
+int amxo_parser_init(amxo_parser_t* parser) {
     int retval = -1;
-    amxc_var_t *inc_dirs = NULL;
+    amxc_var_t* inc_dirs = NULL;
     when_null(parser, exit);
 
     amxo_parser_child_init(parser);
@@ -214,7 +214,7 @@ exit:
     return retval;
 }
 
-void amxo_parser_clean(amxo_parser_t *parser) {
+void amxo_parser_clean(amxo_parser_t* parser) {
     when_null(parser, exit);
 
     parser->fd = -1;
@@ -244,11 +244,11 @@ exit:
     return;
 }
 
-int amxo_parser_new(amxo_parser_t **parser) {
+int amxo_parser_new(amxo_parser_t** parser) {
     int retval = -1;
     when_null(parser, exit);
 
-    *parser = (amxo_parser_t *) calloc(1, sizeof(amxo_parser_t));
+    *parser = (amxo_parser_t*) calloc(1, sizeof(amxo_parser_t));
     when_null((*parser), exit);
 
     retval = amxo_parser_init(*parser);
@@ -262,7 +262,7 @@ exit:
     return retval;
 }
 
-void amxo_parser_delete(amxo_parser_t **parser) {
+void amxo_parser_delete(amxo_parser_t** parser) {
     when_null(parser, exit);
     when_null(*parser, exit);
 
@@ -274,9 +274,9 @@ exit:
     return;
 }
 
-int amxo_parser_parse_fd(amxo_parser_t *parser,
+int amxo_parser_parse_fd(amxo_parser_t* parser,
                          int fd,
-                         amxd_object_t *object) {
+                         amxd_object_t* object) {
     int retval = -1;
     struct rlimit nofile = { 0, 0 };
     when_null(parser, exit);
@@ -296,13 +296,13 @@ exit:
     return retval;
 }
 
-int amxo_parser_parse_file(amxo_parser_t *parser,
-                           const char *file_path,
-                           amxd_object_t *object) {
+int amxo_parser_parse_file(amxo_parser_t* parser,
+                           const char* file_path,
+                           amxd_object_t* object) {
     int retval = -1;
-    char *current_wd = getcwd(NULL, 0);
-    char *real_path = NULL;
-    char *dir_name = NULL;
+    char* current_wd = getcwd(NULL, 0);
+    char* real_path = NULL;
+    char* dir_name = NULL;
     when_str_empty(file_path, exit);
     when_null(object, exit);
 
@@ -337,9 +337,9 @@ exit:
     return retval;
 }
 
-int amxo_parser_parse_string(amxo_parser_t *parser,
-                             const char *text,
-                             amxd_object_t *object) {
+int amxo_parser_parse_string(amxo_parser_t* parser,
+                             const char* text,
+                             amxd_object_t* object) {
     int retval = -1;
     when_null(parser, exit);
     when_null(object, exit);
@@ -361,9 +361,9 @@ exit:
     return retval;
 }
 
-amxc_var_t *amxo_parser_claim_config(amxo_parser_t *parser,
-                                     const char *name) {
-    amxc_var_t *retval = NULL;
+amxc_var_t* amxo_parser_claim_config(amxo_parser_t* parser,
+                                     const char* name) {
+    amxc_var_t* retval = NULL;
     when_null(parser, exit);
     when_str_empty(name, exit);
 
@@ -376,9 +376,9 @@ exit:
     return retval;
 }
 
-amxc_var_t *amxo_parser_get_config(amxo_parser_t *parser,
-                                   const char *name) {
-    amxc_var_t *retval = NULL;
+amxc_var_t* amxo_parser_get_config(amxo_parser_t* parser,
+                                   const char* name) {
+    amxc_var_t* retval = NULL;
     when_null(parser, exit);
     when_str_empty(name, exit);
 
@@ -388,9 +388,9 @@ exit:
     return retval;
 }
 
-int amxo_parser_set_config(amxo_parser_t *parser,
-                           const char *name,
-                           amxc_var_t *value) {
+int amxo_parser_set_config(amxo_parser_t* parser,
+                           const char* name,
+                           amxc_var_t* value) {
     int retval = 0;
     when_null(parser, exit);
     when_null(value, exit);
@@ -405,10 +405,10 @@ exit:
     return retval;
 }
 
-int amxo_parser_add_entry_point(amxo_parser_t *parser,
+int amxo_parser_add_entry_point(amxo_parser_t* parser,
                                 amxo_entry_point_t fn) {
     int retval = -1;
-    amxo_entry_t *ep = NULL;
+    amxo_entry_t* ep = NULL;
     when_null(parser, exit);
     when_null(fn, exit);
 
@@ -425,7 +425,7 @@ int amxo_parser_add_entry_point(amxo_parser_t *parser,
         }
     }
 
-    ep = (amxo_entry_t *) calloc(1, sizeof(amxo_entry_t));
+    ep = (amxo_entry_t*) calloc(1, sizeof(amxo_entry_t));
     when_null(ep, exit);
 
     ep->entry_point = fn;
@@ -439,8 +439,8 @@ exit:
     return retval;
 }
 
-int amxo_parser_invoke_entry_points(amxo_parser_t *parser,
-                                    amxd_dm_t *dm,
+int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
+                                    amxd_dm_t* dm,
                                     int reason) {
     int retval = -1;
     int fail_count = 0;
@@ -452,7 +452,7 @@ int amxo_parser_invoke_entry_points(amxo_parser_t *parser,
     }
 
     amxc_llist_for_each(it, parser->entry_points) {
-        amxo_entry_t *ep = amxc_llist_it_get_data(it, amxo_entry_t, it);
+        amxo_entry_t* ep = amxc_llist_it_get_data(it, amxo_entry_t, it);
         retval = ep->entry_point(reason, dm, parser);
         if(retval != 0) {
             fail_count++;
@@ -465,14 +465,14 @@ exit:
     return retval;
 }
 
-int amxo_connection_add(amxo_parser_t *parser,
+int amxo_connection_add(amxo_parser_t* parser,
                         int fd,
                         amxo_fd_read_t reader,
-                        const char *uri,
+                        const char* uri,
                         amxo_con_type_t type,
-                        void *priv) {
+                        void* priv) {
     int retval = -1;
-    amxo_connection_t *con = NULL;
+    amxo_connection_t* con = NULL;
     amxc_var_t var_fd;
 
     amxc_var_init(&var_fd);
@@ -493,7 +493,7 @@ int amxo_connection_add(amxo_parser_t *parser,
         }
     }
 
-    con = (amxo_connection_t *) calloc(1, sizeof(amxo_connection_t));
+    con = (amxo_connection_t*) calloc(1, sizeof(amxo_connection_t));
     when_null(con, exit);
 
     con->uri = uri;
@@ -516,10 +516,10 @@ exit:
 
 }
 
-int amxo_connection_remove(amxo_parser_t *parser,
+int amxo_connection_remove(amxo_parser_t* parser,
                            int fd) {
     int retval = -1;
-    amxo_connection_t *con = NULL;
+    amxo_connection_t* con = NULL;
     when_null(parser, exit);
     when_null(parser->connections, exit);
 
@@ -545,9 +545,9 @@ exit:
     return retval;
 }
 
-amxo_connection_t *amxo_connection_get_first(amxo_parser_t *parser,
+amxo_connection_t* amxo_connection_get_first(amxo_parser_t* parser,
                                              amxo_con_type_t type) {
-    amxo_connection_t *con = NULL;
+    amxo_connection_t* con = NULL;
     when_null(parser, exit);
 
     amxc_llist_for_each(it, parser->connections) {
@@ -562,10 +562,10 @@ exit:
     return con;
 }
 
-amxo_connection_t *amxo_connection_get_next(amxo_parser_t *parser,
-                                            amxo_connection_t *con,
+amxo_connection_t* amxo_connection_get_next(amxo_parser_t* parser,
+                                            amxo_connection_t* con,
                                             amxo_con_type_t type) {
-    amxc_llist_it_t *it = NULL;
+    amxc_llist_it_t* it = NULL;
     when_null(parser, exit);
     when_null(con, exit);
     when_true(con->it.llist != parser->connections, exit);
@@ -585,11 +585,11 @@ exit:
     return con;
 }
 
-int amxo_connection_set_el_data(amxo_parser_t *parser,
+int amxo_connection_set_el_data(amxo_parser_t* parser,
                                 int fd,
-                                void *el_data) {
+                                void* el_data) {
     int retval = -1;
-    amxo_connection_t *con = NULL;
+    amxo_connection_t* con = NULL;
     when_null(parser, exit);
     when_null(parser->connections, exit);
 

@@ -113,13 +113,13 @@ static amxd_action_t param_actions[] = {
     action_param_destroy    // action_destroy
 };
 
-static bool amxo_parser_check_config(amxo_parser_t *pctx,
-                                     const char *path,
-                                     const char *check) {
-    amxc_var_t *option = amxc_var_get_path(&pctx->config,
+static bool amxo_parser_check_config(amxo_parser_t* pctx,
+                                     const char* path,
+                                     const char* check) {
+    amxc_var_t* option = amxc_var_get_path(&pctx->config,
                                            path,
                                            AMXC_VAR_FLAG_DEFAULT);
-    const char *value = NULL;
+    const char* value = NULL;
     value = amxc_var_constcast(cstring_t, option);
 
     if(value == NULL) {
@@ -129,14 +129,14 @@ static bool amxo_parser_check_config(amxo_parser_t *pctx,
     return strcmp(value, check) == 0;
 }
 
-static amxd_status_t amxo_cleanup_data(amxd_object_t * const object,
-                                       amxd_param_t * const param,
+static amxd_status_t amxo_cleanup_data(amxd_object_t* const object,
+                                       amxd_param_t* const param,
                                        amxd_action_t reason,
-                                       AMXO_UNUSED const amxc_var_t * const args,
-                                       AMXO_UNUSED amxc_var_t * const retval,
-                                       void *priv) {
+                                       AMXO_UNUSED const amxc_var_t* const args,
+                                       AMXO_UNUSED amxc_var_t* const retval,
+                                       void* priv) {
     amxd_status_t status = amxd_status_ok;
-    amxc_var_t *data = (amxc_var_t *) priv;
+    amxc_var_t* data = (amxc_var_t*) priv;
 
     if((reason != action_object_destroy) &&
        ( reason != action_param_destroy)) {
@@ -164,10 +164,10 @@ exit:
     return status;
 }
 
-static amxd_status_t amxo_parser_set_param_action(amxd_param_t *param,
+static amxd_status_t amxo_parser_set_param_action(amxd_param_t* param,
                                                   amxd_action_t action,
                                                   amxd_action_fn_t fn,
-                                                  amxc_var_t *data) {
+                                                  amxc_var_t* data) {
     amxd_status_t status = amxd_status_ok;
 
     status = amxd_param_add_action_cb(param, action, fn, data);
@@ -184,10 +184,10 @@ static amxd_status_t amxo_parser_set_param_action(amxd_param_t *param,
     return status;
 }
 
-static amxd_status_t amxo_parser_set_object_action(amxd_object_t *object,
+static amxd_status_t amxo_parser_set_object_action(amxd_object_t* object,
                                                    amxd_action_t action,
                                                    amxd_action_fn_t fn,
-                                                   amxc_var_t *data) {
+                                                   amxc_var_t* data) {
     amxd_status_t status = amxd_status_ok;
 
     status = amxd_object_add_action_cb(object, action, fn, data);
@@ -278,13 +278,13 @@ static int64_t amxo_attr_2_arg_attr(int64_t attributes) {
     return arg_attrs;
 }
 
-static amxd_object_t *amxo_parser_new_object(amxo_parser_t *pctx,
-                                             amxd_dm_t *dm,
-                                             const char *name,
+static amxd_object_t* amxo_parser_new_object(amxo_parser_t* pctx,
+                                             amxd_dm_t* dm,
+                                             const char* name,
                                              int64_t oattrs,
                                              amxd_object_type_t type) {
-    amxd_object_t *object = NULL;
-    const char *type_name = type == amxd_object_mib ? "mib" : "object";
+    amxd_object_t* object = NULL;
+    const char* type_name = type == amxd_object_mib ? "mib" : "object";
 
     pctx->status = amxd_object_new(&object, type, name);
     if(pctx->status != amxd_status_ok) {
@@ -302,11 +302,11 @@ exit:
     return object;
 }
 
-static int amxo_parser_can_update_object(amxo_parser_t *pctx,
-                                         const char *name,
+static int amxo_parser_can_update_object(amxo_parser_t* pctx,
+                                         const char* name,
                                          amxd_object_type_t type) {
     int retval = 0;
-    const char *type_name = type == amxd_object_mib ? "mib" : "object";
+    const char* type_name = type == amxd_object_mib ? "mib" : "object";
     if(amxo_parser_check_config(pctx,
                                 "define-behavior.existing-object",
                                 "update")) {
@@ -321,11 +321,11 @@ exit:
     return retval;
 }
 
-static amxd_param_t *amxo_parser_new_param(amxo_parser_t *pctx,
-                                           const char *name,
+static amxd_param_t* amxo_parser_new_param(amxo_parser_t* pctx,
+                                           const char* name,
                                            int64_t pattrs,
                                            uint32_t type) {
-    amxd_param_t *param = NULL;
+    amxd_param_t* param = NULL;
 
     pctx->status = amxd_param_new(&param, name, type);
     if(pctx->status != amxd_status_ok) {
@@ -339,11 +339,11 @@ exit:
     return param;
 }
 
-static int amxo_parser_set_param_value(amxo_parser_t *pctx,
-                                       const char *parent_path,
-                                       const char *name,
-                                       amxd_param_t *param,
-                                       amxc_var_t *value) {
+static int amxo_parser_set_param_value(amxo_parser_t* pctx,
+                                       const char* parent_path,
+                                       const char* name,
+                                       amxd_param_t* param,
+                                       amxc_var_t* value) {
     int retval = -1;
     if((value != NULL) && (param != NULL)) {
         pctx->status = amxd_param_set_value(param, value);
@@ -376,10 +376,10 @@ exit:
     return retval;
 }
 
-static amxd_object_t  *amxo_parser_can_update_instance(amxo_parser_t *pctx,
-                                                       uint32_t index,
-                                                       const char *name) {
-    amxd_object_t *object = NULL;
+static amxd_object_t* amxo_parser_can_update_instance(amxo_parser_t* pctx,
+                                                      uint32_t index,
+                                                      const char* name) {
+    amxd_object_t* object = NULL;
     if(!amxo_parser_check_config(pctx,
                                  "populate-behavior.duplicate-instance",
                                  "update")) {
@@ -387,7 +387,7 @@ static amxd_object_t  *amxo_parser_can_update_instance(amxo_parser_t *pctx,
         goto exit;
     }
     if(pctx->data != NULL) {
-        amxp_expr_t *expr = NULL;
+        amxp_expr_t* expr = NULL;
         amxd_object_new_key_expr(pctx->object, &expr, pctx->data);
         object = amxd_object_find_instance(pctx->object, expr);
         amxp_expr_delete(&expr);
@@ -400,11 +400,11 @@ exit:
     return object;
 }
 
-static int amxo_parser_connect(amxo_parser_t *pctx,
-                               amxp_signal_mngr_t * const sig_mngr,
-                               const char * const signal_name,
+static int amxo_parser_connect(amxo_parser_t* pctx,
+                               amxp_signal_mngr_t* const sig_mngr,
+                               const char* const signal_name,
                                bool signal_is_regexp,
-                               const char * const expression,
+                               const char* const expression,
                                amxp_slot_fn_t fn) {
     int retval = 0;
 
@@ -433,10 +433,10 @@ static int amxo_parser_connect(amxo_parser_t *pctx,
     return retval;
 }
 
-static amxd_object_t *amxd_parser_add_instance_msg(amxo_parser_t *pctx,
+static amxd_object_t* amxd_parser_add_instance_msg(amxo_parser_t* pctx,
                                                    uint32_t index,
-                                                   const char *name,
-                                                   amxd_object_t *object) {
+                                                   const char* name,
+                                                   amxd_object_t* object) {
     switch(pctx->status) {
     case amxd_status_ok:
         break;
@@ -465,7 +465,7 @@ static amxd_object_t *amxd_parser_add_instance_msg(amxo_parser_t *pctx,
     return object;
 }
 
-bool amxo_parser_check_attr(amxo_parser_t *pctx,
+bool amxo_parser_check_attr(amxo_parser_t* pctx,
                             int64_t attributes,
                             int64_t bitmask) {
     bool retval = false;
@@ -480,29 +480,29 @@ bool amxo_parser_check_attr(amxo_parser_t *pctx,
     return retval;
 }
 
-bool amxo_parser_set_param_attrs(amxo_parser_t *pctx, uint64_t attr, bool enable) {
+bool amxo_parser_set_param_attrs(amxo_parser_t* pctx, uint64_t attr, bool enable) {
     int64_t pattrs = amxo_attr_2_param_attr(attr);
     amxd_param_set_attrs(pctx->param, pattrs, enable);
     return true;
 }
 
-bool amxo_parser_set_object_attrs(amxo_parser_t *pctx, uint64_t attr, bool enable) {
+bool amxo_parser_set_object_attrs(amxo_parser_t* pctx, uint64_t attr, bool enable) {
     int64_t oattrs = amxo_attr_2_object_attr(attr);
     amxd_object_set_attrs(pctx->object, oattrs, enable);
     return true;
 }
 
-int amxo_parser_create_object(amxo_parser_t *pctx,
-                              const char *name,
+int amxo_parser_create_object(amxo_parser_t* pctx,
+                              const char* name,
                               int64_t attr_bitmask,
                               amxd_object_type_t type) {
-    amxd_object_t *object = NULL;
+    amxd_object_t* object = NULL;
     amxc_string_t res_name;
     amxc_string_init(&res_name, 0);
 
     int64_t oattrs = amxo_attr_2_object_attr(attr_bitmask);
     int retval = -1;
-    amxd_dm_t *dm = amxd_object_get_dm(pctx->object);
+    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
 
     if(amxc_string_set_resolved(&res_name, name, &pctx->config) > 0) {
         name = amxc_string_get(&res_name, 0);
@@ -534,10 +534,10 @@ exit:
     return retval;
 }
 
-bool amxo_parser_add_instance(amxo_parser_t *pctx,
+bool amxo_parser_add_instance(amxo_parser_t* pctx,
                               uint32_t index,
-                              const char *name) {
-    amxd_object_t *object = NULL;
+                              const char* name) {
+    amxd_object_t* object = NULL;
     bool retval = false;
     amxc_string_t res_name;
     amxc_string_init(&res_name, 0);
@@ -565,14 +565,14 @@ exit:
     return retval;
 }
 
-bool amxo_parser_push_object(amxo_parser_t *pctx,
-                             const char *path) {
-    amxd_object_t *object = NULL;
+bool amxo_parser_push_object(amxo_parser_t* pctx,
+                             const char* path) {
+    amxd_object_t* object = NULL;
     bool retval = false;
     pctx->status = amxd_status_ok;
     object = amxd_object_findf(pctx->object, "%s", path);
     if(object == NULL) {
-        char *parent_path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
+        char* parent_path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
         amxo_parser_msg(pctx,
                         "Object %s not found (start searching from \"%s\")",
                         path,
@@ -592,11 +592,11 @@ exit:
     return retval;
 }
 
-bool amxo_parser_pop_object(amxo_parser_t *pctx) {
+bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     bool retval = false;
     amxd_object_type_t type = amxd_object_get_type(pctx->object);
-    const char *type_name = (type == amxd_object_mib) ? "mib" : "object";
-    amxd_object_t *object = NULL;
+    const char* type_name = (type == amxd_object_mib) ? "mib" : "object";
+    amxd_object_t* object = NULL;
     pctx->status = amxd_object_validate(pctx->object, 0);
 
     if(pctx->status != amxd_status_ok) {
@@ -607,7 +607,7 @@ bool amxo_parser_pop_object(amxo_parser_t *pctx) {
     }
     amxo_hooks_end_object(pctx);
 
-    object = (amxd_object_t *) amxc_astack_pop(&pctx->object_stack);
+    object = (amxd_object_t*) amxc_astack_pop(&pctx->object_stack);
     pctx->object = object;
 
     retval = true;
@@ -616,11 +616,11 @@ exit:
     return retval;
 }
 
-bool amxo_parser_push_param(amxo_parser_t *pctx,
-                            const char *name,
+bool amxo_parser_push_param(amxo_parser_t* pctx,
+                            const char* name,
                             int64_t attr_bitmask,
                             uint32_t type) {
-    amxd_param_t *param = NULL;
+    amxd_param_t* param = NULL;
     int64_t pattrs = amxo_attr_2_param_attr(attr_bitmask);
     bool retval = false;
     amxc_string_t res_name;
@@ -666,12 +666,12 @@ exit:
     return retval;
 }
 
-int amxo_parser_set_param(amxo_parser_t *pctx,
-                          const char *name,
-                          amxc_var_t *value) {
-    amxd_param_t *param = NULL;
+int amxo_parser_set_param(amxo_parser_t* pctx,
+                          const char* name,
+                          amxc_var_t* value) {
+    amxd_param_t* param = NULL;
     int retval = -1;
-    char *parent_path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
+    char* parent_path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
     amxc_string_t res_name;
     amxc_string_init(&res_name, 0);
 
@@ -714,7 +714,7 @@ exit:
     return retval;
 }
 
-bool amxo_parser_pop_param(amxo_parser_t *pctx) {
+bool amxo_parser_pop_param(amxo_parser_t* pctx) {
     bool retval = false;
     amxc_var_t value;
     amxc_var_init(&value);
@@ -738,12 +738,12 @@ exit:
     return retval;
 }
 
-int amxo_parser_push_func(amxo_parser_t *pctx,
-                          const char *name,
+int amxo_parser_push_func(amxo_parser_t* pctx,
+                          const char* name,
                           int64_t attr_bitmask,
                           uint32_t type) {
-    amxd_function_t *func = NULL;
-    amxd_function_t *orig_func = NULL;
+    amxd_function_t* func = NULL;
+    amxd_function_t* orig_func = NULL;
     int64_t fattrs = amxo_attr_2_func_attr(attr_bitmask);
     int retval = -1;
     amxc_string_t res_name;
@@ -788,7 +788,7 @@ exit:
     return retval;
 }
 
-void amxo_parser_pop_func(amxo_parser_t *pctx) {
+void amxo_parser_pop_func(amxo_parser_t* pctx) {
     amxo_hooks_end_func(pctx);
     amxd_object_fn_t fn = (amxd_object_fn_t) pctx->resolved_fn;
     amxd_function_set_impl(pctx->func, fn);
@@ -796,11 +796,11 @@ void amxo_parser_pop_func(amxo_parser_t *pctx) {
     pctx->resolved_fn = NULL;
 }
 
-bool amxo_parser_add_arg(amxo_parser_t *pctx,
-                         const char *name,
+bool amxo_parser_add_arg(amxo_parser_t* pctx,
+                         const char* name,
                          int64_t attr_bitmask,
                          uint32_t type,
-                         amxc_var_t *def_value) {
+                         amxc_var_t* def_value) {
     bool retval = false;
     int64_t aattrs = amxo_attr_2_arg_attr(attr_bitmask);
 
@@ -819,8 +819,8 @@ exit:
     return retval;
 }
 
-bool amxo_parser_set_counter(amxo_parser_t *pctx,
-                             const char *param_name) {
+bool amxo_parser_set_counter(amxo_parser_t* pctx,
+                             const char* param_name) {
     bool retval = false;
     amxc_string_t res_param_name;
     amxc_string_init(&res_param_name, 0);
@@ -831,7 +831,7 @@ bool amxo_parser_set_counter(amxo_parser_t *pctx,
 
     pctx->status = amxd_object_set_counter(pctx->object, param_name);
     if(pctx->status != amxd_status_ok) {
-        char *path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
+        char* path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
         amxo_parser_msg(pctx,
                         "Failed to to set instance counter %s on %s",
                         param_name,
@@ -848,14 +848,14 @@ exit:
     return retval;
 }
 
-int amxo_parser_subscribe(amxo_parser_t *pctx,
-                          const char *event,
+int amxo_parser_subscribe(amxo_parser_t* pctx,
+                          const char* event,
                           bool event_is_regexp,
-                          const char *path,
+                          const char* path,
                           bool path_is_regexp,
-                          const char *full_expr) {
+                          const char* full_expr) {
     int retval = 1;
-    amxd_dm_t *dm = amxd_object_get_dm(pctx->object);
+    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
     amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
     when_null(dm, exit);
 
@@ -869,7 +869,7 @@ int amxo_parser_subscribe(amxo_parser_t *pctx,
 
     if(path != NULL) {
         amxc_string_t expression;
-        const char *expr = NULL;
+        const char* expr = NULL;
         amxc_string_init(&expression, 0);
         if(path_is_regexp) {
             amxc_string_appendf(&expression, "object matches \"%s\"", path);
@@ -889,13 +889,13 @@ exit:
     return retval;
 }
 
-bool amxo_parser_subscribe_item(amxo_parser_t *pctx) {
+bool amxo_parser_subscribe_item(amxo_parser_t* pctx) {
     bool retval = false;
-    amxd_dm_t *dm = amxd_object_get_dm(pctx->object);
+    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
     amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
-    char *regexp_path = NULL;
+    char* regexp_path = NULL;
     amxc_string_t expression;
-    const char *event_pattern = NULL;
+    const char* event_pattern = NULL;
     when_null(dm, exit);
 
     if(pctx->resolved_fn == NULL) {
@@ -932,7 +932,7 @@ exit:
     return retval;
 }
 
-int amxo_parser_set_action(amxo_parser_t *pctx,
+int amxo_parser_set_action(amxo_parser_t* pctx,
                            amxo_action_t action) {
 
     int retval = -1;
@@ -976,11 +976,11 @@ exit:
     return retval;
 }
 
-bool amxo_parser_add_mib(amxo_parser_t *pctx,
-                         const char *mib_name) {
+bool amxo_parser_add_mib(amxo_parser_t* pctx,
+                         const char* mib_name) {
     bool retval = false;
-    amxd_dm_t *dm = amxd_object_get_dm(pctx->object);
-    amxd_object_t *mib = NULL;
+    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
+    amxd_object_t* mib = NULL;
     amxc_string_t res_mib_name;
     amxc_string_init(&res_mib_name, 0);
 

@@ -83,13 +83,13 @@
 
 static amxc_htable_t resolvers;
 
-int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t *parser,
-                                     const char *resolver_name,
-                                     const char *func_name,
-                                     const char *data) {
+int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
+                                     const char* resolver_name,
+                                     const char* func_name,
+                                     const char* data) {
     int retval = -1;
-    amxo_resolver_t *resolver = NULL;
-    amxc_htable_it_t *hit = NULL;
+    amxo_resolver_t* resolver = NULL;
+    amxc_htable_it_t* hit = NULL;
     amxc_string_t res_name;
     amxc_string_init(&res_name, 0);
 
@@ -117,21 +117,21 @@ exit:
     return retval;
 }
 
-amxc_htable_t *AMXO_PRIVATE amxo_parser_get_resolvers(void) {
+amxc_htable_t* AMXO_PRIVATE amxo_parser_get_resolvers(void) {
     return &resolvers;
 }
 
-void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t *parser) {
-    amxc_htable_it_t *hit_data = NULL;
-    amxc_htable_it_t *hit_resolver = NULL;
+void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser) {
+    amxc_htable_it_t* hit_data = NULL;
+    amxc_htable_it_t* hit_resolver = NULL;
 
     when_null(parser->resolvers, exit);
 
     hit_data = amxc_htable_get_first(parser->resolvers);
     while(hit_data) {
-        const char *key = amxc_htable_it_get_key(hit_data);
-        amxo_res_data_t *data = amxc_htable_it_get_data(hit_data, amxo_res_data_t, hit);
-        amxo_resolver_t *resolver = NULL;
+        const char* key = amxc_htable_it_get_key(hit_data);
+        amxo_res_data_t* data = amxc_htable_it_get_data(hit_data, amxo_res_data_t, hit);
+        amxo_resolver_t* resolver = NULL;
         hit_resolver = amxc_htable_get(&resolvers, key);
         resolver = amxc_htable_it_get_data(hit_resolver, amxo_resolver_t, hit);
         if(resolver->clean != NULL) {
@@ -146,9 +146,9 @@ exit:
     return;
 }
 
-void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t *parser) {
+void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t* parser) {
     amxc_htable_for_each(hit, (&resolvers)) {
-        amxo_resolver_t *resolver =
+        amxo_resolver_t* resolver =
             amxc_htable_it_get_data(hit, amxo_resolver_t, hit);
         if(resolver->get != NULL) {
             resolver->get(parser, resolver->priv);
@@ -158,8 +158,8 @@ void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t *parser) {
     return;
 }
 
-int amxo_register_resolver(const char *name,
-                           amxo_resolver_t *resolver) {
+int amxo_register_resolver(const char* name,
+                           amxo_resolver_t* resolver) {
     int retval = -1;
     when_null(resolver, exit);
     when_true(!amxd_name_is_valid(name), exit);
@@ -174,9 +174,9 @@ exit:
     return retval;
 }
 
-int amxo_unregister_resolver(const char *name) {
+int amxo_unregister_resolver(const char* name) {
     int retval = -1;
-    amxc_htable_it_t *hit = NULL;
+    amxc_htable_it_t* hit = NULL;
     when_str_empty(name, exit);
 
     hit = amxc_htable_get(&resolvers, name);
@@ -188,11 +188,11 @@ exit:
     return retval;
 }
 
-amxc_htable_t *amxo_parser_claim_resolver_data(amxo_parser_t *parser,
-                                               const char *resolver_name) {
-    amxc_htable_t *data_table = NULL;
-    amxo_res_data_t *resolver_data = NULL;
-    amxc_htable_it_t *it = NULL;
+amxc_htable_t* amxo_parser_claim_resolver_data(amxo_parser_t* parser,
+                                               const char* resolver_name) {
+    amxc_htable_t* data_table = NULL;
+    amxo_res_data_t* resolver_data = NULL;
+    amxc_htable_it_t* it = NULL;
     when_null(parser, exit);
     when_str_empty(resolver_name, exit);
     when_null(amxc_htable_get(&resolvers, resolver_name), exit);
@@ -204,7 +204,7 @@ amxc_htable_t *amxo_parser_claim_resolver_data(amxo_parser_t *parser,
 
     it = amxc_htable_get(parser->resolvers, resolver_name);
     if(it == NULL) {
-        resolver_data = (amxo_res_data_t *) calloc(1, sizeof(amxo_res_data_t));
+        resolver_data = (amxo_res_data_t*) calloc(1, sizeof(amxo_res_data_t));
         when_null(resolver_data, exit);
         amxc_htable_init(&resolver_data->data, 10);
         amxc_htable_insert(parser->resolvers, resolver_name, &resolver_data->hit);
@@ -218,11 +218,11 @@ exit:
     return data_table;
 }
 
-amxc_htable_t *amxo_parser_get_resolver_data(amxo_parser_t *parser,
-                                             const char *resolver_name) {
-    amxc_htable_t *data_table = NULL;
-    amxo_res_data_t *resolver_data = NULL;
-    amxc_htable_it_t *it = NULL;
+amxc_htable_t* amxo_parser_get_resolver_data(amxo_parser_t* parser,
+                                             const char* resolver_name) {
+    amxc_htable_t* data_table = NULL;
+    amxo_res_data_t* resolver_data = NULL;
+    amxc_htable_it_t* it = NULL;
     when_null(parser, exit);
     when_str_empty(resolver_name, exit);
     when_null(parser->resolvers, exit);

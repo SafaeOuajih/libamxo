@@ -66,21 +66,21 @@ extern "C"
 {
 #endif
 
-int amxo_parser_save(amxo_parser_t *pctx,
-                     const char *filename,
-                     amxd_object_t *object,
+int amxo_parser_save(amxo_parser_t* pctx,
+                     const char* filename,
+                     amxd_object_t* object,
                      uint32_t depth,
-                     amxc_var_t *config,
+                     amxc_var_t* config,
                      bool append);
 
-int amxo_parser_save_config(amxo_parser_t *pctx,
-                            const char *filename,
-                            amxc_var_t *config,
+int amxo_parser_save_config(amxo_parser_t* pctx,
+                            const char* filename,
+                            amxc_var_t* config,
                             bool append);
 
-int amxo_parser_save_object(amxo_parser_t *pctx,
-                            const char *filename,
-                            amxd_object_t *object,
+int amxo_parser_save_object(amxo_parser_t* pctx,
+                            const char* filename,
+                            amxd_object_t* object,
                             bool append);
 #ifdef __cplusplus
 }

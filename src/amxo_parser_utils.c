@@ -89,12 +89,12 @@
 #include "amxo_assert.h"
 #include "amxo_parser.tab.h"
 
-static char *amxo_parser_get_resolver_name(const char *data) {
+static char* amxo_parser_get_resolver_name(const char* data) {
     amxc_string_t full_data;
     size_t length = strlen(data);
     amxc_llist_t parts;
-    amxc_llist_it_t *it = NULL;
-    char *name = NULL;
+    amxc_llist_it_t* it = NULL;
+    char* name = NULL;
 
     amxc_llist_init(&parts);
     amxc_string_init(&full_data, length + 1);
@@ -111,8 +111,8 @@ static char *amxo_parser_get_resolver_name(const char *data) {
     return name;
 }
 
-static void amxc_parser_push(amxo_parser_t *parent,
-                             amxo_parser_t *child) {
+static void amxc_parser_push(amxo_parser_t* parent,
+                             amxo_parser_t* child) {
     child->resolvers = parent->resolvers;
     child->hooks = parent->hooks;
     child->include_stack = parent->include_stack;
@@ -120,8 +120,8 @@ static void amxc_parser_push(amxo_parser_t *parent,
     amxc_var_copy(&child->config, &parent->config);
 }
 
-static void amxc_parser_pop(amxo_parser_t *parent,
-                            amxo_parser_t *child) {
+static void amxc_parser_pop(amxo_parser_t* parent,
+                            amxo_parser_t* child) {
     parent->resolvers = child->resolvers;
     parent->entry_points = child->entry_points;
     child->resolvers = NULL;
@@ -129,9 +129,9 @@ static void amxc_parser_pop(amxo_parser_t *parent,
     child->hooks = NULL;
     child->entry_points = NULL;
     amxc_llist_for_each(it, (&child->global_config)) {
-        amxc_string_t *str_name = amxc_string_from_llist_it(it);
-        const char *name = amxc_string_get(str_name, 0);
-        amxc_var_t *option = amxc_var_get_path(&child->config,
+        amxc_string_t* str_name = amxc_string_from_llist_it(it);
+        const char* name = amxc_string_get(str_name, 0);
+        amxc_var_t* option = amxc_var_get_path(&child->config,
                                                name,
                                                AMXC_VAR_FLAG_DEFAULT);
         amxc_var_set_key(&parent->config, name, option, AMXC_VAR_FLAG_UPDATE);
@@ -139,9 +139,9 @@ static void amxc_parser_pop(amxo_parser_t *parent,
     }
 }
 
-static amxc_var_t *amxo_parser_can_include(amxo_parser_t *pctx,
-                                           const char *full_path) {
-    amxc_var_t *incstack = NULL;
+static amxc_var_t* amxo_parser_can_include(amxo_parser_t* pctx,
+                                           const char* full_path) {
+    amxc_var_t* incstack = NULL;
     if(amxc_var_get_key(pctx->include_stack, full_path, AMXC_VAR_FLAG_DEFAULT) != NULL) {
         goto exit;
     }
@@ -155,10 +155,10 @@ exit:
     return incstack;
 }
 
-bool amxo_parser_file_exists(amxc_var_t *dir,
-                             const char *file_path,
-                             char **full_path) {
-    const char *incdir = amxc_var_constcast(cstring_t, dir);
+bool amxo_parser_file_exists(amxc_var_t* dir,
+                             const char* file_path,
+                             char** full_path) {
+    const char* incdir = amxc_var_constcast(cstring_t, dir);
     bool retval = false;
     amxc_string_t concat_path;
     amxc_string_init(&concat_path, 0);
@@ -177,9 +177,9 @@ bool amxo_parser_file_exists(amxc_var_t *dir,
     return retval;
 }
 
-bool amxo_parser_find_file(const amxc_llist_t *dirs,
-                           const char *file_path,
-                           char **full_path) {
+bool amxo_parser_find_file(const amxc_llist_t* dirs,
+                           const char* file_path,
+                           char** full_path) {
     bool retval = false;
     if(file_path[0] != '/') {
         amxc_llist_for_each(it, dirs) {
@@ -201,7 +201,7 @@ exit:
     return retval;
 }
 
-void amxo_parser_msg(amxo_parser_t *parser, const char *format, ...) {
+void amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) {
     amxc_string_reset(&parser->msg);
     va_list args;
     va_start(args, format);
@@ -209,7 +209,7 @@ void amxo_parser_msg(amxo_parser_t *parser, const char *format, ...) {
     va_end(args);
 }
 
-int amxo_parser_printf(const char *format, ...) {
+int amxo_parser_printf(const char* format, ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
@@ -217,22 +217,22 @@ int amxo_parser_printf(const char *format, ...) {
     return 0;
 }
 
-int amxo_parser_set_config_internal(amxo_parser_t *parser,
-                                    const char *name,
-                                    amxc_var_t *value) {
+int amxo_parser_set_config_internal(amxo_parser_t* parser,
+                                    const char* name,
+                                    amxc_var_t* value) {
     return amxc_var_set_key(&parser->config,
                             name,
                             value,
                             AMXC_VAR_FLAG_UPDATE);
 }
 
-int amxo_parser_include(amxo_parser_t *pctx, const char *file_path) {
+int amxo_parser_include(amxo_parser_t* pctx, const char* file_path) {
     int retval = -1;
     amxo_parser_t parser;
-    amxc_var_t *config = amxo_parser_get_config(pctx, "include-dirs");
-    const amxc_llist_t *incdirs = amxc_var_constcast(amxc_llist_t, config);
-    char *full_path = NULL;
-    amxc_var_t *incstack = NULL;
+    amxc_var_t* config = amxo_parser_get_config(pctx, "include-dirs");
+    const amxc_llist_t* incdirs = amxc_var_constcast(amxc_llist_t, config);
+    char* full_path = NULL;
+    amxc_var_t* incstack = NULL;
     amxc_string_t res_file_path;
     amxc_string_init(&res_file_path, 0);
     if(amxc_string_set_resolved(&res_file_path, file_path, &pctx->config) > 0) {
@@ -276,12 +276,12 @@ exit:
     return retval;
 }
 
-int amxo_parser_resolve_internal(amxo_parser_t *pctx,
-                                 const char *fn_name,
-                                 const char *data) {
+int amxo_parser_resolve_internal(amxo_parser_t* pctx,
+                                 const char* fn_name,
+                                 const char* data) {
     int retval = -1;
-    char *name = NULL;
-    const char *res_data = NULL;
+    char* name = NULL;
+    const char* res_data = NULL;
 
     if((data == NULL) || (data[0] == '\0')) {
         amxo_parser_msg(pctx, "Resolver name must be provide (is empty)");
@@ -318,9 +318,9 @@ exit:
     return retval;
 }
 
-int amxo_parser_call_entry_point(amxo_parser_t *pctx,
-                                 const char *lib_name,
-                                 const char *fn_name) {
+int amxo_parser_call_entry_point(amxo_parser_t* pctx,
+                                 const char* lib_name,
+                                 const char* fn_name) {
     int retval = -1;
     amxc_string_t data;
     amxc_string_init(&data, 0);
@@ -345,11 +345,11 @@ int amxo_parser_call_entry_point(amxo_parser_t *pctx,
     return retval;
 }
 
-bool amxo_parser_set_data_option(amxo_parser_t *pctx,
-                                 const char *key,
-                                 amxc_var_t *value) {
+bool amxo_parser_set_data_option(amxo_parser_t* pctx,
+                                 const char* key,
+                                 amxc_var_t* value) {
     bool retval = false;
-    amxc_var_t *data = NULL;
+    amxc_var_t* data = NULL;
     if(pctx->data == NULL) {
         when_failed(amxc_var_new(&pctx->data), exit);
         when_failed(amxc_var_set_type(pctx->data,
@@ -373,9 +373,9 @@ exit:
     return retval;
 }
 
-amxo_action_t amxo_parser_get_action_id(amxo_parser_t *pctx,
-                                        const char *action_name) {
-    static const char *names[] = {
+amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
+                                        const char* action_name) {
+    static const char* names[] = {
         "read",
         "write",
         "validate",
@@ -404,10 +404,10 @@ amxo_action_t amxo_parser_get_action_id(amxo_parser_t *pctx,
     return action_id;
 }
 
-char *amxo_parser_build_import_resolver_data(const char *function,
-                                             const char *library) {
+char* amxo_parser_build_import_resolver_data(const char* function,
+                                             const char* library) {
     amxc_string_t data_txt;
-    char *data = NULL;
+    char* data = NULL;
     amxc_string_init(&data_txt, 0);
 
     amxc_string_appendf(&data_txt, "import:%s:%s", library, function);

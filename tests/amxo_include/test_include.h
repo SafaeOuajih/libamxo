@@ -61,11 +61,11 @@
 #ifndef __TEST_INCLUDE_H__
 #define __TEST_INCLUDE_H__
 
-void test_can_include_empty_file(void **state);
-void test_can_include_between_sections(void **state);
-void test_none_existing_include_file(void **state);
-void test_none_existing_optional_include_file(void **state);
-void test_recursive_include_detection(void **state);
-void test_include_absolute_path(void **state);
+void test_can_include_empty_file(void** state);
+void test_can_include_between_sections(void** state);
+void test_none_existing_include_file(void** state);
+void test_none_existing_optional_include_file(void** state);
+void test_recursive_include_detection(void** state);
+void test_include_absolute_path(void** state);
 
 #endif // __TEST_INCLUDE_H__

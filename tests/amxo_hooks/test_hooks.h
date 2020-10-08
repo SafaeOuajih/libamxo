@@ -61,8 +61,8 @@
 #ifndef __TEST_HOOKS_H__
 #define __TEST_HOOKS_H__
 
-void test_hooks_are_called(void **state);
-void test_hooks_empty_hooks(void **state);
-void test_hooks_add_remove_hooks(void **state);
+void test_hooks_are_called(void** state);
+void test_hooks_empty_hooks(void** state);
+void test_hooks_add_remove_hooks(void** state);
 
 #endif // __TEST_HOOKS_H__

@@ -86,19 +86,19 @@
 
 #define UNUSED __attribute__((unused))
 
-static amxd_status_t dm_method_impl(UNUSED amxd_object_t *object,
-                                    UNUSED amxd_function_t *func,
-                                    UNUSED amxc_var_t *args,
-                                    UNUSED amxc_var_t *ret) {
+static amxd_status_t dm_method_impl(UNUSED amxd_object_t* object,
+                                    UNUSED amxd_function_t* func,
+                                    UNUSED amxc_var_t* args,
+                                    UNUSED amxc_var_t* ret) {
     return amxd_status_ok;
 }
 
-static void check_can_invoke_functions(amxd_dm_t *dm, bool func3) {
+static void check_can_invoke_functions(amxd_dm_t* dm, bool func3) {
     amxc_var_t args;
     amxc_var_t ret;
 
-    amxd_object_t *root = amxd_dm_get_root(dm);
-    amxd_object_t *object = amxd_object_get_child(root, "TestObject");
+    amxd_object_t* root = amxd_dm_get_root(dm);
+    amxd_object_t* object = amxd_object_get_child(root, "TestObject");
 
     amxc_var_init(&args);
     amxc_var_init(&ret);
@@ -115,12 +115,12 @@ static void check_can_invoke_functions(amxd_dm_t *dm, bool func3) {
     amxc_var_clean(&ret);
 }
 
-static void check_can_not_invoke_functions(amxd_dm_t *dm) {
+static void check_can_not_invoke_functions(amxd_dm_t* dm) {
     amxc_var_t args;
     amxc_var_t ret;
 
-    amxd_object_t *root = amxd_dm_get_root(dm);
-    amxd_object_t *object = amxd_object_get_child(root, "TestObject");
+    amxd_object_t* root = amxd_dm_get_root(dm);
+    amxd_object_t* object = amxd_object_get_child(root, "TestObject");
 
     amxc_var_init(&args);
     amxc_var_init(&ret);
@@ -137,7 +137,7 @@ static void check_can_not_invoke_functions(amxd_dm_t *dm) {
     amxc_var_clean(&ret);
 }
 
-void test_ftab_resolver_resolves(UNUSED void **state) {
+void test_ftab_resolver_resolves(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -170,7 +170,7 @@ void test_ftab_resolver_resolves(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_ftab_resolver_invalid_args(UNUSED void **state) {
+void test_ftab_resolver_invalid_args(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 

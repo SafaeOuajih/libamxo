@@ -124,12 +124,12 @@ typedef enum _amxo_action {
 } amxo_action_t;
 
 typedef struct _amxo_txt {
-    char *txt;
+    char* txt;
     int length;
 } amxo_txt_t;
 
 typedef struct _amxo_txt_regexp {
-    char *txt;
+    char* txt;
     bool is_regexp;
 } amxo_txt_regexp_t;
 
@@ -138,137 +138,137 @@ typedef struct _amxo_res_data {
     amxc_htable_t data;
 } amxo_res_data_t;
 
-void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char *key,
-                                    amxc_htable_it_t *it);
+void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char* key,
+                                    amxc_htable_it_t* it);
 
-ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t *parser,
-                                           void *buf,
+ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
+                                           void* buf,
                                            size_t max_size);
 
-int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t *parser,
-                                             const char *file_path,
-                                             amxd_object_t *object);
+int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t* parser,
+                                             const char* file_path,
+                                             amxd_object_t* object);
 
-void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t *parser);
+void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser);
 
-void AMXO_PRIVATE amxo_parser_create_lex(amxo_parser_t *parser);
-void AMXO_PRIVATE amxo_parser_destroy_lex(amxo_parser_t *parser);
+void AMXO_PRIVATE amxo_parser_create_lex(amxo_parser_t* parser);
+void AMXO_PRIVATE amxo_parser_destroy_lex(amxo_parser_t* parser);
 
-void AMXO_PRIVATE amxo_parser_msg(amxo_parser_t *parser, const char *format, ...) \
+void AMXO_PRIVATE amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) \
     __attribute__ ((format(printf, 2, 3)));
 
-int AMXO_PRIVATE amxo_parser_printf(const char *format, ...) \
+int AMXO_PRIVATE amxo_parser_printf(const char* format, ...) \
     __attribute__ ((format(printf, 1, 2)));
 
-int AMXO_PRIVATE amxo_parser_set_config_internal(amxo_parser_t *parser,
-                                                 const char *name,
-                                                 amxc_var_t *value);
+int AMXO_PRIVATE amxo_parser_set_config_internal(amxo_parser_t* parser,
+                                                 const char* name,
+                                                 amxc_var_t* value);
 
-bool AMXO_PRIVATE amxo_parser_file_exists(amxc_var_t *dir,
-                                          const char *file_path,
-                                          char **full_path);
+bool AMXO_PRIVATE amxo_parser_file_exists(amxc_var_t* dir,
+                                          const char* file_path,
+                                          char** full_path);
 
-bool AMXO_PRIVATE amxo_parser_find_file(const amxc_llist_t *dirs,
-                                        const char *file_path,
-                                        char **full_path);
+bool AMXO_PRIVATE amxo_parser_find_file(const amxc_llist_t* dirs,
+                                        const char* file_path,
+                                        char** full_path);
 
-bool AMXO_PRIVATE amxo_parser_check_attr(amxo_parser_t *pctx,
+bool AMXO_PRIVATE amxo_parser_check_attr(amxo_parser_t* pctx,
                                          int64_t attributes,
                                          int64_t bitmask);
 
-bool AMXO_PRIVATE amxo_parser_set_param_attrs(amxo_parser_t *pctx,
+bool AMXO_PRIVATE amxo_parser_set_param_attrs(amxo_parser_t* pctx,
                                               uint64_t attr,
                                               bool enable);
 
-bool AMXO_PRIVATE amxo_parser_set_object_attrs(amxo_parser_t *pctx,
+bool AMXO_PRIVATE amxo_parser_set_object_attrs(amxo_parser_t* pctx,
                                                uint64_t attr,
                                                bool enable);
 
-int AMXO_PRIVATE amxo_parser_create_object(amxo_parser_t *pctx,
-                                           const char *name,
+int AMXO_PRIVATE amxo_parser_create_object(amxo_parser_t* pctx,
+                                           const char* name,
                                            int64_t attr_bitmask,
                                            amxd_object_type_t type);
 
-bool AMXO_PRIVATE amxo_parser_add_instance(amxo_parser_t *pctx,
+bool AMXO_PRIVATE amxo_parser_add_instance(amxo_parser_t* pctx,
                                            uint32_t index,
-                                           const char *name);
+                                           const char* name);
 
-bool AMXO_PRIVATE amxo_parser_push_object(amxo_parser_t *pctx,
-                                          const char *name);
+bool AMXO_PRIVATE amxo_parser_push_object(amxo_parser_t* pctx,
+                                          const char* name);
 
-bool AMXO_PRIVATE amxo_parser_pop_object(amxo_parser_t *pctx);
+bool AMXO_PRIVATE amxo_parser_pop_object(amxo_parser_t* pctx);
 
-bool AMXO_PRIVATE amxo_parser_push_param(amxo_parser_t *pctx,
-                                         const char *name,
+bool AMXO_PRIVATE amxo_parser_push_param(amxo_parser_t* pctx,
+                                         const char* name,
                                          int64_t attr_bitmask,
                                          uint32_t type);
 
-int AMXO_PRIVATE amxo_parser_set_param(amxo_parser_t *pctx,
-                                       const char *name,
-                                       amxc_var_t *value);
+int AMXO_PRIVATE amxo_parser_set_param(amxo_parser_t* pctx,
+                                       const char* name,
+                                       amxc_var_t* value);
 
-bool AMXO_PRIVATE amxo_parser_pop_param(amxo_parser_t *pctx);
+bool AMXO_PRIVATE amxo_parser_pop_param(amxo_parser_t* pctx);
 
-int AMXO_PRIVATE amxo_parser_push_func(amxo_parser_t *pctx,
-                                       const char *name,
+int AMXO_PRIVATE amxo_parser_push_func(amxo_parser_t* pctx,
+                                       const char* name,
                                        int64_t attr_bitmask,
                                        uint32_t type);
 
-void AMXO_PRIVATE amxo_parser_pop_func(amxo_parser_t *pctx);
+void AMXO_PRIVATE amxo_parser_pop_func(amxo_parser_t* pctx);
 
-bool AMXO_PRIVATE amxo_parser_add_arg(amxo_parser_t *pctx,
-                                      const char *name,
+bool AMXO_PRIVATE amxo_parser_add_arg(amxo_parser_t* pctx,
+                                      const char* name,
                                       int64_t attr_bitmask,
                                       uint32_t type,
-                                      amxc_var_t *def_value);
+                                      amxc_var_t* def_value);
 
-bool amxo_parser_set_counter(amxo_parser_t *pctx,
-                             const char *param_name);
+bool amxo_parser_set_counter(amxo_parser_t* pctx,
+                             const char* param_name);
 
-int amxo_parser_subscribe(amxo_parser_t *pctx,
-                          const char *event,
+int amxo_parser_subscribe(amxo_parser_t* pctx,
+                          const char* event,
                           bool event_is_regexp,
-                          const char *path_regexp,
+                          const char* path_regexp,
                           bool path_is_regexp,
-                          const char *full_expr);
+                          const char* full_expr);
 
-bool amxo_parser_subscribe_item(amxo_parser_t *pctx);
+bool amxo_parser_subscribe_item(amxo_parser_t* pctx);
 
-int AMXO_PRIVATE amxo_parser_include(amxo_parser_t *pctx, const char *file_path);
+int AMXO_PRIVATE amxo_parser_include(amxo_parser_t* pctx, const char* file_path);
 
-amxc_htable_t *AMXO_PRIVATE amxo_parser_get_resolvers(void);
+amxc_htable_t* AMXO_PRIVATE amxo_parser_get_resolvers(void);
 
-int AMXO_PRIVATE amxo_parser_resolve_internal(amxo_parser_t *parser,
-                                              const char *fn_name,
-                                              const char *data);
+int AMXO_PRIVATE amxo_parser_resolve_internal(amxo_parser_t* parser,
+                                              const char* fn_name,
+                                              const char* data);
 
-int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t *parser,
-                                     const char *resolver_name,
-                                     const char *func_name,
-                                     const char *data);
+int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
+                                     const char* resolver_name,
+                                     const char* func_name,
+                                     const char* data);
 
-void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t *parser);
-void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t *parser);
+void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser);
+void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t* parser);
 
-int AMXO_PRIVATE amxo_parser_call_entry_point(amxo_parser_t *pctx,
-                                              const char *lib_name,
-                                              const char *fn_name);
+int AMXO_PRIVATE amxo_parser_call_entry_point(amxo_parser_t* pctx,
+                                              const char* lib_name,
+                                              const char* fn_name);
 
-bool AMXO_PRIVATE amxo_parser_set_data_option(amxo_parser_t *pctx,
-                                              const char *key,
-                                              amxc_var_t *value);
+bool AMXO_PRIVATE amxo_parser_set_data_option(amxo_parser_t* pctx,
+                                              const char* key,
+                                              amxc_var_t* value);
 
-int AMXO_PRIVATE amxo_parser_set_action(amxo_parser_t *pctx,
+int AMXO_PRIVATE amxo_parser_set_action(amxo_parser_t* pctx,
                                         amxo_action_t action);
 
-amxo_action_t AMXO_PRIVATE amxo_parser_get_action_id(amxo_parser_t *pctx,
-                                                     const char *action_name);
+amxo_action_t AMXO_PRIVATE amxo_parser_get_action_id(amxo_parser_t* pctx,
+                                                     const char* action_name);
 
-char *AMXO_PRIVATE amxo_parser_build_import_resolver_data(const char *function,
-                                                          const char *library);
+char* AMXO_PRIVATE amxo_parser_build_import_resolver_data(const char* function,
+                                                          const char* library);
 
-bool AMXO_PRIVATE amxo_parser_add_mib(amxo_parser_t *pctx,
-                                      const char *mib_name);
+bool AMXO_PRIVATE amxo_parser_add_mib(amxo_parser_t* pctx,
+                                      const char* mib_name);
 #ifdef __cplusplus
 }
 #endif

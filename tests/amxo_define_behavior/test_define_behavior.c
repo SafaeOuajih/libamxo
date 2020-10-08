@@ -85,12 +85,12 @@
 
 #define UNUSED __attribute__((unused))
 
-void test_duplicate_objects_default_behavior(UNUSED void **state) {
+void test_duplicate_objects_default_behavior(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *main_odl = "%define { object MyObject; }";
-    const char *second_odl = "%define { object MyObject; }";
-    const char *odls[] = {
+    const char* main_odl = "%define { object MyObject; }";
+    const char* second_odl = "%define { object MyObject; }";
+    const char* odls[] = {
         "%define { object MyObject; object MyObject; }",
         "%define { object MyObject; } %define { object MyObject; }",
         NULL
@@ -114,11 +114,11 @@ void test_duplicate_objects_default_behavior(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_objects_can_update(UNUSED void **state) {
+void test_duplicate_objects_can_update(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *main_odl = "%define { object MyObject; }";
-    const char *second_odl = "%config { define-behavior = { existing-object = \"update\" }; } %define { object MyObject; }";
+    const char* main_odl = "%define { object MyObject; }";
+    const char* second_odl = "%config { define-behavior = { existing-object = \"update\" }; } %define { object MyObject; }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -132,13 +132,13 @@ void test_duplicate_objects_can_update(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_objects_can_add_parameter(UNUSED void **state) {
+void test_duplicate_objects_can_add_parameter(UNUSED void** state) {
     amxd_dm_t dm;
-    amxd_object_t *object = NULL;
-    amxd_param_t *param = NULL;
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
     amxo_parser_t parser;
-    const char *main_odl = "%define { object MyObject { string Text; } }";
-    const char *second_odl =
+    const char* main_odl = "%define { object MyObject { string Text; } }";
+    const char* second_odl =
         "%config { define-behavior = { existing-object = \"update\" }; }"
         "%define {"
         "    object MyObject {"
@@ -165,10 +165,10 @@ void test_duplicate_objects_can_add_parameter(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_parameters_default_behavior(UNUSED void **state) {
+void test_duplicate_parameters_default_behavior(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define { object MyObject { string TestParam; uint32 TestParam; } }";
 
     amxd_dm_init(&dm);
@@ -181,12 +181,12 @@ void test_duplicate_parameters_default_behavior(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_parameters_can_update(UNUSED void **state) {
+void test_duplicate_parameters_can_update(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
-    amxd_param_t *param = NULL;
-    const char *odl =
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
+    const char* odl =
         "%config { define-behavior = { existing-parameter = \"update\" }; }"
         "%define { object MyObject { string TestParam; uint32 TestParam; } }";
 
@@ -205,10 +205,10 @@ void test_duplicate_parameters_can_update(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_parameters_change_to_invalid_type_fails(UNUSED void **state) {
+void test_duplicate_parameters_change_to_invalid_type_fails(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%config { define-behavior = { existing-parameter = \"update\" }; }"
         "%define { object MyObject { string TestParam; htable TestParam; } }";
 

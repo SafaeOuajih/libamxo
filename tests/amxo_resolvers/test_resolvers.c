@@ -85,21 +85,21 @@
 
 #define UNUSED __attribute__((unused))
 
-static const char *priv_data = "PRIVATE";
+static const char* priv_data = "PRIVATE";
 
-static void test_resolver_get(amxo_parser_t *parser,
-                              void *priv) {
-    amxc_var_t *config = amxo_parser_claim_config(parser, "test-data");
+static void test_resolver_get(amxo_parser_t* parser,
+                              void* priv) {
+    amxc_var_t* config = amxo_parser_claim_config(parser, "test-data");
     assert_ptr_not_equal(config, NULL);
     amxc_var_set(int32_t, config, 666);
     assert_ptr_equal(priv, &priv_data);
 }
 
-static amxo_fn_ptr_t test_resolver_resolve(amxo_parser_t *parser,
-                                           UNUSED const char *fn_name,
-                                           UNUSED const char *data,
-                                           void *priv) {
-    amxc_var_t *config = amxo_parser_get_config(parser, "test-data");
+static amxo_fn_ptr_t test_resolver_resolve(amxo_parser_t* parser,
+                                           UNUSED const char* fn_name,
+                                           UNUSED const char* data,
+                                           void* priv) {
+    amxc_var_t* config = amxo_parser_get_config(parser, "test-data");
     assert_ptr_not_equal(config, NULL);
     assert_int_equal(amxc_var_constcast(int32_t, config), 666);
     assert_ptr_equal(priv, &priv_data);
@@ -107,9 +107,9 @@ static amxo_fn_ptr_t test_resolver_resolve(amxo_parser_t *parser,
     return NULL;
 }
 
-static void test_resolver_clean(amxo_parser_t *parser,
-                                void *priv) {
-    amxc_var_t *config = amxo_parser_get_config(parser, "test-data");
+static void test_resolver_clean(amxo_parser_t* parser,
+                                void* priv) {
+    amxc_var_t* config = amxo_parser_get_config(parser, "test-data");
     assert_ptr_not_equal(config, NULL);
     assert_int_equal(amxc_var_constcast(int32_t, config), 666);
     assert_ptr_equal(priv, &priv_data);
@@ -129,10 +129,10 @@ static amxo_resolver_t invalid_resolver = {
     .priv = &priv_data
 };
 
-void test_register_resolver(UNUSED void **state) {
+void test_register_resolver(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { void Func(); } }",
         "%define { object Test { void Func()<!test:data!>; } }",
         NULL
@@ -163,10 +163,10 @@ void test_register_resolver(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_resolver_names(UNUSED void **state) {
+void test_invalid_resolver_names(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { void Func()<!!>; } }",
         "%define { object Test { void Func()<!:data!>; } }",
         "%define { object Test { void Func()<! :data!>; } }",
@@ -187,11 +187,11 @@ void test_invalid_resolver_names(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_auto_resolver_order_no_any(UNUSED void **state) {
+void test_auto_resolver_order_no_any(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t order;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { void Func(); } }",
         "%define { object Test { void Func()<!test:data!>; } }",
         NULL

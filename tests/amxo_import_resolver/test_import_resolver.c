@@ -86,12 +86,12 @@
 
 #define UNUSED __attribute__((unused))
 
-static void check_can_invoke_functions(amxd_dm_t *dm) {
+static void check_can_invoke_functions(amxd_dm_t* dm) {
     amxc_var_t args;
     amxc_var_t ret;
 
-    amxd_object_t *root = amxd_dm_get_root(dm);
-    amxd_object_t *object = amxd_object_get_child(root, "TestObject");
+    amxd_object_t* root = amxd_dm_get_root(dm);
+    amxd_object_t* object = amxd_object_get_child(root, "TestObject");
 
     amxc_var_init(&args);
     amxc_var_init(&ret);
@@ -108,7 +108,7 @@ static void check_can_invoke_functions(amxd_dm_t *dm) {
     amxc_var_clean(&ret);
 }
 
-void test_import_resolver_resolves_pcb_style(UNUSED void **state) {
+void test_import_resolver_resolves_pcb_style(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -125,7 +125,7 @@ void test_import_resolver_resolves_pcb_style(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_import_resolver_resolves(UNUSED void **state) {
+void test_import_resolver_resolves(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -142,10 +142,10 @@ void test_import_resolver_resolves(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_import_resolver_invalid_data(UNUSED void **state) {
+void test_import_resolver_invalid_data(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { void testa()<!import::_test_func!>;} }",
         "%define { object Test { void testb()<!import:test:_test_func:toomuch!>;} }",
         NULL
@@ -167,10 +167,10 @@ void test_import_resolver_invalid_data(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_import_resolver_multiple_import(UNUSED void **state) {
+void test_import_resolver_multiple_import(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "import \"../test_plugin/test_plugin.so\" as test; %define { object TestObject { void TestFunc1(); } }",
         "import \"../test_plugin/test_plugin.so\" as test2; %define { object TestObject { void TestFunc1();  } }",
         "import \"../test_plugin/test_plugin.so\" as test3; %define { object TestObject { void TestFunc1();  } }",
@@ -196,12 +196,12 @@ void test_import_resolver_multiple_import(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_can_call_entry_point(UNUSED void **state) {
+void test_can_call_entry_point(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t counter;
 
-    const char *odl = "%define { entry-point test.test_entry_point; }";
+    const char* odl = "%define { entry-point test.test_entry_point; }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -224,12 +224,12 @@ void test_can_call_entry_point(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_entry_point_invocation_continues_after_failing_entry_point(UNUSED void **state) {
+void test_entry_point_invocation_continues_after_failing_entry_point(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t counter;
 
-    const char *odl = "%define { entry-point test.test_failing_entry_point; entry-point test.test_entry_point; }";
+    const char* odl = "%define { entry-point test.test_failing_entry_point; entry-point test.test_entry_point; }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -252,11 +252,11 @@ void test_entry_point_invocation_continues_after_failing_entry_point(UNUSED void
     amxo_resolver_import_close_all();
 }
 
-void test_parsing_fails_when_entry_point_can_not_be_resolved(UNUSED void **state) {
+void test_parsing_fails_when_entry_point_can_not_be_resolved(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
-    const char *odl = "%define { entry-point test.not_existing; }";
+    const char* odl = "%define { entry-point test.not_existing; }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -273,7 +273,7 @@ void test_parsing_fails_when_entry_point_can_not_be_resolved(UNUSED void **state
     amxo_resolver_import_close_all();
 }
 
-void test_entry_point_invoke_does_not_crash_with_invalid_args(UNUSED void **state) {
+void test_entry_point_invoke_does_not_crash_with_invalid_args(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -288,10 +288,10 @@ void test_entry_point_invoke_does_not_crash_with_invalid_args(UNUSED void **stat
     amxd_dm_clean(&dm);
 }
 
-void test_open_non_existing_file(UNUSED void **state) {
+void test_open_non_existing_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "import \"NONE-EXISTING.so\" as fake;";
+    const char* odl = "import \"NONE-EXISTING.so\" as fake;";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);

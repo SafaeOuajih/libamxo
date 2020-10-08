@@ -229,8 +229,8 @@ extern "C"
    @return
    Retruns 0 when the function is added to the function table.
  */
-int amxo_register_resolver(const char *name,
-                           amxo_resolver_t *resolver);
+int amxo_register_resolver(const char* name,
+                           amxo_resolver_t* resolver);
 
 /**
    @ingroup amxo_resolver
@@ -248,7 +248,7 @@ int amxo_register_resolver(const char *name,
    @return
    Retruns 0 when the function is added to the function table.
  */
-int amxo_unregister_resolver(const char *name);
+int amxo_unregister_resolver(const char* name);
 
 /**
    @ingroup amxo_resolver
@@ -275,8 +275,8 @@ int amxo_unregister_resolver(const char *name);
    @return
    pointer to a hash table or NULL if allocating fails.
  */
-amxc_htable_t *amxo_parser_claim_resolver_data(amxo_parser_t *parser,
-                                               const char *resolver_name);
+amxc_htable_t* amxo_parser_claim_resolver_data(amxo_parser_t* parser,
+                                               const char* resolver_name);
 
 /**
    @ingroup amxo_resolver
@@ -299,8 +299,8 @@ amxc_htable_t *amxo_parser_claim_resolver_data(amxo_parser_t *parser,
    @return
    pointer to a hash table or NULL if allocating fails.
  */
-amxc_htable_t *amxo_parser_get_resolver_data(amxo_parser_t *parser,
-                                             const char *resolver_name);
+amxc_htable_t* amxo_parser_get_resolver_data(amxo_parser_t* parser,
+                                             const char* resolver_name);
 
 /**
    @ingroup amxo_resolver
@@ -342,8 +342,8 @@ amxc_htable_t *amxo_parser_get_resolver_data(amxo_parser_t *parser,
    @return
    Retruns 0 when the function is added to the function table.
  */
-int amxo_resolver_ftab_add(amxo_parser_t *parser,
-                           const char *fn_name,
+int amxo_resolver_ftab_add(amxo_parser_t* parser,
+                           const char* fn_name,
                            amxo_fn_ptr_t fn);
 
 /**
@@ -359,8 +359,8 @@ int amxo_resolver_ftab_add(amxo_parser_t *parser,
    @return
    Retruns 0 when the function is removed from the function table.
  */
-int amxo_resolver_ftab_remove(amxo_parser_t *parser,
-                              const char *fn_name);
+int amxo_resolver_ftab_remove(amxo_parser_t* parser,
+                              const char* fn_name);
 
 /**
    @ingroup amxo_resolver_ftab
@@ -371,7 +371,7 @@ int amxo_resolver_ftab_remove(amxo_parser_t *parser,
 
    @param parser the odl parser instance
  */
-void amxo_resolver_ftab_clear(amxo_parser_t *parser);
+void amxo_resolver_ftab_clear(amxo_parser_t* parser);
 
 /**
    @ingroup amxo_resolver
@@ -413,9 +413,9 @@ void amxo_resolver_ftab_clear(amxo_parser_t *parser);
 
    Retruns 0 when the function is removed from the function table.
  */
-int amxo_resolver_import_open(amxo_parser_t *parser,
-                              const char *so_name,
-                              const char *alias,
+int amxo_resolver_import_open(amxo_parser_t* parser,
+                              const char* so_name,
+                              const char* alias,
                               int flags);
 
 /**

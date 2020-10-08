@@ -61,11 +61,11 @@
 #ifndef __TEST_EVENTS_H__
 #define __TEST_EVENTS_H__
 
-void test_event_subscription(void **state);
-void test_event_subscription_filter(void **state);
-void test_deprecated_event_subscription_write_with_object(void **state);
-void test_deprecated_event_subscription_write_with_param(void **state);
-void test_subscription_warns_if_function_not_resolved(void **state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void **state);
+void test_event_subscription(void** state);
+void test_event_subscription_filter(void** state);
+void test_deprecated_event_subscription_write_with_object(void** state);
+void test_deprecated_event_subscription_write_with_param(void** state);
+void test_subscription_warns_if_function_not_resolved(void** state);
+void test_deprecated_subscription_warns_if_function_not_resolved(void** state);
 
 #endif // __TEST_FTAB_RESOLVER_H__

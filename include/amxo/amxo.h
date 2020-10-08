@@ -131,7 +131,7 @@ extern "C"
    @return
    0 when successful, otherwise an error code
  */
-int amxo_parser_init(amxo_parser_t *parser);
+int amxo_parser_init(amxo_parser_t* parser);
 
 /**
    @ingroup amxo_parser
@@ -159,7 +159,7 @@ int amxo_parser_init(amxo_parser_t *parser);
 
    @param parser pointer to an odl parser instance
  */
-void amxo_parser_clean(amxo_parser_t *parser);
+void amxo_parser_clean(amxo_parser_t* parser);
 
 /**
    @ingroup amxo_parser
@@ -200,7 +200,7 @@ void amxo_parser_clean(amxo_parser_t *parser);
    @return
    0 when successful, otherwise an error code
  */
-int amxo_parser_new(amxo_parser_t **parser);
+int amxo_parser_new(amxo_parser_t** parser);
 
 /**
    @ingroup amxo_parser
@@ -231,7 +231,7 @@ int amxo_parser_new(amxo_parser_t **parser);
 
    @param parser pointer to a pointer to an odl parser instance
  */
-void amxo_parser_delete(amxo_parser_t **parser);
+void amxo_parser_delete(amxo_parser_t** parser);
 
 /**
    @ingroup amxo_parser
@@ -272,9 +272,9 @@ void amxo_parser_delete(amxo_parser_t **parser);
     status field or message field. Use @ref amxo_parser_get_status and
     @ref amxo_parser_get_message respectivily.
  */
-int amxo_parser_parse_fd(amxo_parser_t *parser,
+int amxo_parser_parse_fd(amxo_parser_t* parser,
                          int fd,
-                         amxd_object_t *object);
+                         amxd_object_t* object);
 
 /**
    @ingroup amxo_parser
@@ -320,9 +320,9 @@ int amxo_parser_parse_fd(amxo_parser_t *parser,
     status field or message field. Use @ref amxo_parser_get_status and
     @ref amxo_parser_get_message respectivily.
  */
-int amxo_parser_parse_file(amxo_parser_t *parser,
-                           const char *file_path,
-                           amxd_object_t *object);
+int amxo_parser_parse_file(amxo_parser_t* parser,
+                           const char* file_path,
+                           amxd_object_t* object);
 
 /**
    @ingroup amxo_parser
@@ -360,9 +360,9 @@ int amxo_parser_parse_file(amxo_parser_t *parser,
     status field or message field. Use @ref amxo_parser_get_status and
     @ref amxo_parser_get_message respectivily.
  */
-int amxo_parser_parse_string(amxo_parser_t *parser,
-                             const char *text,
-                             amxd_object_t *object);
+int amxo_parser_parse_string(amxo_parser_t* parser,
+                             const char* text,
+                             amxd_object_t* object);
 
 /**
    @ingroup amxo_parser
@@ -401,7 +401,7 @@ int amxo_parser_parse_string(amxo_parser_t *parser,
     Returns the status of the parser.
  */
 AMXO_INLINE
-amxd_status_t amxo_parser_get_status(amxo_parser_t *parser) {
+amxd_status_t amxo_parser_get_status(amxo_parser_t* parser) {
     return parser == NULL ? amxd_status_ok : parser->status;
 }
 
@@ -445,7 +445,7 @@ amxd_status_t amxo_parser_get_status(amxo_parser_t *parser) {
     The human readable failure message or NULL when there is no message available
  */
 AMXO_INLINE
-const char *amxo_parser_get_message(amxo_parser_t *parser) {
+const char* amxo_parser_get_message(amxo_parser_t* parser) {
     return parser == NULL ? NULL : amxc_string_get(&parser->msg, 0);
 }
 
@@ -471,7 +471,7 @@ const char *amxo_parser_get_message(amxo_parser_t *parser) {
    available.
  */
 AMXO_INLINE
-const char *amxo_parser_get_file(amxo_parser_t *parser) {
+const char* amxo_parser_get_file(amxo_parser_t* parser) {
     return parser == NULL ? NULL : parser->file;
 }
 
@@ -492,7 +492,7 @@ const char *amxo_parser_get_file(amxo_parser_t *parser) {
    The current line number.
  */
 AMXO_INLINE
-uint32_t amxo_parser_get_line(amxo_parser_t *parser) {
+uint32_t amxo_parser_get_line(amxo_parser_t* parser) {
     return parser == NULL ? 0 : parser->line;
 }
 
@@ -514,8 +514,8 @@ uint32_t amxo_parser_get_line(amxo_parser_t *parser) {
    Returns the config option as a variant or NULL when no option found with
    the name given
  */
-amxc_var_t *amxo_parser_get_config(amxo_parser_t *parser,
-                                   const char *name);
+amxc_var_t* amxo_parser_get_config(amxo_parser_t* parser,
+                                   const char* name);
 
 /**
    @ingroup amxo_parser
@@ -537,8 +537,8 @@ amxc_var_t *amxo_parser_get_config(amxo_parser_t *parser,
    @return
    Returns the config option as a variant.
  */
-amxc_var_t *amxo_parser_claim_config(amxo_parser_t *parser,
-                                     const char *name);
+amxc_var_t* amxo_parser_claim_config(amxo_parser_t* parser,
+                                     const char* name);
 
 /**
    @ingroup amxo_parser
@@ -561,9 +561,9 @@ amxc_var_t *amxo_parser_claim_config(amxo_parser_t *parser,
    @return
    Returns 0 when success, any other value indicates failure.
  */
-int amxo_parser_set_config(amxo_parser_t *parser,
-                           const char *name,
-                           amxc_var_t *value);
+int amxo_parser_set_config(amxo_parser_t* parser,
+                           const char* name,
+                           amxc_var_t* value);
 
 /**
    @ingroup amxo_parser
@@ -592,7 +592,7 @@ int amxo_parser_set_config(amxo_parser_t *parser,
    @return
    Returns 0 when success, any other value indicates failure.
  */
-int amxo_parser_add_entry_point(amxo_parser_t *parser,
+int amxo_parser_add_entry_point(amxo_parser_t* parser,
                                 amxo_entry_point_t fn);
 
 /**
@@ -624,32 +624,32 @@ int amxo_parser_add_entry_point(amxo_parser_t *parser,
    A possitive number indicates the number of failed entry points.
    A negative number indicates failre on the parser side.
  */
-int amxo_parser_invoke_entry_points(amxo_parser_t *parser,
-                                    amxd_dm_t *dm,
+int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
+                                    amxd_dm_t* dm,
                                     int reason);
 
-int amxo_connection_add(amxo_parser_t *parser,
+int amxo_connection_add(amxo_parser_t* parser,
                         int fd,
                         amxo_fd_read_t reader,
-                        const char *uri,
+                        const char* uri,
                         amxo_con_type_t type,
-                        void *priv);
+                        void* priv);
 
-int amxo_connection_remove(amxo_parser_t *parser,
+int amxo_connection_remove(amxo_parser_t* parser,
                            int fd);
 
-int amxo_connection_set_el_data(amxo_parser_t *parser,
+int amxo_connection_set_el_data(amxo_parser_t* parser,
                                 int fd,
-                                void *el_data);
+                                void* el_data);
 
-amxo_connection_t *amxo_connection_get_first(amxo_parser_t *parser,
+amxo_connection_t* amxo_connection_get_first(amxo_parser_t* parser,
                                              amxo_con_type_t type);
 
-amxo_connection_t *amxo_connection_get_next(amxo_parser_t *parser,
-                                            amxo_connection_t *con,
+amxo_connection_t* amxo_connection_get_next(amxo_parser_t* parser,
+                                            amxo_connection_t* con,
                                             amxo_con_type_t type);
 AMXO_INLINE
-amxc_llist_t *amxo_parser_get_connections(amxo_parser_t *parser) {
+amxc_llist_t* amxo_parser_get_connections(amxo_parser_t* parser) {
     return parser == NULL ? 0 : parser->connections;
 }
 

@@ -85,8 +85,8 @@
 
 #define UNUSED __attribute__((unused))
 
-static void check_options_are_available(amxo_parser_t *parser) {
-    amxc_var_t *option = amxo_parser_get_config(parser, "test_option_number");
+static void check_options_are_available(amxo_parser_t* parser) {
+    amxc_var_t* option = amxo_parser_get_config(parser, "test_option_number");
     assert_ptr_not_equal(option, NULL);
     assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_INT64);
 
@@ -99,9 +99,9 @@ static void check_options_are_available(amxo_parser_t *parser) {
     assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_BOOL);
 }
 
-static void check_objects_exist(amxd_dm_t *dm) {
-    amxd_object_t *root = amxd_dm_get_root(dm);
-    static const char *paths[] = {
+static void check_objects_exist(amxd_dm_t* dm) {
+    amxd_object_t* root = amxd_dm_get_root(dm);
+    static const char* paths[] = {
         "TestObjectRoot",
         "TestObjectRoot.TestObjectSingelton",
         "TestObjectRoot.TestObjSingletonAttr",
@@ -132,11 +132,11 @@ static void check_objects_exist(amxd_dm_t *dm) {
     }
 }
 
-static void check_parameters_exist(amxd_dm_t *dm) {
-    amxd_object_t *root = amxd_dm_get_root(dm);
-    amxd_object_t *object = NULL;
-    amxd_param_t *param = NULL;
-    static const char *types_params[] = {
+static void check_parameters_exist(amxd_dm_t* dm) {
+    amxd_object_t* root = amxd_dm_get_root(dm);
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
+    static const char* types_params[] = {
         "Param1",
         "Param2",
         "Param3",
@@ -203,11 +203,11 @@ static void check_parameters_exist(amxd_dm_t *dm) {
     assert_ptr_not_equal(param, NULL);
 }
 
-static void check_functions_exist(amxd_dm_t *dm) {
-    amxd_object_t *root = amxd_dm_get_root(dm);
-    amxd_object_t *object = NULL;
-    amxd_function_t *func = NULL;
-    static const char *obj_funcs[] = {
+static void check_functions_exist(amxd_dm_t* dm) {
+    amxd_object_t* root = amxd_dm_get_root(dm);
+    amxd_object_t* object = NULL;
+    amxd_function_t* func = NULL;
+    static const char* obj_funcs[] = {
         "func1",
         "func2",
         "func3",
@@ -242,8 +242,8 @@ static void check_functions_exist(amxd_dm_t *dm) {
     assert_false(amxd_function_is_attr_set(func, amxd_fattr_private));
 }
 
-static void check_mib_extions_work(amxd_dm_t *dm) {
-    amxd_object_t *object = amxd_dm_findf(dm, "TestObjectRoot.ExtendWithTestMib");
+static void check_mib_extions_work(amxd_dm_t* dm) {
+    amxd_object_t* object = amxd_dm_findf(dm, "TestObjectRoot.ExtendWithTestMib");
 
     assert_ptr_not_equal(object, NULL);
     assert_true(amxd_object_has_mib(object, "TestMib"));
@@ -251,9 +251,9 @@ static void check_mib_extions_work(amxd_dm_t *dm) {
     assert_ptr_not_equal(amxd_object_get_function(object, "mibfunc"), NULL);
 }
 
-void test_can_parse_odl_file(UNUSED void **state) {
+void test_can_parse_odl_file(UNUSED void** state) {
     amxd_dm_t dm;
-    amxc_var_t *lib_dirs = NULL;
+    amxc_var_t* lib_dirs = NULL;
     amxo_parser_t parser;
 
     amxd_dm_init(&dm);
@@ -277,7 +277,7 @@ void test_can_parse_odl_file(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_can_parse_empty_file(UNUSED void **state) {
+void test_can_parse_empty_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -292,10 +292,10 @@ void test_can_parse_empty_file(UNUSED void **state) {
 }
 
 
-void test_can_parse_fd(UNUSED void **state) {
+void test_can_parse_fd(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxc_var_t *lib_dirs = NULL;
+    amxc_var_t* lib_dirs = NULL;
     int fd = open("test_valid.odl", O_RDONLY);
 
     amxd_dm_init(&dm);
@@ -319,7 +319,7 @@ void test_can_parse_fd(UNUSED void **state) {
     amxo_resolver_import_close_all();
 }
 
-void test_can_parse_string(UNUSED void **state) {
+void test_can_parse_string(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -335,10 +335,10 @@ void test_can_parse_string(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_func_name(UNUSED void **state) {
+void test_duplicate_func_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { void F1(); void F2(); void F1(); } }";
+    const char* odl = "%define { object Test { void F1(); void F2(); void F1(); } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);

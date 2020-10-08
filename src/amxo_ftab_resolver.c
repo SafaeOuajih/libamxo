@@ -88,8 +88,8 @@ typedef struct _amxo_ftab_fn {
     amxo_fn_ptr_t fn;
 } amxo_ftab_fn_t;
 
-static void amxo_resolver_ftab_defaults(amxo_parser_t *parser,
-                                        AMXO_UNUSED void *priv) {
+static void amxo_resolver_ftab_defaults(amxo_parser_t* parser,
+                                        AMXO_UNUSED void* priv) {
     amxo_resolver_ftab_add(parser,
                            "check_minimum",
                            AMXO_FUNC(amxd_action_param_check_minimum));
@@ -116,14 +116,14 @@ static void amxo_resolver_ftab_defaults(amxo_parser_t *parser,
                            AMXO_FUNC(amxd_action_param_read_hidden_value));
 }
 
-static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t *parser,
-                                        const char *fn_name,
-                                        const char *data,
-                                        AMXO_UNUSED void *priv) {
+static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t* parser,
+                                        const char* fn_name,
+                                        const char* data,
+                                        AMXO_UNUSED void* priv) {
     amxo_fn_ptr_t fn = NULL;
-    amxo_ftab_fn_t *ftab_fn = NULL;
-    amxc_htable_t *ftab_data = NULL;
-    amxc_htable_it_t *it = NULL;
+    amxo_ftab_fn_t* ftab_fn = NULL;
+    amxc_htable_t* ftab_data = NULL;
+    amxc_htable_it_t* it = NULL;
 
     ftab_data = amxo_parser_get_resolver_data(parser, "ftab");
     when_null(ftab_data, exit);
@@ -132,7 +132,7 @@ static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t *parser,
         it = amxc_htable_get(ftab_data, data);
     } else {
         amxc_string_t full_name;
-        char *path = amxd_object_get_path(parser->object, AMXD_OBJECT_NAMED);
+        char* path = amxd_object_get_path(parser->object, AMXD_OBJECT_NAMED);
         amxc_string_init(&full_name, 0);
         if((path != NULL) && (*path != 0)) {
             amxc_string_push_buffer(&full_name, path, strlen(path) + 1);
@@ -153,14 +153,14 @@ exit:
     return fn;
 }
 
-static void amxo_resolver_ftab_clean(amxo_parser_t *parser,
-                                     AMXO_UNUSED void *priv) {
-    amxc_htable_t *ftab_data = NULL;
+static void amxo_resolver_ftab_clean(amxo_parser_t* parser,
+                                     AMXO_UNUSED void* priv) {
+    amxc_htable_t* ftab_data = NULL;
     ftab_data = amxo_parser_get_resolver_data(parser, "ftab");
     amxc_htable_clean(ftab_data, amxo_ftab_fn_free);
 }
 
-static bool amxo_ftab_func_name_is_valid(const char *name) {
+static bool amxo_ftab_func_name_is_valid(const char* name) {
     bool retval = false;
     when_str_empty(name, exit);
     when_true(isalpha(name[0]) == 0 && name[0] != '_', exit);
@@ -180,18 +180,18 @@ exit:
 }
 
 
-void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char *key,
-                                    amxc_htable_it_t *it) {
-    amxo_ftab_fn_t *ftab_fn = amxc_htable_it_get_data(it, amxo_ftab_fn_t, hit);
+void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char* key,
+                                    amxc_htable_it_t* it) {
+    amxo_ftab_fn_t* ftab_fn = amxc_htable_it_get_data(it, amxo_ftab_fn_t, hit);
     free(ftab_fn);
 }
 
-int amxo_resolver_ftab_add(amxo_parser_t *parser,
-                           const char *fn_name,
+int amxo_resolver_ftab_add(amxo_parser_t* parser,
+                           const char* fn_name,
                            amxo_fn_ptr_t fn) {
     int retval = -1;
-    amxo_ftab_fn_t *ftab_fn = NULL;
-    amxc_htable_t *ftab_data = NULL;
+    amxo_ftab_fn_t* ftab_fn = NULL;
+    amxc_htable_t* ftab_data = NULL;
     when_null(parser, exit);
     when_null(fn, exit);
     when_true(!amxo_ftab_func_name_is_valid(fn_name), exit);
@@ -200,7 +200,7 @@ int amxo_resolver_ftab_add(amxo_parser_t *parser,
     when_null(ftab_data, exit);
     when_true(amxc_htable_contains(ftab_data, fn_name), exit);
 
-    ftab_fn = (amxo_ftab_fn_t *) calloc(1, sizeof(amxo_ftab_fn_t));
+    ftab_fn = (amxo_ftab_fn_t*) calloc(1, sizeof(amxo_ftab_fn_t));
     when_null(ftab_fn, exit);
 
     ftab_fn->fn = fn;
@@ -212,11 +212,11 @@ exit:
     return retval;
 }
 
-int amxo_resolver_ftab_remove(amxo_parser_t *parser,
-                              const char *fn_name) {
+int amxo_resolver_ftab_remove(amxo_parser_t* parser,
+                              const char* fn_name) {
     int retval = -1;
-    amxc_htable_t *ftab_data = NULL;
-    amxc_htable_it_t *it = NULL;
+    amxc_htable_t* ftab_data = NULL;
+    amxc_htable_it_t* it = NULL;
     when_null(parser, exit);
     when_str_empty(fn_name, exit);
     ftab_data = amxo_parser_claim_resolver_data(parser, "ftab");
@@ -232,7 +232,7 @@ exit:
     return retval;
 }
 
-void amxo_resolver_ftab_clear(amxo_parser_t *parser) {
+void amxo_resolver_ftab_clear(amxo_parser_t* parser) {
     when_null(parser, exit);
     amxo_resolver_ftab_clean(parser, NULL);
 

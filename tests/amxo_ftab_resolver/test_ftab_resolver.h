@@ -61,7 +61,7 @@
 #ifndef __TEST_FTAB_RESOLVER_H__
 #define __TEST_FTAB_RESOLVER_H__
 
-void test_ftab_resolver_resolves(void **state);
-void test_ftab_resolver_invalid_args(void **state);
+void test_ftab_resolver_resolves(void** state);
+void test_ftab_resolver_invalid_args(void** state);
 
 #endif // __TEST_FTAB_RESOLVER_H__

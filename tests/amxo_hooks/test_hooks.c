@@ -88,136 +88,136 @@
 
 static amxc_aqueue_t expected_order;
 
-static void test_hook_start(UNUSED amxo_parser_t *parser) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_start(UNUSED amxo_parser_t* parser) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "start");
 }
 
-static void test_hook_end(UNUSED amxo_parser_t *parser) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_end(UNUSED amxo_parser_t* parser) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "end");
 }
 
-static void test_hook_start_include(UNUSED amxo_parser_t *parser,
-                                    UNUSED const char *file) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_start_include(UNUSED amxo_parser_t* parser,
+                                    UNUSED const char* file) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "include start");
 }
 
-static void test_hook_end_include(UNUSED amxo_parser_t *parser,
-                                  UNUSED const char *file) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_end_include(UNUSED amxo_parser_t* parser,
+                                  UNUSED const char* file) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "include end");
 }
 
-static void test_hook_start_section(UNUSED amxo_parser_t *parser,
+static void test_hook_start_section(UNUSED amxo_parser_t* parser,
                                     UNUSED int section_id) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "section start");
 }
 
-static void test_hook_end_section(UNUSED amxo_parser_t *parser,
+static void test_hook_end_section(UNUSED amxo_parser_t* parser,
                                   UNUSED int section_id) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "section end");
 }
 
-static void test_hook_set_config(UNUSED amxo_parser_t *parser,
-                                 UNUSED const char *option,
-                                 UNUSED amxc_var_t *value) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_set_config(UNUSED amxo_parser_t* parser,
+                                 UNUSED const char* option,
+                                 UNUSED amxc_var_t* value) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "set config");
 }
 
-static void test_hook_create_object(UNUSED amxo_parser_t *parser,
-                                    UNUSED amxd_object_t *parent,
-                                    UNUSED const char *name,
+static void test_hook_create_object(UNUSED amxo_parser_t* parser,
+                                    UNUSED amxd_object_t* parent,
+                                    UNUSED const char* name,
                                     UNUSED int64_t attr_bitmask,
                                     UNUSED amxd_object_type_t type) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "create object");
 }
 
-static void test_hook_add_instance(UNUSED amxo_parser_t *parser,
-                                   UNUSED amxd_object_t *parent,
+static void test_hook_add_instance(UNUSED amxo_parser_t* parser,
+                                   UNUSED amxd_object_t* parent,
                                    UNUSED uint32_t index,
-                                   UNUSED const char *name) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+                                   UNUSED const char* name) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "instance add");
 }
 
-static void test_hook_select_object(UNUSED amxo_parser_t *parser,
-                                    UNUSED amxd_object_t *parent,
-                                    UNUSED const char *path) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_select_object(UNUSED amxo_parser_t* parser,
+                                    UNUSED amxd_object_t* parent,
+                                    UNUSED const char* path) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "select object");
 }
 
-static void test_hook_end_object(UNUSED amxo_parser_t *parser,
-                                 UNUSED amxd_object_t *object) {
-    const char *check = amxc_aqueue_remove(&expected_order);
+static void test_hook_end_object(UNUSED amxo_parser_t* parser,
+                                 UNUSED amxd_object_t* object) {
+    const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
     printf("%s\n", check);
     assert_string_equal(check, "end object");
 }
 
-static void test_hook_add_param(UNUSED amxo_parser_t *parser,
-                                UNUSED amxd_object_t *object,
-                                UNUSED const char *name,
+static void test_hook_add_param(UNUSED amxo_parser_t* parser,
+                                UNUSED amxd_object_t* object,
+                                UNUSED const char* name,
                                 UNUSED int64_t attr_bitmask,
                                 UNUSED uint32_t type) {
 }
 
-static void test_hook_set_param(UNUSED amxo_parser_t *parser,
-                                UNUSED amxd_object_t *object,
-                                UNUSED amxd_param_t *param,
-                                UNUSED amxc_var_t *value) {
+static void test_hook_set_param(UNUSED amxo_parser_t* parser,
+                                UNUSED amxd_object_t* object,
+                                UNUSED amxd_param_t* param,
+                                UNUSED amxc_var_t* value) {
 }
 
-static void test_hook_end_param(UNUSED amxo_parser_t *parser,
-                                UNUSED amxd_object_t *object,
-                                UNUSED amxd_param_t *param) {
+static void test_hook_end_param(UNUSED amxo_parser_t* parser,
+                                UNUSED amxd_object_t* object,
+                                UNUSED amxd_param_t* param) {
 }
 
-static void test_hook_add_func(UNUSED amxo_parser_t *parser,
-                               UNUSED amxd_object_t *object,
-                               UNUSED const char *name,
+static void test_hook_add_func(UNUSED amxo_parser_t* parser,
+                               UNUSED amxd_object_t* object,
+                               UNUSED const char* name,
                                UNUSED int64_t attr_bitmask,
                                UNUSED uint32_t type) {
 }
 
-static void test_hook_end_func(UNUSED amxo_parser_t *parser,
-                               UNUSED amxd_object_t *object,
-                               UNUSED amxd_function_t *function) {
+static void test_hook_end_func(UNUSED amxo_parser_t* parser,
+                               UNUSED amxd_object_t* object,
+                               UNUSED amxd_function_t* function) {
 }
 
-static void test_hook_add_func_arg(UNUSED amxo_parser_t *parser,
-                                   UNUSED amxd_object_t *object,
-                                   UNUSED amxd_function_t *func,
-                                   UNUSED const char *name,
+static void test_hook_add_func_arg(UNUSED amxo_parser_t* parser,
+                                   UNUSED amxd_object_t* object,
+                                   UNUSED amxd_function_t* func,
+                                   UNUSED const char* name,
                                    UNUSED int64_t attr_bitmask,
                                    UNUSED uint32_t type,
-                                   UNUSED amxc_var_t *def_value) {
+                                   UNUSED amxc_var_t* def_value) {
 }
 
 static amxo_hooks_t test_hooks = {
@@ -242,7 +242,7 @@ static amxo_hooks_t test_hooks = {
 
 static amxo_hooks_t test_empty_hooks = { };
 
-void test_hooks_are_called(UNUSED void **state) {
+void test_hooks_are_called(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -326,7 +326,7 @@ void test_hooks_are_called(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_hooks_empty_hooks(UNUSED void **state) {
+void test_hooks_empty_hooks(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -341,7 +341,7 @@ void test_hooks_empty_hooks(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_hooks_add_remove_hooks(UNUSED void **state) {
+void test_hooks_add_remove_hooks(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxo_parser_t parser2;

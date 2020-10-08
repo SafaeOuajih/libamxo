@@ -74,11 +74,11 @@ extern "C"
 
 #include <amxo/amxo_types.h>
 
-int amxo_parser_set_hooks(amxo_parser_t *parser,
-                          amxo_hooks_t *hooks);
+int amxo_parser_set_hooks(amxo_parser_t* parser,
+                          amxo_hooks_t* hooks);
 
-int amxo_parser_unset_hooks(amxo_parser_t *parser,
-                            amxo_hooks_t *hooks);
+int amxo_parser_unset_hooks(amxo_parser_t* parser,
+                            amxo_hooks_t* hooks);
 
 #ifdef __cplusplus
 }

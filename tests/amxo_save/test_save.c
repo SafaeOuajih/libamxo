@@ -86,11 +86,11 @@
 
 #define UNUSED __attribute__((unused))
 
-void test_save_config_array(UNUSED void **state) {
+void test_save_config_array(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
-    amxc_var_t *the_array = NULL;
+    amxc_var_t* the_array = NULL;
 
     amxc_var_init(&config_options);
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
@@ -122,11 +122,11 @@ void test_save_config_array(UNUSED void **state) {
     amxc_var_clean(&config_options);
 }
 
-void test_config_arrays_can_only_contain_primitives(UNUSED void **state) {
+void test_config_arrays_can_only_contain_primitives(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
-    amxc_var_t *the_array = NULL;
+    amxc_var_t* the_array = NULL;
 
     amxc_var_init(&config_options);
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
@@ -143,11 +143,11 @@ void test_config_arrays_can_only_contain_primitives(UNUSED void **state) {
     amxc_var_clean(&config_options);
 }
 
-void test_save_config_key_value_pairs(UNUSED void **state) {
+void test_save_config_key_value_pairs(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
-    amxc_var_t *the_table = NULL;
+    amxc_var_t* the_table = NULL;
 
     amxc_var_init(&config_options);
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
@@ -172,11 +172,11 @@ void test_save_config_key_value_pairs(UNUSED void **state) {
     amxc_var_clean(&config_options);
 }
 
-void test_config_tables_can_only_contain_primitives(UNUSED void **state) {
+void test_config_tables_can_only_contain_primitives(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
-    amxc_var_t *the_table = NULL;
+    amxc_var_t* the_table = NULL;
 
     amxc_var_init(&config_options);
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
@@ -193,11 +193,11 @@ void test_config_tables_can_only_contain_primitives(UNUSED void **state) {
     amxc_var_clean(&config_options);
 }
 
-void test_config_tables_keys_must_be_conform_naming_convention(UNUSED void **state) {
+void test_config_tables_keys_must_be_conform_naming_convention(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
-    amxc_var_t *the_table = NULL;
+    amxc_var_t* the_table = NULL;
 
     amxc_var_init(&config_options);
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
@@ -214,7 +214,7 @@ void test_config_tables_keys_must_be_conform_naming_convention(UNUSED void **sta
     amxc_var_clean(&config_options);
 }
 
-void test_save_config_values(UNUSED void **state) {
+void test_save_config_values(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -249,7 +249,7 @@ void test_save_config_values(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_save_config_fails_when_using_invalid_key_names(UNUSED void **state) {
+void test_save_config_fails_when_using_invalid_key_names(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -275,7 +275,7 @@ void test_save_config_fails_when_using_invalid_key_names(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_save_can_append_config_values(UNUSED void **state) {
+void test_save_can_append_config_values(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -321,11 +321,11 @@ void test_save_can_append_config_values(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_can_save_object(UNUSED void **state) {
+void test_can_save_object(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
-    amxd_object_t *instance = NULL;
+    amxd_object_t* object = NULL;
+    amxd_object_t* instance = NULL;
     amxc_var_t values;
 
     amxd_dm_init(&dm);
@@ -351,7 +351,7 @@ void test_can_save_object(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_can_save_from_root(UNUSED void **state) {
+void test_can_save_from_root(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
@@ -369,10 +369,10 @@ void test_can_save_from_root(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_can_save_instance(UNUSED void **state) {
+void test_can_save_instance(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
+    amxd_object_t* object = NULL;
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -393,10 +393,10 @@ void test_can_save_instance(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_save_fails_if_file_can_not_be_opened(UNUSED void **state) {
+void test_save_fails_if_file_can_not_be_opened(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
+    amxd_object_t* object = NULL;
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -408,10 +408,10 @@ void test_save_fails_if_file_can_not_be_opened(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_save_fails_if_append_to_none_existing_file(UNUSED void **state) {
+void test_save_fails_if_append_to_none_existing_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
+    amxd_object_t* object = NULL;
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -423,10 +423,10 @@ void test_save_fails_if_append_to_none_existing_file(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_save_takes_rw_data_path_into_account(UNUSED void **state) {
+void test_save_takes_rw_data_path_into_account(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxc_var_t *rw_data_path = NULL;
+    amxc_var_t* rw_data_path = NULL;
     int fd = -1;
 
     amxd_dm_init(&dm);

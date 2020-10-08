@@ -61,8 +61,8 @@
 #ifndef __TEST_RESOLVERS_H__
 #define __TEST_RESOLVERS_H__
 
-void test_register_resolver(void **state);
-void test_invalid_resolver_names(void **state);
-void test_auto_resolver_order_no_any(void **state);
+void test_register_resolver(void** state);
+void test_invalid_resolver_names(void** state);
+void test_auto_resolver_order_no_any(void** state);
 
 #endif // __TEST_FTAB_RESOLVER_H__

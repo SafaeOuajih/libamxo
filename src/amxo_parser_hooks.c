@@ -82,77 +82,77 @@
 #include "amxo_parser_hooks_priv.h"
 #include "amxo_parser.tab.h"
 
-void amxo_hooks_start(amxo_parser_t *parser) {
+void amxo_hooks_start(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->start != NULL) {
             hook->start(parser);
         }
     }
 }
 
-void amxo_hooks_end(amxo_parser_t *parser) {
+void amxo_hooks_end(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->end != NULL) {
             hook->end(parser);
         }
     }
 }
 
-void amxo_hooks_start_include(amxo_parser_t *parser, const char *file) {
+void amxo_hooks_start_include(amxo_parser_t* parser, const char* file) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->start_include != NULL) {
             hook->start_include(parser, file);
         }
     }
 }
 
-void amxo_hooks_end_include(amxo_parser_t *parser, const char *file) {
+void amxo_hooks_end_include(amxo_parser_t* parser, const char* file) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->end_include != NULL) {
             hook->end_include(parser, file);
         }
     }
 }
 
-void amxo_hooks_start_section(amxo_parser_t *parser, int section_id) {
+void amxo_hooks_start_section(amxo_parser_t* parser, int section_id) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->start_section != NULL) {
             hook->start_section(parser, section_id);
         }
     }
 }
 
-void amxo_hooks_end_section(amxo_parser_t *parser, int section_id) {
+void amxo_hooks_end_section(amxo_parser_t* parser, int section_id) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->end_section != NULL) {
             hook->end_section(parser, section_id);
         }
     }
 }
 
-void amxo_hooks_set_config(amxo_parser_t *parser,
-                           const char *name,
-                           amxc_var_t *value) {
+void amxo_hooks_set_config(amxo_parser_t* parser,
+                           const char* name,
+                           amxc_var_t* value) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->set_config != NULL) {
             hook->set_config(parser, name, value);
         }
     }
 }
 
-void amxo_hooks_create_object(amxo_parser_t *parser,
-                              const char *name,
+void amxo_hooks_create_object(amxo_parser_t* parser,
+                              const char* name,
                               int64_t attr_bitmask,
                               amxd_object_type_t type) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->create_object != NULL) {
             hook->create_object(parser,
                                 parser->object,
@@ -163,11 +163,11 @@ void amxo_hooks_create_object(amxo_parser_t *parser,
     }
 }
 
-void amxo_hooks_add_instance(amxo_parser_t *parser,
+void amxo_hooks_add_instance(amxo_parser_t* parser,
                              uint32_t index,
-                             const char *name) {
+                             const char* name) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->add_instance != NULL) {
             hook->add_instance(parser,
                                parser->object,
@@ -177,10 +177,10 @@ void amxo_hooks_add_instance(amxo_parser_t *parser,
     }
 }
 
-void amxo_hooks_select_object(amxo_parser_t *parser,
-                              const char *path) {
+void amxo_hooks_select_object(amxo_parser_t* parser,
+                              const char* path) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->select_object != NULL) {
             hook->select_object(parser,
                                 parser->object,
@@ -189,9 +189,9 @@ void amxo_hooks_select_object(amxo_parser_t *parser,
     }
 }
 
-void amxo_hooks_end_object(amxo_parser_t *parser) {
+void amxo_hooks_end_object(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->end_object != NULL) {
             hook->end_object(parser,
                              parser->object);
@@ -199,12 +199,12 @@ void amxo_hooks_end_object(amxo_parser_t *parser) {
     }
 }
 
-void amxo_hooks_add_param(amxo_parser_t *parser,
-                          const char *name,
+void amxo_hooks_add_param(amxo_parser_t* parser,
+                          const char* name,
                           int64_t attr_bitmask,
                           uint32_t type) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->add_param != NULL) {
             hook->add_param(parser,
                             parser->object,
@@ -215,10 +215,10 @@ void amxo_hooks_add_param(amxo_parser_t *parser,
     }
 }
 
-void amxo_hooks_set_param(amxo_parser_t *parser,
-                          amxc_var_t *value) {
+void amxo_hooks_set_param(amxo_parser_t* parser,
+                          amxc_var_t* value) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->set_param != NULL) {
             hook->set_param(parser,
                             parser->object,
@@ -228,9 +228,9 @@ void amxo_hooks_set_param(amxo_parser_t *parser,
     }
 }
 
-void amxo_hooks_end_param(amxo_parser_t *parser) {
+void amxo_hooks_end_param(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->end_param != NULL) {
             hook->end_param(parser,
                             parser->object,
@@ -239,12 +239,12 @@ void amxo_hooks_end_param(amxo_parser_t *parser) {
     }
 }
 
-void amxo_hooks_add_func(amxo_parser_t *parser,
-                         const char *name,
+void amxo_hooks_add_func(amxo_parser_t* parser,
+                         const char* name,
                          int64_t attr_bitmask,
                          uint32_t type) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->add_func != NULL) {
             hook->add_func(parser,
                            parser->object,
@@ -255,9 +255,9 @@ void amxo_hooks_add_func(amxo_parser_t *parser,
     }
 }
 
-void amxo_hooks_end_func(amxo_parser_t *parser) {
+void amxo_hooks_end_func(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->end_func != NULL) {
             hook->end_func(parser,
                            parser->object,
@@ -266,13 +266,13 @@ void amxo_hooks_end_func(amxo_parser_t *parser) {
     }
 }
 
-void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t *parser,
-                                          const char *name,
+void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
+                                          const char* name,
                                           int64_t attr_bitmask,
                                           uint32_t type,
-                                          amxc_var_t *def_value) {
+                                          amxc_var_t* def_value) {
     amxc_llist_for_each(it, parser->hooks) {
-        amxo_hooks_t *hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->add_func_arg != NULL) {
             hook->add_func_arg(parser,
                                parser->object,
@@ -285,8 +285,8 @@ void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t *parser,
     }
 }
 
-int amxo_parser_set_hooks(amxo_parser_t *parser,
-                          amxo_hooks_t *hooks) {
+int amxo_parser_set_hooks(amxo_parser_t* parser,
+                          amxo_hooks_t* hooks) {
     int retval = -1;
     when_null(parser, exit);
     when_null(hooks, exit);
@@ -301,8 +301,8 @@ exit:
     return retval;
 }
 
-int amxo_parser_unset_hooks(amxo_parser_t *parser,
-                            amxo_hooks_t *hooks) {
+int amxo_parser_unset_hooks(amxo_parser_t* parser,
+                            amxo_hooks_t* hooks) {
     int retval = -1;
 
     when_null(parser, exit);

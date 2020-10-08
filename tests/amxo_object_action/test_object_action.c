@@ -87,33 +87,33 @@
 
 static bool called = false;
 
-static amxd_status_t failing_action(UNUSED amxd_object_t * const object,
-                                    UNUSED amxd_param_t * const param,
+static amxd_status_t failing_action(UNUSED amxd_object_t* const object,
+                                    UNUSED amxd_param_t* const param,
                                     UNUSED amxd_action_t reason,
-                                    UNUSED const amxc_var_t * const args,
-                                    UNUSED amxc_var_t * const retval,
-                                    UNUSED void *priv) {
+                                    UNUSED const amxc_var_t* const args,
+                                    UNUSED amxc_var_t* const retval,
+                                    UNUSED void* priv) {
     called = true;
     return amxd_status_invalid_value;
 }
 
-static amxd_status_t success_action(UNUSED amxd_object_t * const object,
-                                    UNUSED amxd_param_t * const param,
+static amxd_status_t success_action(UNUSED amxd_object_t* const object,
+                                    UNUSED amxd_param_t* const param,
                                     UNUSED amxd_action_t reason,
-                                    UNUSED const amxc_var_t * const args,
-                                    UNUSED amxc_var_t * const retval,
-                                    UNUSED void *priv) {
+                                    UNUSED const amxc_var_t* const args,
+                                    UNUSED amxc_var_t* const retval,
+                                    UNUSED void* priv) {
     called = true;
     return amxd_status_ok;
 }
 
-static amxd_status_t data_action(UNUSED amxd_object_t * const object,
-                                 UNUSED amxd_param_t * const param,
+static amxd_status_t data_action(UNUSED amxd_object_t* const object,
+                                 UNUSED amxd_param_t* const param,
                                  UNUSED amxd_action_t reason,
-                                 UNUSED const amxc_var_t * const args,
-                                 UNUSED amxc_var_t * const retval,
-                                 void *priv) {
-    amxc_var_t *data = (amxc_var_t *) priv;
+                                 UNUSED const amxc_var_t* const args,
+                                 UNUSED amxc_var_t* const retval,
+                                 void* priv) {
+    amxc_var_t* data = (amxc_var_t*) priv;
 
     assert_int_equal(amxc_var_type_of(data), AMXC_VAR_ID_HTABLE);
     assert_ptr_not_equal(amxc_var_get_path(data, "In", AMXC_VAR_FLAG_DEFAULT), NULL);
@@ -122,10 +122,10 @@ static amxd_status_t data_action(UNUSED amxd_object_t * const object,
     return amxd_status_ok;
 }
 
-void test_can_add_action_on_object(UNUSED void **state) {
+void test_can_add_action_on_object(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define {\n"
         "    object MyObject {"
         "        on action validate call myvalidator;"
@@ -146,10 +146,10 @@ void test_can_add_action_on_object(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_can_proivide_data_to_object_action(UNUSED void **state) {
+void test_can_proivide_data_to_object_action(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define {\n"
         "    object MyObject {"
         "        on action validate call myvalidator { In = 1, Out = 2 };"
@@ -170,10 +170,10 @@ void test_can_proivide_data_to_object_action(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_failing_object_validation_makes_parser_fail(UNUSED void **state) {
+void test_failing_object_validation_makes_parser_fail(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define {\n"
         "    object MyObject {"
         "        on action validate call myvalidator;"

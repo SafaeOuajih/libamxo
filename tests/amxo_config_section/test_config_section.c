@@ -85,10 +85,10 @@
 
 #define UNUSED __attribute__((unused))
 
-void test_parsing_array(UNUSED void **state) {
+void test_parsing_array(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%config { MyOption = [ 1, 2, 3 ]; }",
         "%config { MyOption = [ \"1\", \"2\", \"3\" ]; }",
         "%config { MyOption = [ word1, word2, word3 ]; }",
@@ -100,8 +100,8 @@ void test_parsing_array(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     for(int i = 0; odls[i] != NULL; i++) {
-        amxc_var_t *option = NULL;
-        const amxc_llist_t *list = NULL;
+        amxc_var_t* option = NULL;
+        const amxc_llist_t* list = NULL;
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
         assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         option = amxo_parser_get_config(&parser, "MyOption");
@@ -113,20 +113,20 @@ void test_parsing_array(UNUSED void **state) {
         switch(i) {
         case 0:
             amxc_llist_for_each(it, list) {
-                amxc_var_t *item = amxc_var_from_llist_it(it);
+                amxc_var_t* item = amxc_var_from_llist_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_INT64);
             }
             break;
         case 1:
         case 2:
             amxc_llist_for_each(it, list) {
-                amxc_var_t *item = amxc_var_from_llist_it(it);
+                amxc_var_t* item = amxc_var_from_llist_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_CSTRING);
             }
             break;
         case 3:
             amxc_llist_for_each(it, list) {
-                amxc_var_t *item = amxc_var_from_llist_it(it);
+                amxc_var_t* item = amxc_var_from_llist_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_BOOL);
             }
             break;
@@ -137,10 +137,10 @@ void test_parsing_array(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_parsing_key_value_pairs(UNUSED void **state) {
+void test_parsing_key_value_pairs(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%config { MyOption = { Key1 = 1, Key2 = 2, Key3 = 3 }; }",
         "%config { MyOption = { Key1 = \"1\", Key2 = \"2\", Key3 = \"3\" }; }",
         "%config { MyOption = { Key1 = word1, Key2 = word2, Key3 = word3 }; }",
@@ -152,8 +152,8 @@ void test_parsing_key_value_pairs(UNUSED void **state) {
     amxo_parser_init(&parser);
 
     for(int i = 0; odls[i] != NULL; i++) {
-        amxc_var_t *option = NULL;
-        const amxc_htable_t *table = NULL;
+        amxc_var_t* option = NULL;
+        const amxc_htable_t* table = NULL;
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
         assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         option = amxo_parser_get_config(&parser, "MyOption");
@@ -165,20 +165,20 @@ void test_parsing_key_value_pairs(UNUSED void **state) {
         switch(i) {
         case 0:
             amxc_htable_for_each(it, table) {
-                amxc_var_t *item = amxc_var_from_htable_it(it);
+                amxc_var_t* item = amxc_var_from_htable_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_INT64);
             }
             break;
         case 1:
         case 2:
             amxc_htable_for_each(it, table) {
-                amxc_var_t *item = amxc_var_from_htable_it(it);
+                amxc_var_t* item = amxc_var_from_htable_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_CSTRING);
             }
             break;
         case 3:
             amxc_htable_for_each(it, table) {
-                amxc_var_t *item = amxc_var_from_htable_it(it);
+                amxc_var_t* item = amxc_var_from_htable_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_BOOL);
             }
             break;
@@ -189,11 +189,11 @@ void test_parsing_key_value_pairs(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_global_setting_are_made_available_in_main_odl(UNUSED void **state) {
+void test_global_setting_are_made_available_in_main_odl(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxc_var_t *setting = NULL;
-    const char *odls[] = {
+    amxc_var_t* setting = NULL;
+    const char* odls[] = {
         "%config { Key1 = 1; Key2 = 2; Key3 = 3; } include \"global_config.odl\";",
         NULL
     };

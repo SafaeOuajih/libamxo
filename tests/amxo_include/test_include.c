@@ -85,10 +85,10 @@
 
 #define UNUSED __attribute__((unused))
 
-void test_can_include_empty_file(UNUSED void **state) {
+void test_can_include_empty_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"empty.odl\";";
+    const char* odl = "include \"empty.odl\";";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -100,10 +100,10 @@ void test_can_include_empty_file(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_can_include_between_sections(UNUSED void **state) {
+void test_can_include_between_sections(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "include \"empty.odl\";" \
         "%config { }" \
         "include \"empty.odl\";" \
@@ -122,10 +122,10 @@ void test_can_include_between_sections(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_none_existing_include_file(UNUSED void **state) {
+void test_none_existing_include_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"does_not_exists.odl\";";
+    const char* odl = "include \"does_not_exists.odl\";";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -137,10 +137,10 @@ void test_none_existing_include_file(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_none_existing_optional_include_file(UNUSED void **state) {
+void test_none_existing_optional_include_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "#include \"does_not_exists.odl\";";
+    const char* odl = "#include \"does_not_exists.odl\";";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -152,10 +152,10 @@ void test_none_existing_optional_include_file(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_recursive_include_detection(UNUSED void **state) {
+void test_recursive_include_detection(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "include \"test1.odl\";";
+    const char* odl = "include \"test1.odl\";";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -167,10 +167,10 @@ void test_recursive_include_detection(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_include_absolute_path(UNUSED void **state) {
+void test_include_absolute_path(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    char *abs_path = realpath("empty.odl", NULL);
+    char* abs_path = realpath("empty.odl", NULL);
     char odl[8192];
 
     amxd_dm_init(&dm);

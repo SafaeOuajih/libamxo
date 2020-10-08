@@ -85,10 +85,10 @@
 
 #define UNUSED __attribute__((unused))
 
-void test_none_existing_param_default_behavior(UNUSED void **state) {
+void test_none_existing_param_default_behavior(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *main_odl =
+    const char* main_odl =
         "%define { object MyObject { string Text; } }\n"
         "%populate { object MyObject { parameter OtherParam = 10; } } ";
 
@@ -102,12 +102,12 @@ void test_none_existing_param_default_behavior(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_none_existing_param_can_add(UNUSED void **state) {
-    amxd_object_t *object = NULL;
-    amxd_param_t *param = NULL;
+void test_none_existing_param_can_add(UNUSED void** state) {
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *main_odl =
+    const char* main_odl =
         "%config { populate-behavior = { unknown-parameter = \"add\" }; }\n"
         "%define { object MyObject { string Text; } }\n"
         "%populate { object MyObject { parameter OtherParam = 10; } }\n";
@@ -127,12 +127,12 @@ void test_none_existing_param_can_add(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_none_existing_param_warning(UNUSED void **state) {
-    amxd_object_t *object = NULL;
-    amxd_param_t *param = NULL;
+void test_none_existing_param_warning(UNUSED void** state) {
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *main_odl =
+    const char* main_odl =
         "%config { populate-behavior = { unknown-parameter = \"warning\" }; }\n"
         "%define { object MyObject { string Text; } }\n"
         "%populate { object MyObject { parameter OtherParam = 10; } }\n";
@@ -150,10 +150,10 @@ void test_none_existing_param_warning(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_instance_default_behavior(UNUSED void **state) {
+void test_duplicate_instance_default_behavior(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *main_odl =
+    const char* main_odl =
         "%define {"
         "    object MyObject {"
         "        object MyTemplate[] {"
@@ -179,12 +179,12 @@ void test_duplicate_instance_default_behavior(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_instance_can_update(UNUSED void **state) {
+void test_duplicate_instance_can_update(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
-    char *value = NULL;
-    const char *main_odl =
+    amxd_object_t* object = NULL;
+    char* value = NULL;
+    const char* main_odl =
         "%config { populate-behavior = { duplicate-instance = \"update\" }; }\n"
         "%define {\n"
         "    object MyObject {\n"
@@ -217,12 +217,12 @@ void test_duplicate_instance_can_update(UNUSED void **state) {
     amxo_parser_clean(&parser);
 }
 
-void test_duplicate_instance_with_keys_can_update(UNUSED void **state) {
+void test_duplicate_instance_with_keys_can_update(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxd_object_t *object = NULL;
+    amxd_object_t* object = NULL;
     uint32_t value = 0;
-    const char *main_odl =
+    const char* main_odl =
         "%config { populate-behavior = { duplicate-instance = \"update\" }; }\n"
         "%define {\n"
         "    object MyObject {\n"

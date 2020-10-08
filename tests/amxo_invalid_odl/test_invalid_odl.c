@@ -85,26 +85,26 @@
 
 #define UNUSED __attribute__((unused))
 
-static amxd_status_t test_dummy_action(UNUSED amxd_object_t * const object,
-                                       UNUSED amxd_param_t * const param,
+static amxd_status_t test_dummy_action(UNUSED amxd_object_t* const object,
+                                       UNUSED amxd_param_t* const param,
                                        UNUSED amxd_action_t reason,
-                                       UNUSED const amxc_var_t * const args,
-                                       UNUSED amxc_var_t * const retval,
-                                       UNUSED void *priv) {
+                                       UNUSED const amxc_var_t* const args,
+                                       UNUSED amxc_var_t* const retval,
+                                       UNUSED void* priv) {
     return amxd_status_ok;
 }
 
-static void _print_event(const char * const sig_name,
-                         UNUSED const amxc_var_t * const data,
-                         UNUSED void * const priv) {
+static void _print_event(const char* const sig_name,
+                         UNUSED const amxc_var_t* const data,
+                         UNUSED void* const priv) {
 
     printf("Event received %s\n", sig_name);
 }
 
-void test_invalid_object_attrs(UNUSED void **state) {
+void test_invalid_object_attrs(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { %in object Test; }",
         "%define { %out object Test; }",
         "%define { %mandatory object Test; }",
@@ -128,10 +128,10 @@ void test_invalid_object_attrs(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_param_attrs(UNUSED void **state) {
+void test_invalid_param_attrs(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { %in string Param; } }",
         "%define { object Test { %out string Param; } }",
         "%define { object Test { %mandatory string Param; } }",
@@ -152,10 +152,10 @@ void test_invalid_param_attrs(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_func_attrs(UNUSED void **state) {
+void test_invalid_func_attrs(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { %read-only void Func(); } }",
         "%define { object Test { %persistent void Func(); } }",
         "%define { object Test { %in void Func(); } }",
@@ -179,10 +179,10 @@ void test_invalid_func_attrs(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_add_inst_on_singelton(UNUSED void **state) {
+void test_add_inst_on_singelton(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define { object Test; }" \
         "%populate { object Test { instance add(0,\"\"); } }";
 
@@ -196,10 +196,10 @@ void test_add_inst_on_singelton(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_inst_index(UNUSED void **state) {
+void test_duplicate_inst_index(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define { object Test[]; }" \
         "%populate { object Test { instance add(1,\"\"); instance add(1,\"\"); } }";
 
@@ -213,10 +213,10 @@ void test_duplicate_inst_index(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_inst_name(UNUSED void **state) {
+void test_duplicate_inst_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define { object Test[]; }" \
         "%populate { object Test { instance add(0,\"AB\"); instance add(0,\"AB\"); } }";
 
@@ -230,10 +230,10 @@ void test_duplicate_inst_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_inst_name(UNUSED void **state) {
+void test_invalid_inst_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define { object Test[]; }" \
         "%populate { object Test { instance add(0,\"%Text$\"); instance add(0,\"AB\"); } }";
 
@@ -247,10 +247,10 @@ void test_invalid_inst_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_instance_of_singleton(UNUSED void **state) {
+void test_instance_of_singleton(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define { object Test; }" \
         "%populate { object Test { instance add(0,\"Text\"); instance add(0,\"AB\"); } }";
 
@@ -264,10 +264,10 @@ void test_instance_of_singleton(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_obj_name(UNUSED void **state) {
+void test_duplicate_obj_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test1; object Test2; object Test1; }";
+    const char* odl = "%define { object Test1; object Test2; object Test1; }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -279,10 +279,10 @@ void test_duplicate_obj_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_obj_name(UNUSED void **state) {
+void test_invalid_obj_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object \"23&Test1\";  }";
+    const char* odl = "%define { object \"23&Test1\";  }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -294,10 +294,10 @@ void test_invalid_obj_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_param_name(UNUSED void **state) {
+void test_duplicate_param_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { string P1; string P2; string P1; } }";
+    const char* odl = "%define { object Test { string P1; string P2; string P1; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -309,10 +309,10 @@ void test_duplicate_param_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_param_name_with_counter(UNUSED void **state) {
+void test_duplicate_param_name_with_counter(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { string P1; object TT[] { counted with P1; } } }";
+    const char* odl = "%define { object Test { string P1; object TT[] { counted with P1; } } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -324,10 +324,10 @@ void test_duplicate_param_name_with_counter(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_param_name(UNUSED void **state) {
+void test_invalid_param_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { string \"12$P1\"; } }";
+    const char* odl = "%define { object Test { string \"12$P1\"; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -339,10 +339,10 @@ void test_invalid_param_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_func_name(UNUSED void **state) {
+void test_invalid_func_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { void \"F$1\"(); } }";
+    const char* odl = "%define { object Test { void \"F$1\"(); } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -354,10 +354,10 @@ void test_invalid_func_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_duplicate_func_arg_name(UNUSED void **state) {
+void test_duplicate_func_arg_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { void F1(bool a1, bool a2, bool a1); } }";
+    const char* odl = "%define { object Test { void F1(bool a1, bool a2, bool a1); } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -369,10 +369,10 @@ void test_duplicate_func_arg_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_select_none_existing_obj(UNUSED void **state) {
+void test_select_none_existing_obj(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test; } %populate { object NoneExisting; }";
+    const char* odl = "%define { object Test; } %populate { object NoneExisting; }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -384,10 +384,10 @@ void test_select_none_existing_obj(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_select_none_existing_param(UNUSED void **state) {
+void test_select_none_existing_param(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { string P1;} } %populate { object Test { parameter P2 = \"text\"; } }";
+    const char* odl = "%define { object Test { string P1;} } %populate { object Test { parameter P2 = \"text\"; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -399,10 +399,10 @@ void test_select_none_existing_param(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_param_value(UNUSED void **state) {
+void test_invalid_param_value(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl = "%define { object Test { bool P1;} } %populate { object Test { parameter P1 = \"text\"; } }";
+    const char* odl = "%define { object Test { bool P1;} } %populate { object Test { parameter P1 = \"text\"; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -414,10 +414,10 @@ void test_invalid_param_value(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_param_value_validate(UNUSED void **state) {
+void test_invalid_param_value_validate(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define {"
         "    object Test {"
         "        uint32 P1 {"
@@ -437,10 +437,10 @@ void test_invalid_param_value_validate(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_action_name(UNUSED void **state) {
+void test_invalid_action_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define {"
         "    object Test {"
         "        uint32 P1 {"
@@ -462,10 +462,10 @@ void test_invalid_action_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_object_action_name(UNUSED void **state) {
+void test_invalid_object_action_name(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odl =
+    const char* odl =
         "%define {"
         "    object Test {"
         "        on action reset call dummy;"
@@ -484,10 +484,10 @@ void test_invalid_object_action_name(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_resolvers(UNUSED void **state) {
+void test_invalid_resolvers(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { void test()<!!>;} }",
         "%define { object Test { void test()<!:!>;} }",
         "%define { object Test { void test()<!:echo!>;} }",
@@ -509,10 +509,10 @@ void test_invalid_resolvers(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_not_existing_entry_point(UNUSED void **state) {
+void test_not_existing_entry_point(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         " import  \"../test_plugin/test_plugin.so\" as test_plugin; %define { entry-point test_plugin.not_existing;  }",
         NULL
     };
@@ -530,10 +530,10 @@ void test_not_existing_entry_point(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_parameter_actions(UNUSED void **state) {
+void test_invalid_parameter_actions(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { string Text { on action \"list\" call dummy; } } }",
         "%define { object Test { string Text { on action add-inst call dummy; } } }",
         "%define { object Test { string Text { on action del-inst call dummy; } } }",
@@ -555,10 +555,10 @@ void test_invalid_parameter_actions(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_not_resolved_action(UNUSED void **state) {
+void test_not_resolved_action(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { on action \"list\" call not_existing; } }",
         "%define { object Test { string Text { on action read call no_existing; } } }",
         "%define { object Test { on action write call not_existing; } }",
@@ -578,10 +578,10 @@ void test_not_resolved_action(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_add_not_existing_mib(UNUSED void **state) {
+void test_add_not_existing_mib(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { object Test { extend with mib FakeMib; } }",
         NULL
     };
@@ -599,10 +599,10 @@ void test_add_not_existing_mib(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_add_mib_with_duplicates(UNUSED void **state) {
+void test_add_mib_with_duplicates(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char *odls[] = {
+    const char* odls[] = {
         "%define { mib TestMib { string Text; } object Test { string Text; extend with mib TestMib; } }",
         "%define { mib TestMib { string Text; } object Test { extend with mib TestMib; string Text; } }",
         NULL
@@ -621,11 +621,11 @@ void test_add_mib_with_duplicates(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_regexp_in_filter(UNUSED void **state) {
+void test_invalid_regexp_in_filter(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
-    const char *odl =
+    const char* odl =
         "%define {\n"
         "    object Test { string text = \"Hallo\"; }\n"
         "}\n"
@@ -645,11 +645,11 @@ void test_invalid_regexp_in_filter(UNUSED void **state) {
     amxd_dm_clean(&dm);
 }
 
-void test_invalid_key_params(UNUSED void **state) {
+void test_invalid_key_params(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
 
-    const char *odl_1 =
+    const char* odl_1 =
         "%define {\n"
         "    object TestRoot {\n"
         "        object Test[] {\n"
@@ -663,7 +663,7 @@ void test_invalid_key_params(UNUSED void **state) {
         "   }\n"
         "}\n";
 
-    const char *odl_2 =
+    const char* odl_2 =
         "%define {\n"
         "    object TestRoot {\n"
         "        object Test[] {\n"
@@ -679,7 +679,7 @@ void test_invalid_key_params(UNUSED void **state) {
         "   }\n"
         "}\n";
 
-    const char *odl_3 =
+    const char* odl_3 =
         "%define {\n"
         "    object TestRoot {\n"
         "        object Test[] {\n"
@@ -694,7 +694,7 @@ void test_invalid_key_params(UNUSED void **state) {
         "   }\n"
         "}\n";
 
-    const char *odl_4 =
+    const char* odl_4 =
         "%define {\n"
         "    object TestRoot {\n"
         "        object Test[] {\n"
