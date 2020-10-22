@@ -63,17 +63,21 @@
 #include <stdarg.h>
 #include <cmocka.h>
 
-#include "test_populate_behavior.h"
+#include "test_mibs.h"
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_none_existing_param_default_behavior),
-        cmocka_unit_test(test_none_existing_param_can_add),
-        cmocka_unit_test(test_none_existing_param_warning),
-        cmocka_unit_test(test_duplicate_instance_default_behavior),
-        cmocka_unit_test(test_duplicate_instance_can_update),
-        cmocka_unit_test(test_duplicate_instance_with_keys_can_update),
-        cmocka_unit_test(test_transactions_with_two_keys),
+        cmocka_unit_test(test_can_scan_mib_dir),
+        cmocka_unit_test(test_scan_mib_dir_fails_when_invalid_expr),
+        cmocka_unit_test(test_scan_mib_dir_skips_mib_when_already_known),
+        cmocka_unit_test(test_scan_mib_dir_fails_with_invalid_arguments),
+        cmocka_unit_test(test_can_scan_mib_dirs),
+        cmocka_unit_test(test_can_scan_mib_dirs_using_config),
+        cmocka_unit_test(test_scan_mib_dirs_fails_with_invalid_arguments),
+        cmocka_unit_test(test_can_apply_mib_to_object),
+        cmocka_unit_test(test_apply_unknown_mib_fails),
+        cmocka_unit_test(test_apply_fails_with_invalid_arguments),
+        cmocka_unit_test(test_can_apply_mibs_to_object),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

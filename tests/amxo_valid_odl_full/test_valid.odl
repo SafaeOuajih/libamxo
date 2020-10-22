@@ -84,9 +84,9 @@ import "test_plugin.so" as test_plugin;
     object TestObjectRoot {
 
         object TestObjectSingelton;
-        %read-only %persistent %private object TestObjSingletonAttr;
+        %protected %read-only %persistent %private object TestObjSingletonAttr;
         object TestObjectTemplate[];
-        %read-only %persistent %private object TestObjTemplateAttr[];
+        %protected %read-only %persistent %private object TestObjTemplateAttr[];
 
         object TestObjectParamTypes {
             string Param1 {
@@ -104,6 +104,10 @@ import "test_plugin.so" as test_plugin;
             double Param7;
             ssv_string Param8;
             csv_string Param9;
+            int8 Param10;
+            int16 Param11;
+            uint8 Param12;
+            uint16 Param13;
         }
 
         object TestObjectFunctions {
@@ -127,19 +131,27 @@ import "test_plugin.so" as test_plugin;
                         double arg7,
                         list arg8,
                         htable arg9,
-                        variant arg10);
+                        variant arg10,
+                        int8 arg11,
+                        int16 arg12,
+                        uint8 arg13,
+                        uint16 arg14);
+            int8 func13();
+            int16 func14();
+            uint8 func15();
+            uint16 func16();
         }
 
-        %read-only %persistent object "${object_name}" {
+        %protected %read-only %persistent object "${object_name}" {
             %read-only %persistent %private %template %instance %volatile string Param1;
         }
 
         object TestSingeltonParamAttr {
-            %read-only %persistent %private %template %instance %volatile string Param1;
+            %protected %read-only %persistent %private %template %instance %volatile string Param1;
         }
         object TestTemplateParamAttr[] {
             counted with "${counter_name}";
-            %read-only %persistent %private %template %instance %volatile string Param1;
+            %protected %read-only %persistent %private %template %instance %volatile string Param1;
             %template string Param2 {
                 on action validate call check_enum [ "value1", "value2", "value3" ];
                 default "value2";
@@ -148,7 +160,7 @@ import "test_plugin.so" as test_plugin;
         }
 
         object TestSingletonFuncAttr {
-            %private %template %instance void TestFunc1();
+            %protected %private %template %instance void TestFunc1();
             void TestFunc2(%mandatory %in %out %strict int32 number);
         }
         object TestTemplateFuncAttr {

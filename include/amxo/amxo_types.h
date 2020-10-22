@@ -231,8 +231,7 @@ struct _amxo_parser {
     amxc_llist_t global_config;   /**< List of global config settings, contains the names of the
                                        global config options
                                    */
-    amxc_rbuffer_t rbuffer;       /**< Ring buffer, used to parse text
-                                   */
+    amxc_rbuffer_t rbuffer;       /**< Ring buffer, used to parse text */
     amxo_reader_t reader;         /**< Reader function */
     amxd_status_t status;         /**< Parser status, @ref amxo_parser_get_status */
     amxc_string_t msg;            /**< Parser message, @ref amxo_parser_get_message */
@@ -254,6 +253,8 @@ struct _amxo_parser {
 
     const char* file;
     uint32_t line;
+
+    amxc_htable_t mibs;
 };
 
 #ifdef __cplusplus

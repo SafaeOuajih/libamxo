@@ -8,6 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.5.0 - 2020-10-19(19:29:29 +0000)
+
+### New 
+
+- Scan mib dir feature
+- Apply mib feature
+- Protected attribute for objects, functions and parameters
+
+### Changes
+
+- Updates odl documentation - adds protected keyword and attribute
+
+## Release 0.4.1 - 2020-10-14(07:25:44 +0000)
+
+### New
+
+- Add support for 8 and 16 bit integers
+
+### Fixes
+
+- Fixes segmentation fault when empty filename is passed to odl parser
+
 ## Release 0.4.0 - 2020-10-02(14:08:25 +0000)
 
 ### Changes

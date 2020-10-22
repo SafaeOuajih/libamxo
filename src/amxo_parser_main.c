@@ -188,6 +188,7 @@ void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     amxc_astack_init(&parser->object_stack);
     amxc_var_init(&parser->config);
     amxc_llist_init(&parser->global_config);
+    amxc_htable_init(&parser->mibs, 5);
 
     parser->file = "<unknown>";
 
@@ -239,6 +240,7 @@ void amxo_parser_clean(amxo_parser_t* parser) {
     amxc_var_delete(&parser->include_stack);
     amxc_llist_delete(&parser->entry_points, amxo_parser_entry_point_free);
     amxc_llist_delete(&parser->connections, amxo_parser_connection_free);
+    amxc_htable_clean(&parser->mibs, amxo_parser_del_mib_info);
 
 exit:
     return;
@@ -303,11 +305,13 @@ int amxo_parser_parse_file(amxo_parser_t* parser,
     char* current_wd = getcwd(NULL, 0);
     char* real_path = NULL;
     char* dir_name = NULL;
+    amxc_string_t res_file_path;
+    amxc_string_init(&res_file_path, 0);
+
+    when_null(parser, exit);
     when_str_empty(file_path, exit);
     when_null(object, exit);
 
-    amxc_string_t res_file_path;
-    amxc_string_init(&res_file_path, 0);
     if(amxc_string_set_resolved(&res_file_path, file_path, &parser->config) > 0) {
         file_path = amxc_string_get(&res_file_path, 0);
     }

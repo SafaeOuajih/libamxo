@@ -108,6 +108,7 @@ typedef enum _amxo_parser_attr {
     attr_strict,
     attr_key,
     attr_unique,
+    attr_protected
 } amxo_parser_attr_t;
 
 typedef enum _amxo_action {
@@ -140,6 +141,9 @@ typedef struct _amxo_res_data {
 
 void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char* key,
                                     amxc_htable_it_t* it);
+
+void AMXO_PRIVATE amxo_parser_del_mib_info(AMXO_UNUSED const char* key,
+                                           amxc_htable_it_t* it);
 
 ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
                                            void* buf,

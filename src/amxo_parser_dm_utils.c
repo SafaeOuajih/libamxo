@@ -215,6 +215,9 @@ static int64_t amxo_attr_2_object_attr(int64_t attributes) {
     if(SET_BIT(attr_private) & attributes) {
         obj_attrs |= SET_BIT(amxd_oattr_private);
     }
+    if(SET_BIT(attr_protected) & attributes) {
+        obj_attrs |= SET_BIT(amxd_oattr_protected);
+    }
     return obj_attrs;
 }
 
@@ -228,6 +231,9 @@ static int64_t amxo_attr_2_param_attr(int64_t attributes) {
     }
     if(SET_BIT(attr_private) & attributes) {
         param_attrs |= SET_BIT(amxd_pattr_private);
+    }
+    if(SET_BIT(attr_protected) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_protected);
     }
     if(SET_BIT(attr_template) & attributes) {
         param_attrs |= SET_BIT(amxd_pattr_template);
@@ -251,6 +257,9 @@ static int64_t amxo_attr_2_func_attr(int64_t attributes) {
     int64_t func_attrs = 0;
     if(SET_BIT(attr_private) & attributes) {
         func_attrs |= SET_BIT(amxd_fattr_private);
+    }
+    if(SET_BIT(attr_protected) & attributes) {
+        func_attrs |= SET_BIT(amxd_fattr_protected);
     }
     if(SET_BIT(attr_template) & attributes) {
         func_attrs |= SET_BIT(amxd_fattr_template);

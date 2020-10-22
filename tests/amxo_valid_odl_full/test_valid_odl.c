@@ -146,11 +146,15 @@ static void check_parameters_exist(amxd_dm_t* dm) {
         "Param7",
         "Param8",
         "Param9",
+        "Param10",
+        "Param11",
+        "Param12",
+        "Param13",
         NULL
     };
 
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectParamTypes");
-    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_protected), 9);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_protected), 13);
     for(int i = 0; types_params[i] != NULL; i++) {
         assert_ptr_not_equal(amxd_object_get_param_def(object, types_params[i]), NULL);
     }
@@ -166,7 +170,7 @@ static void check_parameters_exist(amxd_dm_t* dm) {
     assert_true(amxd_param_is_attr_set(param, amxd_pattr_template));
 
     object = amxd_object_findf(root, "TestObjectRoot.TestTemplateParamAttr");
-    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 2);
+    assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 3);
     param = amxd_object_get_param_def(object, "Param1");
     assert_ptr_not_equal(param, NULL);
     assert_true(amxd_param_is_attr_set(param, amxd_pattr_private));
@@ -220,17 +224,21 @@ static void check_functions_exist(amxd_dm_t* dm) {
         "func10",
         "func11",
         "func12",
+        "func13",
+        "func14",
+        "func15",
+        "func16",
         NULL
     };
 
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectFunctions");
-    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 17); // 12 defined in odl + 5 defaults
+    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 21);
     for(int i = 0; obj_funcs[i] != NULL; i++) {
         assert_ptr_not_equal(amxd_object_get_function(object, obj_funcs[i]), NULL);
     }
 
     object = amxd_object_findf(root, "TestObjectRoot.TestSingletonFuncAttr");
-    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 7); // 2 defined in odl + 5 defaults
+    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 7);
     func = amxd_object_get_function(object, "TestFunc1");
     assert_true(amxd_function_is_attr_set(func, amxd_fattr_template));
     assert_true(amxd_function_is_attr_set(func, amxd_fattr_instance));

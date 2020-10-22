@@ -258,6 +258,9 @@ persistent                { yylval->integer = 1 << attr_persistent;
 %private                  { yylval->integer = 1 << attr_private; 
                             return SET_ATTRIBUTE; 
                           }
+%protected                { yylval->integer = 1 << attr_protected; 
+                            return SET_ATTRIBUTE; 
+                          }
 %template                 { yylval->integer = 1 << attr_template; 
                             return SET_ATTRIBUTE; 
                           }
@@ -306,6 +309,9 @@ mandatory                 { yylval->integer = 1 << attr_mandatory;
 !private                  { yylval->integer = 1 << attr_private; 
                             return UNSET_ATTRIBUTE; 
                           }
+!protected                { yylval->integer = 1 << attr_protected; 
+                            return UNSET_ATTRIBUTE; 
+                          }
 !volatile                 { yylval->integer = 1 << attr_variable; 
                             return UNSET_ATTRIBUTE; 
                           }
@@ -321,10 +327,22 @@ csv_string                { yylval->integer = AMXC_VAR_ID_CSV_STRING;
 ssv_string                { yylval->integer = AMXC_VAR_ID_SSV_STRING;
                             return TYPE;
                           }
+int8                      { yylval->integer = AMXC_VAR_ID_INT8;
+                            return TYPE;
+                          }
+int16                     { yylval->integer = AMXC_VAR_ID_INT16;
+                            return TYPE;
+                          }
 int32                     { yylval->integer = AMXC_VAR_ID_INT32;
                             return TYPE;
                           }
 int64                     { yylval->integer = AMXC_VAR_ID_INT64;
+                            return TYPE;
+                          }
+uint8                     { yylval->integer = AMXC_VAR_ID_UINT8;
+                            return TYPE;
+                          }
+uint16                    { yylval->integer = AMXC_VAR_ID_UINT16;
                             return TYPE;
                           }
 uint32                    { yylval->integer = AMXC_VAR_ID_UINT32;

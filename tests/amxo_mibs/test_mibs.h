@@ -58,22 +58,19 @@
 **
 ****************************************************************************/
 
-#include <stdlib.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <cmocka.h>
+#ifndef __TEST_MIBS_H__
+#define __TEST_MIBS_H__
 
-#include "test_populate_behavior.h"
+void test_can_scan_mib_dir(void** state);
+void test_scan_mib_dir_fails_when_invalid_expr(void** state);
+void test_scan_mib_dir_skips_mib_when_already_known(void** state);
+void test_scan_mib_dir_fails_with_invalid_arguments(void** state);
+void test_can_scan_mib_dirs(void** state);
+void test_can_scan_mib_dirs_using_config(void** state);
+void test_scan_mib_dirs_fails_with_invalid_arguments(void** state);
+void test_can_apply_mib_to_object(void** state);
+void test_apply_unknown_mib_fails(void** state);
+void test_apply_fails_with_invalid_arguments(void** state);
+void test_can_apply_mibs_to_object(void** state);
 
-int main(void) {
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_none_existing_param_default_behavior),
-        cmocka_unit_test(test_none_existing_param_can_add),
-        cmocka_unit_test(test_none_existing_param_warning),
-        cmocka_unit_test(test_duplicate_instance_default_behavior),
-        cmocka_unit_test(test_duplicate_instance_can_update),
-        cmocka_unit_test(test_duplicate_instance_with_keys_can_update),
-        cmocka_unit_test(test_transactions_with_two_keys),
-    };
-    return cmocka_run_group_tests(tests, NULL, NULL);
-}
+#endif // __TEST_MIBS_H__

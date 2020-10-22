@@ -67,5 +67,6 @@ void test_none_existing_param_warning(void** state);
 void test_duplicate_instance_default_behavior(void** state);
 void test_duplicate_instance_can_update(void** state);
 void test_duplicate_instance_with_keys_can_update(void** state);
+void test_transactions_with_two_keys(void** state);
 
 #endif // __TEST_DEFINE_BEHAVIOR_H__

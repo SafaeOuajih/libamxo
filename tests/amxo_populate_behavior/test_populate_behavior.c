@@ -79,7 +79,9 @@
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
 #include <amxd/amxd_parameter.h>
+#include <amxd/amxd_transaction.h>
 #include <amxo/amxo.h>
+
 
 #include "test_populate_behavior.h"
 
@@ -250,6 +252,61 @@ void test_duplicate_instance_with_keys_can_update(UNUSED void** state) {
     object = amxd_dm_findf(&dm, "MyObject.MyTemplate.1");
     value = amxd_object_get_value(uint32_t, object, "Number", NULL);
     assert_int_equal(value, 1234);
+
+    amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
+}
+
+
+void test_transactions_with_two_keys(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxd_object_t* templ = NULL;
+    amxd_object_t* object = NULL;
+    amxd_status_t status;
+    const char* main_odl =
+        "%define {\n"
+        "    object MyObjectKeyTest {\n"
+        "        object Node[] {\n"
+        "            %key uint32 Key1;\n"
+        "            %key uint32 Key2;\n"
+        "        }\n"
+        "    }\n"
+        "}\n";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, main_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    templ = amxd_dm_findf(&dm, "MyObjectKeyTest.Node");
+    assert_ptr_not_equal(templ, NULL);
+
+    amxd_trans_t trans;
+    amxd_trans_init(&trans);
+    amxd_trans_select_object(&trans, templ);
+    amxd_trans_add_inst(&trans, 1, "N1");
+    amxd_trans_set_value(uint32_t, &trans, "Key1", 0);
+    amxd_trans_set_value(uint32_t, &trans, "Key2", 0);
+    status = amxd_trans_apply(&trans, &dm);
+    assert_int_equal(status, amxd_status_ok);
+    amxd_trans_clean(&trans);
+
+    object = amxd_object_findf(templ, "[Key1 == 0].");
+    assert_ptr_not_equal(object, NULL);
+
+    amxd_trans_init(&trans);
+    amxd_trans_select_object(&trans, templ);
+    amxd_trans_add_inst(&trans, 2, "N2");
+    amxd_trans_set_value(uint32_t, &trans, "Key1", 1);
+    amxd_trans_set_value(uint32_t, &trans, "Key2", 0);
+    status = amxd_trans_apply(&trans, &dm);
+    assert_int_equal(status, amxd_status_ok);
+    amxd_trans_clean(&trans);
+
+    object = amxd_object_findf(templ, "[Key1 == 1].");
+    assert_ptr_not_equal(object, NULL);
 
     amxd_dm_clean(&dm);
     amxo_parser_clean(&parser);

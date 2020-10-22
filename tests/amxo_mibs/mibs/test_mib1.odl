@@ -1,0 +1,6 @@
+mib test_mib1 {
+    string Mib1Text = "Hello World";
+    object Mib1SubObject {
+        string SubText = "Hello Belgium";
+    }
+}

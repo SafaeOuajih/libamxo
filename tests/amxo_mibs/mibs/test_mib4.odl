@@ -1,0 +1,8 @@
+#expr:test
+
+mib test_mib4 {
+    string Mib4Text = "Hello World";
+    object Mib4SubObject {
+        string SubText = "Hello Belgium";
+    }
+}

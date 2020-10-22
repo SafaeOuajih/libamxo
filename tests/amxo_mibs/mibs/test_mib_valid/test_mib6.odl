@@ -1,0 +1,8 @@
+/*expr:MyParam == "ADD"*/
+
+mib test_mib6 {
+    string Mib6Text = "Hello World";
+    object Mib6SubObject {
+        string SubText = "Hello Belgium";
+    }
+}

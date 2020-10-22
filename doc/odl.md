@@ -265,6 +265,7 @@ Attributes can be set on objects. The valid attributes are:
 - `%read-only`
 - `%persistent`
 - `%private`
+- `%protected`
 
 The attribute `%read-only` only has effect on template objects. When a template object is set as read-only it will not be possible for external sources to add or delete instances.
 The instances itself will not inherit this attribute. The `%read-only` attribute has no effect on singletons or instances.
@@ -332,6 +333,7 @@ Attributes can be set on parameters. The valid attributes are:
 - `%read-only`
 - `%persistent`
 - `%private`
+- `%protected`
 - `%template`
 - `%instance`
 - `%volatile`
@@ -407,10 +409,16 @@ The minimum requirement to define a function is the return type of the function,
 Attributes can be set on functions. The valid attributes are:
 
 - `%private`
+- `%protected`
 - `%template`
 - `%instance`
 
 The attribute `%private` makes the function invisible for external sources. The process that owns the data model can see and invoke the method.
+
+The attribute `%protected` can be used to indicate that the function is for `internal`
+use only. The `%private` attributes makes the function inaccessible for other
+processes, while the `%protected` attribute makes the function accessible for
+all processes, but not for `external` sources, like `web-ui`, `usp controller`, ...
 
 The attribute `%template` makes the function `callable` on template objects. A function with only the `%template` attribute set (and not the `%instance`) will not be inherited by instance objects. This attribute has only effect on template objects and is ignore on singleton objects.
 
@@ -458,10 +466,10 @@ The default functions definitions are:
 - %template %instance htable list(parameters = true, functions = true, objects = true, instance = true);
 - %template %instance htable describe(parameters = false, functions = false);
 - %template %instance htable get_supported(bool recursive = false, bool functions = false, bool parameters = false, bool events = false);
-- %template %instance htable get(string rel_path = "", %strict list parameters);
-- %template %instance void set(%strict htable parameters);
-- %template void add(%strict htable parameters, uint32 index, string name);
-- %template void del(uint32 index, string name);
+- %template %instance htable get(string rel_path = "", %strict list parameters, uint32 access = 1);
+- %template %instance void set(%strict htable parameters, uint32 access = 1);
+- %template void add(%strict htable parameters, uint32 index, string name, uint32 access = 1);
+- %template void del(uint32 index, string name, uint32 access = 1);
 
 It is possible to overide these functions, either with exactly the same definition but another function implementation or even with a totally different definition (only the same name).
 
@@ -1249,6 +1257,7 @@ Valid attribute names are
 - `%read-only` or `!read-only`
 - `%persistent` or `!persistent`
 - `%private` or `!private`
+- `%protected` or `!protected`
 - `%template`
 - `%instance`
 - `%volatile` or `!volatile`
@@ -1280,6 +1289,7 @@ Depending on the context where attributes are used only a subset of the attribut
 - `%read-only` or `!read-only`
 - `%persistent` or `!persistent`
 - `%private` or `!private`
+- `%protected` or `!protected`
 
 For more information about these attributes on object see section [Define objects](#define-objects)
 
@@ -1288,6 +1298,7 @@ For more information about these attributes on object see section [Define object
 - `%read-only` or `!read-only`
 - `%persistent` or `!persistent`
 - `%private` or `!private`
+- `%protected` or `!protected`
 - `%template`
 - `%instance`
 - `%volatile` or `!volatile`
@@ -1299,6 +1310,7 @@ For more information about these attributes on parameters see section [Define pa
 #### Valid function attributes
 
 - `%private` or `!private`
+- `%protected` or `!protected`
 - `%template`
 - `%instance`
 
@@ -1317,8 +1329,12 @@ The supported types are:
 - string
 - csv_string (comma separated value string)
 - ssv_string (space separated value string) 
+- int8
+- int16
 - int32
 - int64
+- uint8
+- uint16
 - uint32
 - uint64
 - bool
@@ -1530,6 +1546,8 @@ The keywords are grouped and in alphabetic order.
 - `persistent` (DEPRECATED - use `%persistent`)
 - `%private`
 - `!private`
+- `%protected`
+- `!protected`
 - `%read-only`
 - `!read-only`
 - `read-only` (DEPRECATED - use `%read-only`)
@@ -1548,12 +1566,16 @@ The keywords are grouped and in alphabetic order.
 - `datetime`
 - `fd`
 - `htable`
+- `int8`
+- `int16`
 - `int32`
 - `int64`
 - `list`
 - `void`
 - `ssv_string`
 - `string`
+- `uint8`
+- `uint16`
 - `uint32`
 - `uint64`
 - `variant`
