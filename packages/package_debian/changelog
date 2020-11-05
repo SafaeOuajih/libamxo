@@ -1,3 +1,23 @@
+libamxo (0.5.3) unstable; urgency=medium
+
+  * Add function to lookup connection context by file descriptor
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Sun, 01 Nov 2020 21:55:50 +0000
+
+libamxo (0.5.2) unstable; urgency=medium
+
+  * Set protected attribute as valid for parameters, functions and objects
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Wed, 28 Oct 2020 17:49:15 +0000
+
+libamxo (0.5.1) unstable; urgency=medium
+
+  * Paths in directory configuration list can contain variables
+  * Not all toolchain support secure_getenv
+  * Remove mibs using mib expression
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 28 Oct 2020 05:48:33 +0000
+
 libamxo (0.5.0) unstable; urgency=medium
 
   * Scan mib dir feature

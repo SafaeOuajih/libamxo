@@ -549,6 +549,24 @@ exit:
     return retval;
 }
 
+amxo_connection_t* amxo_connection_get(amxo_parser_t* parser,
+                                       int fd) {
+    amxo_connection_t* con = NULL;
+    when_null(parser, exit);
+    when_null(parser->connections, exit);
+
+    amxc_llist_for_each(it, parser->connections) {
+        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
+        if(con->fd == fd) {
+            break;
+        }
+        con = NULL;
+    }
+
+exit:
+    return con;
+}
+
 amxo_connection_t* amxo_connection_get_first(amxo_parser_t* parser,
                                              amxo_con_type_t type) {
     amxo_connection_t* con = NULL;

@@ -103,7 +103,7 @@ static void amxo_import_lib_free(AMXO_UNUSED const char* key,
                                  amxc_htable_it_t* it) {
     amxo_import_lib_t* import =
         amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
-    char* no_dlclose = secure_getenv("AMXO_NO_DLCLOSE");
+    char* no_dlclose = getenv("AMXO_NO_DLCLOSE");
 
     if(no_dlclose == NULL) {
         dlerror();
@@ -494,7 +494,7 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
                      exit,
                      retval = 0);
 
-    if(!amxo_parser_find_file(impdirs, so_name, &full_path)) {
+    if(!amxo_parser_find_file(parser, impdirs, so_name, &full_path)) {
         if(dbg) {
             fprintf(stderr, "[IMPORT-DBG] - file not found %s\n", so_name);
         }

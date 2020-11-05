@@ -155,10 +155,9 @@ exit:
     return incstack;
 }
 
-bool amxo_parser_file_exists(amxc_var_t* dir,
+bool amxo_parser_file_exists(const char* incdir,
                              const char* file_path,
                              char** full_path) {
-    const char* incdir = amxc_var_constcast(cstring_t, dir);
     bool retval = false;
     amxc_string_t concat_path;
     amxc_string_init(&concat_path, 0);
@@ -177,18 +176,30 @@ bool amxo_parser_file_exists(amxc_var_t* dir,
     return retval;
 }
 
-bool amxo_parser_find_file(const amxc_llist_t* dirs,
+bool amxo_parser_find_file(amxo_parser_t* parser,
+                           const amxc_llist_t* dirs,
                            const char* file_path,
                            char** full_path) {
     bool retval = false;
+
     if(file_path[0] != '/') {
+        amxc_string_t res_path;
+        amxc_string_init(&res_path, 0);
         amxc_llist_for_each(it, dirs) {
-            if(amxo_parser_file_exists(amxc_var_from_llist_it(it),
+            amxc_var_t* var_dir = amxc_var_from_llist_it(it);
+            const char* dir = amxc_var_constcast(cstring_t, var_dir);
+            if(amxc_string_set_resolved(&res_path, dir, &parser->config) > 0) {
+                dir = amxc_string_get(&res_path, 0);
+            }
+
+            if(amxo_parser_file_exists(dir,
                                        file_path,
                                        full_path)) {
                 break;
             }
+            amxc_string_reset(&res_path);
         }
+        amxc_string_clean(&res_path);
         when_null(*full_path, exit);
     } else {
         if(!amxo_parser_file_exists(NULL, file_path, full_path)) {
@@ -239,7 +250,7 @@ int amxo_parser_include(amxo_parser_t* pctx, const char* file_path) {
         file_path = amxc_string_get(&res_file_path, 0);
     }
 
-    if(!amxo_parser_find_file(incdirs, file_path, &full_path)) {
+    if(!amxo_parser_find_file(pctx, incdirs, file_path, &full_path)) {
         retval = 2;
         pctx->status = amxd_status_file_not_found;
         amxo_parser_msg(pctx, "Include file not found \"%s\"", file_path);

@@ -214,9 +214,15 @@ int amxo_parser_scan_mib_dir(amxo_parser_t* parser,
     int retval = -1;
     char* current_wd = getcwd(NULL, 0);
     char* real_path = NULL;
+    amxc_string_t res_path;
+    amxc_string_init(&res_path, 0);
 
     when_null(parser, exit);
     when_str_empty(path, exit);
+
+    if(amxc_string_set_resolved(&res_path, path, &parser->config) > 0) {
+        path = amxc_string_get(&res_path, 0);
+    }
 
     real_path = realpath(path, NULL);
     if(real_path != NULL) {
@@ -224,6 +230,7 @@ int amxo_parser_scan_mib_dir(amxo_parser_t* parser,
     }
 
 exit:
+    amxc_string_clean(&res_path);
     free(current_wd);
     free(real_path);
     return retval;
@@ -232,6 +239,9 @@ exit:
 int amxo_parser_scan_mib_dirs(amxo_parser_t* parser,
                               amxc_var_t* dirs) {
     int retval = -1;
+    amxc_string_t res_path;
+    amxc_string_init(&res_path, 0);
+
     when_null(parser, exit);
     if(dirs == NULL) {
         dirs = amxo_parser_get_config(parser, "mib-dirs");
@@ -244,13 +254,18 @@ int amxo_parser_scan_mib_dirs(amxo_parser_t* parser,
         if(path == NULL) {
             continue;
         }
+        if(amxc_string_set_resolved(&res_path, path, &parser->config) > 0) {
+            path = amxc_string_get(&res_path, 0);
+        }
         retval = amxo_parser_scan_mib_dir(parser, path);
         if(retval != 0) {
             break;
         }
+        amxc_string_reset(&res_path);
     }
 
 exit:
+    amxc_string_clean(&res_path);
     return retval;
 }
 
@@ -288,6 +303,61 @@ exit:
     return retval;
 }
 
+int amxo_parser_add_mibs(amxo_parser_t* parser,
+                         amxd_object_t* object,
+                         amxo_evaluate_expr_fn_t fn) {
+    int retval = 0;
+
+    when_null(parser, exit);
+    when_null(object, exit);
+    when_null(fn, exit);
+
+    amxc_htable_for_each(it, (&parser->mibs)) {
+        const char* mib_name = amxc_htable_it_get_key(it);
+        mib_info_t* info = amxc_htable_it_get_data(it, mib_info_t, hit);
+        amxp_expr_t expr;
+        amxp_expr_init(&expr, info->expression);
+        if(fn(object, &expr)) {
+            if(amxo_parser_apply_mib(parser, object, mib_name) == 0) {
+                retval++;
+            }
+        }
+        amxp_expr_clean(&expr);
+    }
+
+exit:
+    return retval;
+}
+
+int amxo_parser_remove_mibs(amxo_parser_t* parser,
+                            amxd_object_t* object,
+                            amxo_evaluate_expr_fn_t fn) {
+    int retval = 0;
+
+    when_null(parser, exit);
+    when_null(object, exit);
+    when_null(fn, exit);
+
+    amxc_htable_for_each(it, (&parser->mibs)) {
+        const char* mib_name = amxc_htable_it_get_key(it);
+        mib_info_t* info = amxc_htable_it_get_data(it, mib_info_t, hit);
+        amxp_expr_t expr;
+        if(!amxd_object_has_mib(object, mib_name)) {
+            continue;
+        }
+        amxp_expr_init(&expr, info->expression);
+        if(!fn(object, &expr)) {
+            if(amxd_object_remove_mib(object, mib_name) == amxd_status_ok) {
+                retval++;
+            }
+        }
+        amxp_expr_clean(&expr);
+    }
+
+exit:
+    return retval;
+}
+
 int amxo_parser_apply_mibs(amxo_parser_t* parser,
                            amxd_object_t* object,
                            amxo_evaluate_expr_fn_t fn) {
@@ -304,6 +374,10 @@ int amxo_parser_apply_mibs(amxo_parser_t* parser,
         amxp_expr_init(&expr, info->expression);
         if(fn(object, &expr)) {
             if(amxo_parser_apply_mib(parser, object, mib_name) == 0) {
+                retval++;
+            }
+        } else {
+            if(amxd_object_remove_mib(object, mib_name) == amxd_status_ok) {
                 retval++;
             }
         }

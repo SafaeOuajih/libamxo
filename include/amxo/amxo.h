@@ -649,6 +649,9 @@ int amxo_connection_add(amxo_parser_t* parser,
 int amxo_connection_remove(amxo_parser_t* parser,
                            int fd);
 
+amxo_connection_t* amxo_connection_get(amxo_parser_t* parser,
+                                       int fd);
+
 int amxo_connection_set_el_data(amxo_parser_t* parser,
                                 int fd,
                                 void* el_data);

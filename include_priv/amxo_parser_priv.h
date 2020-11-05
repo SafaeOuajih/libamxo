@@ -168,11 +168,12 @@ int AMXO_PRIVATE amxo_parser_set_config_internal(amxo_parser_t* parser,
                                                  const char* name,
                                                  amxc_var_t* value);
 
-bool AMXO_PRIVATE amxo_parser_file_exists(amxc_var_t* dir,
+bool AMXO_PRIVATE amxo_parser_file_exists(const char* dir,
                                           const char* file_path,
                                           char** full_path);
 
-bool AMXO_PRIVATE amxo_parser_find_file(const amxc_llist_t* dirs,
+bool AMXO_PRIVATE amxo_parser_find_file(amxo_parser_t* parser,
+                                        const amxc_llist_t* dirs,
                                         const char* file_path,
                                         char** full_path);
 

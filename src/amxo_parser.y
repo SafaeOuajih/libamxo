@@ -220,7 +220,8 @@
 
     const uint64_t amxo_object_attrs = ((1 << attr_readonly) | 
                                     (1 << attr_persistent) | 
-                                    (1 << attr_private));
+                                    (1 << attr_private) | 
+                                    (1 << attr_protected));
 
     const uint64_t amxo_param_attrs = ((1 << attr_persistent) | 
                                     (1 << attr_private) | 
@@ -229,11 +230,13 @@
                                     (1 << attr_variable) |
                                     (1 << attr_readonly) |
                                     (1 << attr_key) |
-                                    (1 << attr_unique));
+                                    (1 << attr_unique) | 
+                                    (1 << attr_protected));
 
     const uint64_t amxo_func_attrs = ((1 << attr_private) | 
                                     (1 << attr_template) | 
-                                    (1 << attr_instance));
+                                    (1 << attr_instance) | 
+                                    (1 << attr_protected));
 
     const uint64_t amxo_arg_attrs = ((1 << attr_in) | 
                                     (1 << attr_out) | 

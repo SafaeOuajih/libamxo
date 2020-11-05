@@ -153,10 +153,11 @@ int amxo_parser_apply_mib(amxo_parser_t* parser,
 /**
    @ingroup amxo_parser_mibs
    @brief
-   Applies zero, one or more MIBs to a data model object.
+   Adds zero, one or more MIBs to a data model object.
 
    This function loops over all known MIB odl files, and will apply
-   each MIB to the provided data model object.
+   each MIB to the provided data model object if the object is
+   matching the MIB expression.
 
    When an expression evaluation function is provided, the MIB expression
    will be passed to that function together with the data model object.
@@ -169,6 +170,76 @@ int amxo_parser_apply_mib(amxo_parser_t* parser,
 
    To unconditionally apply a single MIB to a data model object use
    @ref amxo_parser_apply_mib
+
+   @note
+   Before calling this function one or more directories must be scanned for
+   MIB odl files. Scanning a directory can be done using
+   @ref amxo_parser_scan_mib_dir or @ref amxo_parser_scan_mib_dirs
+
+   @param parser the odl parser instance
+   @param object the data model object
+   @param fn function that evaluates the MIB expression.
+
+   @return
+   Total number of MIBs added on the object
+ */
+int amxo_parser_add_mibs(amxo_parser_t* parser,
+                         amxd_object_t* object,
+                         amxo_evaluate_expr_fn_t fn);
+
+/**
+   @ingroup amxo_parser_mibs
+   @brief
+   Removes zero, one or more MIBs from a data model object.
+
+   This function loops over all known MIB odl files, and will remove
+   each MIB from the provided data model object if the MIB was added to the
+   object and the object is not mathching the MIB expression any more.
+
+   When an expression evaluation function is provided, the MIB expression
+   will be passed to that function together with the data model object.
+   When the function returns false the MIB will be removed from the data model
+   object. If the MIB does not have an expression defined, the name of
+   the MIB is used as an expression.
+
+   No MIBs are removed from the data model object if no expression evaluation
+   function is provided.
+
+   To unconditionally remove a single MIB from a data model object use the
+   data model function amxd_object_remove_mib.
+
+   @note
+   Before calling this function one or more directories must be scanned for
+   MIB odl files. Scanning a directory can be done using
+   @ref amxo_parser_scan_mib_dir or @ref amxo_parser_scan_mib_dirs
+
+   @param parser the odl parser instance
+   @param object the data model object
+   @param fn function that evaluates the MIB expression.
+
+   @return
+   Total number of MIBs removed from the object
+ */
+int amxo_parser_remove_mibs(amxo_parser_t* parser,
+                            amxd_object_t* object,
+                            amxo_evaluate_expr_fn_t fn);
+/**
+   @ingroup amxo_parser_mibs
+   @brief
+   Applies zero, one or more MIBs to a data model object.
+
+   This function loops over all known MIB odl files, and will add
+   each MIB to the provided data model object if the object matches the MIB
+   expression or removes the MIB from the data model object of the object
+   is not matching the expression anymore.
+
+   When an expression evaluation function is provided, the MIB expression
+   will be passed to that function together with the data model object.
+   When the function returns true the MIB will be added on the data model
+   object otherwise removed. If the MIB ODL files does not have an expression
+   defined, the name of the MIB is used as an expression.
+
+   No MIBs are applied if no expression evaluation function is provided.
 
    @param parser the odl parser instance
    @param object the data model object

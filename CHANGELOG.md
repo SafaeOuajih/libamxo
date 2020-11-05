@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.5.3 - 2020-11-01(21:55:43 +0000)
+
+### Changes
+
+- Add function to lookup connection context by file descriptor
+
+## Release 0.5.2 - 2020-10-28(17:49:02 +0000)
+
+### Fixes
+
+- Set protected attribute as valid for parameters, functions and objects
+
+## Release 0.5.1 - 2020-10-28(05:48:23 +0000)
+
+### Fixes
+
+- Paths in directory configuration list can contain variables
+- Not all toolchain support secure_getenv
+- Remove mibs using mib expression
+
 ## Release 0.5.0 - 2020-10-19(19:29:29 +0000)
 
 ### New 
