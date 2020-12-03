@@ -69,6 +69,7 @@
     #include <string.h>
     #include <sys/types.h>
     #include <dlfcn.h>
+    #include <stdint.h>
     #include <amxc/amxc.h>
     #include <amxp/amxp_signal.h>
     #include <amxd/amxd_dm.h>
@@ -77,6 +78,12 @@
     #include "amxo_parser_priv.h"
     #include "amxo_parser_hooks_priv.h"
     #include "amxo_parser.tab.h"
+
+    #if __SIZE_WIDTH__ == 64
+    #define ssize_t_abs(x) labs(x)
+    #else
+    #define ssize_t_abs(x) abs(x)
+    #endif
    
     #define YY_EXTRA_TYPE amxo_parser_t*
     #define YY_INPUT(buf,result,max_size) { \
@@ -85,7 +92,7 @@
       if (read_result == -1) { \
         YY_FATAL_ERROR( "input in flex scanner failed" ); \
       } \
-      result = read_result > 0? abs(read_result):0; \
+      result = read_result > 0? ssize_t_abs(read_result):0; \
     }
 
     extern int yylex \

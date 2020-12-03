@@ -199,7 +199,7 @@ typedef void (* amxo_fd_read_t) (int fd, void* priv);
 
 typedef struct _amxo_connection {
     amxc_llist_it_t it;
-    const char* uri;
+    char* uri;
     int fd;
     amxo_fd_read_t reader;
     void* el_data;

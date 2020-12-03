@@ -124,6 +124,7 @@ static void amxo_parser_entry_point_free(amxc_llist_it_t* it) {
 
 static void amxo_parser_connection_free(amxc_llist_it_t* it) {
     amxo_connection_t* con = amxc_llist_it_get_data(it, amxo_connection_t, it);
+    free(con->uri);
     free(con);
 }
 
@@ -500,7 +501,7 @@ int amxo_connection_add(amxo_parser_t* parser,
     con = (amxo_connection_t*) calloc(1, sizeof(amxo_connection_t));
     when_null(con, exit);
 
-    con->uri = uri;
+    con->uri = uri == NULL ? NULL : strdup(uri);
     con->fd = fd;
     con->priv = priv;
     con->reader = reader;

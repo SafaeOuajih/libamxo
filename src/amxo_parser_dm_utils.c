@@ -812,6 +812,10 @@ bool amxo_parser_add_arg(amxo_parser_t* pctx,
                          amxc_var_t* def_value) {
     bool retval = false;
     int64_t aattrs = amxo_attr_2_arg_attr(attr_bitmask);
+    if(!IS_BIT_SET(aattrs, amxd_aattr_in) &&
+       !IS_BIT_SET(aattrs, amxd_aattr_out)) {
+        aattrs |= 1 << amxd_aattr_in;
+    }
 
     amxo_hooks_add_func_arg(pctx, name, aattrs, type, def_value);
 

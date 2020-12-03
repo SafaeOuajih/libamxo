@@ -1,3 +1,30 @@
+libamxo (0.6.1) unstable; urgency=medium
+
+  * Update makefiles
+  * Adds in attribute for fuinction arguments if no in and no out is set
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 30 Nov 2020 16:08:52 +0000
+
+libamxo (0.6.0) unstable; urgency=medium
+
+  * Update dependency versions in gitlab CI yml file
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Sun, 29 Nov 2020 16:55:07 +0000
+
+libamxo (0.5.5) unstable; urgency=medium
+
+  * Fix debian package dependencies
+  * Update readme
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Wed, 25 Nov 2020 19:28:36 +0000
+
+libamxo (0.5.4) unstable; urgency=medium
+
+  * Stores connection uri
+  * Updates gitlab CI/CD yml file
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 16 Nov 2020 12:50:11 +0000
+
 libamxo (0.5.3) unstable; urgency=medium
 
   * Add function to lookup connection context by file descriptor

@@ -15,8 +15,8 @@ TARGET_A = $(OBJDIR)/$(TARGET)-$(VERSION).a
 SRCDIR = ./src
 INCDIR_PUB = ./include
 INCDIR_PRIV = ./include_priv
-INCDIRS = $(INCDIR_PUB) $(INCDIR_PRIV) $(if $(STAGINGDIR), $(STAGINGDIR)/include)
-LIBDIR = $(if $(STAGINGDIR), -L$(STAGINGDIR)/lib)
+INCDIRS = $(INCDIR_PUB) $(INCDIR_PRIV) $(if $(STAGINGDIR), $(STAGINGDIR)/include) $(if $(STAGINGDIR), $(STAGINGDIR)/usr/include)
+LIBDIR = $(if $(STAGINGDIR), -L$(STAGINGDIR)/lib) $(if $(STAGINGDIR), -L$(STAGINGDIR)/usr/lib)
 
 # files
 HEADERS = $(wildcard $(INCDIR_PUB)/$(TARGET_NAME)/*.h)
@@ -29,7 +29,7 @@ OBJECTS += $(OBJDIR)/lex.amxo_parser.o \
 # compilation and linking flags
 CFLAGS += -Werror -Wall -Wextra \
           -Wformat=2 -Wshadow \
-          -Wwrite-strings -Wredundant-decls -Wmissing-include-dirs \
+          -Wwrite-strings -Wredundant-decls \
 		  -Wpedantic -Wmissing-declarations -Wno-attributes \
 		  -Wno-format-nonliteral \
           -fPIC -g3 $(addprefix -I ,$(INCDIRS)) -I $(SRCDIR) -I$(OBJDIR) 
@@ -106,13 +106,12 @@ install: $(TARGET_SO) $(TARGET_A) $(HEADERS)
 	cd $(DEST)$(PREFIX)$(INSTALL_LIB_DIR) && ln -fs $(TARGET)-$(VERSION).so $(TARGET).so
 	cd $(DEST)$(PREFIX)$(INSTALL_LIB_DIR) && ln -fs $(TARGET)-$(VERSION).so $(TARGET)-$(VMAJOR).so
 
-test: 
+test:
 	make -C tests
 	make -C tests coverage
 
-doc: lib$(TARGET_NAME).doxy
-	mkdir -p ./output/doc
-	VERSION=$(VERSION) doxygen $<
+doc:
+	$(MAKE) -C doc doc
 
 clean:
 	rm -rf ./output/ $(TARGET)-*.* $(TARGET)_*.*

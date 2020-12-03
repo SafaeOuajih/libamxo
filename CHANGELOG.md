@@ -8,6 +8,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.6.1 - 2020-11-30(16:08:44 +0000)
+
+### Changes
+
+- Update makefiles
+
+### Fixes
+
+- Adds in attribute for fuinction arguments if no in and no out is set
+
+## Release 0.6.0 - 2020-11-29(16:54:54 +0000)
+
+### Changes
+
+- Update dependency versions in gitlab CI yml file
+
+## Release 0.5.5 - 2020-11-25(19:28:31 +0000)
+
+### Fixes
+
+- Fix debian package dependencies
+
+### Changes
+
+- Update readme
+
+## Release 0.5.4 - 2020-11-16(12:50:03 +0000)
+
+### Changes
+
+- Stores connection uri
+- Updates gitlab CI/CD yml file
+
 ## Release 0.5.3 - 2020-11-01(21:55:43 +0000)
 
 ### Changes
