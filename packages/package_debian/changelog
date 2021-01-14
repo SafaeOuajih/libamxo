@@ -1,3 +1,17 @@
+libamxo (0.6.3) unstable; urgency=medium
+
+  * Fixes listen sockets
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Fri, 08 Jan 2021 15:13:35 +0000
+
+libamxo (0.6.2) unstable; urgency=medium
+
+  * Support for listen and accept sockets
+  * PCB odl parsing incompatibility
+  * Conditional jump or move depends on uninitialised value(s)
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Mon, 04 Jan 2021 15:14:36 +0000
+
 libamxo (0.6.1) unstable; urgency=medium
 
   * Update makefiles

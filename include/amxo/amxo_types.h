@@ -183,6 +183,7 @@ typedef enum _amxo_reason {
 
 typedef enum _amxo_con_type {
     AMXO_BUS,
+    AMXO_LISTEN,
     AMXO_CUSTOM,
 } amxo_con_type_t;
 
@@ -246,6 +247,7 @@ struct _amxo_parser {
     amxc_htable_t* resolvers;     /**< Resolvers data, internally used by function resolver */
 
     amxc_llist_t* connections;    /**< List of connections */
+    amxc_llist_t* listeners;      /**< List of listen sockets */
     amxc_llist_t* entry_points;   /**< List of entry points that needs to be called */
     amxc_llist_t* hooks;          /**< List of parser hooks */
 

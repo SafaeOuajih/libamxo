@@ -122,13 +122,6 @@ static void amxo_parser_entry_point_free(amxc_llist_it_t* it) {
     free(entry);
 }
 
-static void amxo_parser_connection_free(amxc_llist_it_t* it) {
-    amxo_connection_t* con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-    free(con->uri);
-    free(con);
-}
-
-
 ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
                                            void* buf,
                                            size_t max_size) {
@@ -182,6 +175,7 @@ void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->hooks = NULL;
     parser->entry_points = NULL;
     parser->connections = NULL;
+    parser->listeners = NULL;
     parser->data = NULL;
 
     amxc_rbuffer_init(&parser->rbuffer, 0);
@@ -241,6 +235,7 @@ void amxo_parser_clean(amxo_parser_t* parser) {
     amxc_var_delete(&parser->include_stack);
     amxc_llist_delete(&parser->entry_points, amxo_parser_entry_point_free);
     amxc_llist_delete(&parser->connections, amxo_parser_connection_free);
+    amxc_llist_delete(&parser->listeners, amxo_parser_connection_free);
     amxc_htable_clean(&parser->mibs, amxo_parser_del_mib_info);
 
 exit:
@@ -465,166 +460,6 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
     }
 
     retval = fail_count;
-
-exit:
-    return retval;
-}
-
-int amxo_connection_add(amxo_parser_t* parser,
-                        int fd,
-                        amxo_fd_read_t reader,
-                        const char* uri,
-                        amxo_con_type_t type,
-                        void* priv) {
-    int retval = -1;
-    amxo_connection_t* con = NULL;
-    amxc_var_t var_fd;
-
-    amxc_var_init(&var_fd);
-    when_null(parser, exit);
-    when_null(reader, exit);
-    when_true(fd < 0, exit);
-
-    if(parser->connections == NULL) {
-        retval = amxc_llist_new(&parser->connections);
-        when_null(parser->connections, exit);
-    }
-
-    amxc_llist_for_each(it, parser->connections) {
-        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-        if(con->fd == fd) {
-            retval = 0;
-            goto exit;
-        }
-    }
-
-    con = (amxo_connection_t*) calloc(1, sizeof(amxo_connection_t));
-    when_null(con, exit);
-
-    con->uri = uri == NULL ? NULL : strdup(uri);
-    con->fd = fd;
-    con->priv = priv;
-    con->reader = reader;
-    con->type = type;
-    amxc_llist_append(parser->connections, &con->it);
-
-    amxc_var_set(fd_t, &var_fd, fd);
-    amxp_sigmngr_trigger_signal(NULL, "connection-added", &var_fd);
-    retval = 0;
-
-exit:
-    if(retval != 0) {
-        free(con);
-    }
-    amxc_var_clean(&var_fd);
-    return retval;
-
-}
-
-int amxo_connection_remove(amxo_parser_t* parser,
-                           int fd) {
-    int retval = -1;
-    amxo_connection_t* con = NULL;
-    when_null(parser, exit);
-    when_null(parser->connections, exit);
-
-    amxc_llist_for_each(it, parser->connections) {
-        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-        if(con->fd == fd) {
-            amxc_var_t var_fd;
-            amxc_var_set(fd_t, &var_fd, fd);
-            amxp_sigmngr_trigger_signal(NULL, "connection-deleted", &var_fd);
-            amxc_var_clean(&var_fd);
-            amxc_llist_it_clean(&con->it, amxo_parser_connection_free);
-            break;
-        }
-    }
-
-    if(amxc_llist_is_empty(parser->connections)) {
-        amxc_llist_delete(&parser->connections, NULL);
-    }
-
-    retval = 0;
-
-exit:
-    return retval;
-}
-
-amxo_connection_t* amxo_connection_get(amxo_parser_t* parser,
-                                       int fd) {
-    amxo_connection_t* con = NULL;
-    when_null(parser, exit);
-    when_null(parser->connections, exit);
-
-    amxc_llist_for_each(it, parser->connections) {
-        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-        if(con->fd == fd) {
-            break;
-        }
-        con = NULL;
-    }
-
-exit:
-    return con;
-}
-
-amxo_connection_t* amxo_connection_get_first(amxo_parser_t* parser,
-                                             amxo_con_type_t type) {
-    amxo_connection_t* con = NULL;
-    when_null(parser, exit);
-
-    amxc_llist_for_each(it, parser->connections) {
-        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-        if(con->type == type) {
-            break;
-        }
-        con = NULL;
-    }
-
-exit:
-    return con;
-}
-
-amxo_connection_t* amxo_connection_get_next(amxo_parser_t* parser,
-                                            amxo_connection_t* con,
-                                            amxo_con_type_t type) {
-    amxc_llist_it_t* it = NULL;
-    when_null(parser, exit);
-    when_null(con, exit);
-    when_true(con->it.llist != parser->connections, exit);
-
-    it = amxc_llist_it_get_next(&con->it);
-    con = NULL;
-    while(it) {
-        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-        if(con->type == type) {
-            break;
-        }
-        con = NULL;
-        it = amxc_llist_it_get_next(it);
-    }
-
-exit:
-    return con;
-}
-
-int amxo_connection_set_el_data(amxo_parser_t* parser,
-                                int fd,
-                                void* el_data) {
-    int retval = -1;
-    amxo_connection_t* con = NULL;
-    when_null(parser, exit);
-    when_null(parser->connections, exit);
-
-    amxc_llist_for_each(it, parser->connections) {
-        con = amxc_llist_it_get_data(it, amxo_connection_t, it);
-        if(con->fd == fd) {
-            con->el_data = el_data;
-            break;
-        }
-    }
-
-    retval = 0;
 
 exit:
     return retval;

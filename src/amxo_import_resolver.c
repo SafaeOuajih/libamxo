@@ -541,6 +541,6 @@ AMXO_CONSTRUCTOR(110) static void amxo_import_init(void) {
 }
 
 AMXO_DESTRUCTOR(110) static void amxo_import_cleanup(void) {
-    amxc_htable_clean(&import_libs, NULL);
+    amxc_htable_clean(&import_libs, amxo_import_lib_free);
     amxo_unregister_resolver("import");
 }

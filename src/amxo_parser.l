@@ -289,6 +289,12 @@ volatile                  { yylval->integer = 1 << attr_variable;
 %out                      { yylval->integer = 1 << attr_out; 
                             return SET_ATTRIBUTE; 
                           }
+in                        { yylval->integer = 1 << attr_in; 
+                            return SET_ATTRIBUTE; 
+                          }
+out                       { yylval->integer = 1 << attr_out; 
+                            return SET_ATTRIBUTE; 
+                          }
 %mandatory                { yylval->integer = 1 << attr_mandatory; 
                             return SET_ATTRIBUTE; 
                           }

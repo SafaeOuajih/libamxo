@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.6.3 - 2021-01-08(15:13:29 +0000)
+
+### Fixes
+
+- Fixes listen sockets
+
+## Release 0.6.2 - 2021-01-04(15:14:17 +0000)
+
+### New
+
+- Support for listen and accept sockets
+
+### Fixes
+
+- PCB odl parsing incompatibility
+- Conditional jump or move depends on uninitialised value(s)
+
 ## Release 0.6.1 - 2020-11-30(16:08:44 +0000)
 
 ### Changes

@@ -922,22 +922,29 @@ object_pop_header
       YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $1, true), $3.txt);
     }
   | INSTANCE OF '(' ')' {
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, NULL), "");
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, 0, NULL), "");
     }
   | INSTANCE OF '(' DIGIT ')' {
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $4, NULL), "");
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, $4, NULL), "");
     }
   | INSTANCE OF '(' instance_id ')' {
       if ($4.txt != NULL) {
           $4.txt[$4.length] = 0;
       }
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, $4.txt), "");
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, 0, $4.txt), "");
     }
   | INSTANCE OF '(' DIGIT ',' instance_id ')' {
       if ($6.txt != NULL) {
           $6.txt[$6.length] = 0;
       }
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $4, $6.txt), "");
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, $4, $6.txt), "");
+    }
+  | INSTANCE OF name '(' DIGIT ',' instance_id ')' {
+      $3.txt[$3.length] = 0;
+      if ($7.txt != NULL) {
+          $7.txt[$7.length] = 0;
+      }
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $3.txt, $5, $7.txt), "");
     }
   ;
 

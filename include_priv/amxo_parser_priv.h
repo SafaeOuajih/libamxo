@@ -195,6 +195,7 @@ int AMXO_PRIVATE amxo_parser_create_object(amxo_parser_t* pctx,
                                            amxd_object_type_t type);
 
 bool AMXO_PRIVATE amxo_parser_add_instance(amxo_parser_t* pctx,
+                                           const char* parent,
                                            uint32_t index,
                                            const char* name);
 
@@ -274,6 +275,9 @@ char* AMXO_PRIVATE amxo_parser_build_import_resolver_data(const char* function,
 
 bool AMXO_PRIVATE amxo_parser_add_mib(amxo_parser_t* pctx,
                                       const char* mib_name);
+
+void AMXO_PRIVATE amxo_parser_connection_free(amxc_llist_it_t* it);
+
 #ifdef __cplusplus
 }
 #endif

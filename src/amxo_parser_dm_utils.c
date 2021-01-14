@@ -544,9 +544,11 @@ exit:
 }
 
 bool amxo_parser_add_instance(amxo_parser_t* pctx,
+                              const char* parent,
                               uint32_t index,
                               const char* name) {
     amxd_object_t* object = NULL;
+    amxd_object_t* parent_obj = pctx->object;
     bool retval = false;
     amxc_string_t res_name;
     amxc_string_init(&res_name, 0);
@@ -555,8 +557,12 @@ bool amxo_parser_add_instance(amxo_parser_t* pctx,
         name = amxc_string_get(&res_name, 0);
     }
 
+    if(parent != NULL) {
+        parent_obj = amxd_object_findf(parent_obj, "%s", parent);
+        when_null(parent_obj, exit);
+    }
     pctx->status = amxd_object_add_instance(&object,
-                                            pctx->object,
+                                            parent_obj,
                                             name,
                                             index,
                                             pctx->data);

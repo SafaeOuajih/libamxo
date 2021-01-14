@@ -646,6 +646,12 @@ int amxo_connection_add(amxo_parser_t* parser,
                         amxo_con_type_t type,
                         void* priv);
 
+int amxo_connection_add_listen(amxo_parser_t* parser,
+                               int fd,
+                               amxo_fd_read_t reader,
+                               const char* uri,
+                               void* priv);
+
 int amxo_connection_remove(amxo_parser_t* parser,
                            int fd);
 
