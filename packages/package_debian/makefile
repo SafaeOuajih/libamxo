@@ -4,12 +4,12 @@ ALIEN = $(shell which alien)
 
 NOW = $(shell date +"%a, %d %b %Y %H:%M:%S %z")
 PKGDIR = ../../output/$(MACHINE)/
-DEBDIR = $(PKGDIR)$(TARGET)-$(VERSION)/debian
-PACKAGE_TAR_GZ = $(TARGET)-$(VERSION).tar.gz
+DEBDIR = $(PKGDIR)$(COMPONENT)-$(VERSION)/debian
+PACKAGE_TAR_GZ = $(COMPONENT)-$(VERSION).tar.gz
 LOG = $(shell $(GIT) log $$($(GIT) describe --tags | cut -d'-' -f1)..HEAD)
 ARCHITECTURE = $(shell dpkg-architecture | grep DEB_TARGET_ARCH= | cut -d'=' -f2)
 
-PACKAGE_DEB = $(TARGET)_$(VERSION)_$(ARCHITECTURE).deb
+PACKAGE_DEB = $(COMPONENT)_$(VERSION)_$(ARCHITECTURE).deb
 
 AFLAGS = -d -k --fixperms --test --description="Generic C-API for common patterns" \
          --version="$(VERSION)" --target="$(ARCHITECTURE)" -g -v 
@@ -19,7 +19,7 @@ AFLAGS = -d -k --fixperms --test --description="Generic C-API for common pattern
 # 2 - filename
 define create_changelog
 	@$(ECHO) "Generating debian changelog from git log"
-	$(ECHO) "$(TARGET) ($(VERSION)) unstable; urgency=medium" > $(1)/$(2)
+	$(ECHO) "$(COMPONENT) ($(VERSION)) unstable; urgency=medium" > $(1)/$(2)
 	$(ECHO) "" >> $(1)/$(2)
 	$(GIT) log --pretty=format:"  * %s" $$($(GIT) describe --tags | grep -v "merge" | cut -d'-' -f1)..HEAD  >> $(1)/$(2)
 	$(ECHO) "" >> $(1)/$(2)
@@ -51,7 +51,7 @@ else
 endif
 
 $(DEBDIR)/: $(PKGDIR)$(PACKAGE_TAR_GZ)
-	rm -rf $(PKGDIR)/$(TARGET)-$(VERSION)
+	rm -rf $(PKGDIR)/$(COMPONENT)-$(VERSION)
 	cd $(PKGDIR) && $(FAKEROOT) $(ALIEN) $(AFLAGS) $(PACKAGE_TAR_GZ)
 
 update_changelog:

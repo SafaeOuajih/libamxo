@@ -33,8 +33,8 @@ binary-arch: build
 	find . -maxdepth 1 -mindepth 1 -not -name debian -print0 | \
 		xargs -0 -r -i cp -a {} debian/$(PACKAGE)
 
-	dh_link usr/lib/$(MACHINE)/libamxo-$(VERSION).so usr/lib/$(MACHINE)/libamxo.so
-	dh_link usr/lib/$(MACHINE)/libamxo-$(VERSION).so usr/lib/$(MACHINE)/libamxo-$(VMAJOR).so
+	dh_link usr/lib/$(MACHINE)/libamxo.so.$(VERSION) usr/lib/$(MACHINE)/libamxo.so
+	dh_link usr/lib/$(MACHINE)/libamxo.so.$(VERSION) usr/lib/$(MACHINE)/libamxo.so.$(VMAJOR)
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs

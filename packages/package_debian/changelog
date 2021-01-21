@@ -1,3 +1,10 @@
+libamxo (0.6.4) unstable; urgency=medium
+
+  * Generate makefiles using build agnostic file (baf)
+  * Only include objects in static library
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 18 Jan 2021 17:26:52 +0000
+
 libamxo (0.6.3) unstable; urgency=medium
 
   * Fixes listen sockets

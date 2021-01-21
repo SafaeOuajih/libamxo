@@ -4,7 +4,7 @@ SRCDIR = $(realpath ../../src)
 OBJDIR = $(realpath ../../output/$(MACHINE)/coverage)
 INCDIR = $(realpath ../../include ../../include_priv ../include)
 
-HEADERS = $(wildcard $(INCDIR)/$(TARGET)/*.h)
+HEADERS = $(wildcard $(INCDIR)/amxo/*.h)
 SOURCES = $(wildcard $(SRCDIR)/amxo_*.c)
 
 CFLAGS += -Werror -Wall -Wextra -Wno-attributes\

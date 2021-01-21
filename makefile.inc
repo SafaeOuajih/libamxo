@@ -23,16 +23,19 @@ VMINOR = $(word 2,$(VERSION_PARTS))
 VBUILD_FULL = $(word 3,$(VERSION_PARTS))
 VBUILD = $(word 1,$(subst -, ,$(VBUILD_FULL)))
 
-# the processor architecture 
-MACHINE = $(shell $(CC) -dumpmachine)
+# the processor architecture
+MACHINE ?= $(shell $(CC) -dumpmachine)
 CC_PARTS = $(subst -, ,$(CC))
 CC_NAME = $(word $(words $(CC_PARTS)),$(CC_PARTS))
 
 # Target
-TARGET_NAME = amxo
-TARGET = lib$(TARGET_NAME)
+COMPONENT = libamxo
 
 # install directories
-PREFIX = /usr/
-INSTALL_INC_DIR = include/$(TARGET_NAME)
-INSTALL_LIB_DIR ?= lib/$(MACHINE)
+PREFIX ?= /usr/
+LIBDIR ?= $(PREFIX)lib/$(MACHINE)
+BINDIR ?= $(PREFIX)bin
+INCLUDEDIR ?= $(PREFIX)include
+INITDIR ?= /etc/init.d
+DOCDIR ?= $(PREFIX)share/doc/libamxo
+PROCMONDIR ?= $(PREFIX)lib/processmonitor/scripts

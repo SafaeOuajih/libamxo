@@ -1,3 +1,4 @@
+PKG_CONFIG_LIBDIR := /usr/lib/pkgconfig:/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:$(PKG_CONFIG_LIBDIR)
 MACHINE = $(shell $(CC) -dumpmachine)
 SUBDIRS := $(wildcard amxo_*)
 OBJDIR = ../output/$(MACHINE)/coverage
@@ -14,6 +15,7 @@ clean:
 	rm -rf $(OBJDIR)
 	rm -rf $(OBJDIR)/$(COVERREPORT)
 	make -C test_plugin clean
+	find .. -name "run_test" -delete
 
 coverage: $(OBJDIR)/$(COVERREPORT)/
 	@cd $(OBJDIR) && \

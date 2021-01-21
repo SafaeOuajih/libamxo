@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.6.4 - 2021-01-18(17:26:45 +0000)
+
+### New
+
+- Generate makefiles using build agnostic file (baf)
+
+### Fixes
+
+- Only include objects in static library
+
 ## Release 0.6.3 - 2021-01-08(15:13:29 +0000)
 
 ### Fixes

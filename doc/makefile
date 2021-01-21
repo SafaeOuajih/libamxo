@@ -1,6 +1,6 @@
 include ../makefile.inc
 
-doc: lib$(TARGET_NAME).doxy
+doc: libamxo.doxy
 	VERSION=$(VERSION) doxygen $<
 
 .PHONY: doc
