@@ -1380,13 +1380,13 @@ constraint custom <name> using <name>;
 
 These can be replaced with (same order)
 ```
-on action validate check_minimum <VALUE>;
-on action validate check_maximum <VALUE>;
-on action validate check_range { min = <VALUE>, max = <VALUE> };
-on action validate check_range [<MIN VALUE>,<VALUE> ];
-on action validate check_enum [ <VALUE>, <VALUE>, ... ];
-on action validate <name>;
-on action validate <name> <!RESOLVER:<RESOLVER-DATA>!>;
+on action validate call check_minimum <VALUE>;
+on action validate call check_maximum <VALUE>;
+on action validate call check_range { min = <VALUE>, max = <VALUE> };
+on action validate call check_range [<MIN VALUE>,<VALUE> ];
+on action validate call check_enum [ <VALUE>, <VALUE>, ... ];
+on action validate call <name>;
+on action validate call <name> <!RESOLVER:<RESOLVER-DATA>!>;
 ```
 
 ### RESOLVER
@@ -1495,7 +1495,7 @@ The keywords are grouped and in alphabetic order.
 - `counted`
 - `default`
 - `entry-point`
-- `enum` (DEPRECATED - use `on action validate check_enum` )
+- `enum` (DEPRECATED - use `on action validate call check_enum` )
 - `event`
 - `extend`
 - `false`
@@ -1505,14 +1505,14 @@ The keywords are grouped and in alphabetic order.
 - `?include`
 - `import`
 - `instance`
-- `maxvalue`  (DEPRECATED - use `on action validate check_maximum` )
+- `maxvalue`  (DEPRECATED - use `on action validate call check_maximum` )
 - `mib`
-- `minvalue`  (DEPRECATED - use `on action validate check_minimum` )
+- `minvalue`  (DEPRECATED - use `on action validate call check_minimum` )
 - `object`
 - `of`
 - `on`
 - `parameter`
-- `range` (DEPRECATED - use `on action validate check_range` )
+- `range` (DEPRECATED - use `on action validate call check_range` )
 - `regexp`
 - `select`
 - `using` (DEPRECTATED - use `import`)

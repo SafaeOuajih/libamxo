@@ -668,9 +668,41 @@ amxo_connection_t* amxo_connection_get_first(amxo_parser_t* parser,
 amxo_connection_t* amxo_connection_get_next(amxo_parser_t* parser,
                                             amxo_connection_t* con,
                                             amxo_con_type_t type);
+
+/**
+   @ingroup amxo_parser
+   @brief
+   Get a list of the current connections of the application
+
+   At runtime an application can be connected to a number of sockets. This
+   function retrieves a list of sockets the app is connected to.
+
+   @param parser the odl parser instance
+
+   @return
+   A list with all active socket connections.
+ */
 AMXO_INLINE
 amxc_llist_t* amxo_parser_get_connections(amxo_parser_t* parser) {
     return parser == NULL ? 0 : parser->connections;
+}
+
+/**
+   @ingroup amxo_parser
+   @brief
+   Get of the current listen sockets of the application
+
+   While an application is running, it can have a list of of open listen
+   sockets that other applications can connect to.
+
+   @param parser the odl parser instance
+
+   @return
+   A list with all open listen sockets.
+ */
+AMXO_INLINE
+amxc_llist_t* amxo_parser_get_listeners(amxo_parser_t* parser) {
+    return parser == NULL ? 0 : parser->listeners;
 }
 
 #ifdef __cplusplus

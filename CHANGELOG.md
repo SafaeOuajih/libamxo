@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.6.6 - 2021-01-31(16:10:30 +0000)
+
+### New
+
+- It must be possible to get a list of open listen sockets
+
+## Release 0.6.5 - 2021-01-28(09:03:33 +0000)
+
+### Changes
+
+- Update versions of libamxc,libamxp,libamxd for CI/CD pipelines
+
+### Fixes
+
+- correct documentation error on "on action validate"
+
 ## Release 0.6.4 - 2021-01-18(17:26:45 +0000)
 
 ### New

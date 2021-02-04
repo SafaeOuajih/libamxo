@@ -1,3 +1,16 @@
+libamxo (0.6.6) unstable; urgency=medium
+
+  * It must be possible to get a list of open listen sockets
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Sun, 31 Jan 2021 16:11:02 +0000
+
+libamxo (0.6.5) unstable; urgency=medium
+
+  * Update versions of libamxc,libamxp,libamxd for CI/CD pipelines
+  * correct documentation error on "on action validate"
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Thu, 28 Jan 2021 09:03:39 +0000
+
 libamxo (0.6.4) unstable; urgency=medium
 
   * Generate makefiles using build agnostic file (baf)
