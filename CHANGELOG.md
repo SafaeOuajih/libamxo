@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.6.7 - 2021-02-14(08:19:12 +0000)
+
+### Changes
+
+- Step-up versions of libamx,libamxp,libamxd for CI
+
 ## Release 0.6.6 - 2021-01-31(16:10:30 +0000)
 
 ### New
