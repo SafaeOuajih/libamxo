@@ -117,6 +117,7 @@ static void amxc_parser_push(amxo_parser_t* parent,
     child->hooks = parent->hooks;
     child->include_stack = parent->include_stack;
     child->entry_points = parent->entry_points;
+    child->post_includes = parent->post_includes;
     amxc_var_copy(&child->config, &parent->config);
 }
 
@@ -124,6 +125,7 @@ static void amxc_parser_pop(amxo_parser_t* parent,
                             amxo_parser_t* child) {
     parent->resolvers = child->resolvers;
     parent->entry_points = child->entry_points;
+    parent->post_includes = child->post_includes;
     child->resolvers = NULL;
     child->include_stack = NULL;
     child->hooks = NULL;
@@ -235,6 +237,48 @@ int amxo_parser_set_config_internal(amxo_parser_t* parser,
                             name,
                             value,
                             AMXC_VAR_FLAG_UPDATE);
+}
+
+int amxo_parser_add_post_include(amxo_parser_t* pctx, const char* file_path) {
+    int retval = -1;
+    amxc_var_t* config = amxo_parser_get_config(pctx, "include-dirs");
+    const amxc_llist_t* incdirs = amxc_var_constcast(amxc_llist_t, config);
+    char* full_path = NULL;
+    amxc_var_t* incstack = NULL;
+    amxc_string_t res_file_path;
+    amxc_string_init(&res_file_path, 0);
+    if(amxc_string_set_resolved(&res_file_path, file_path, &pctx->config) > 0) {
+        file_path = amxc_string_get(&res_file_path, 0);
+    }
+
+    if(!amxo_parser_find_file(pctx, incdirs, file_path, &full_path)) {
+        retval = 2;
+        pctx->status = amxd_status_file_not_found;
+        amxo_parser_msg(pctx, "Include file not found \"%s\"", file_path);
+        goto exit;
+    }
+
+    incstack = amxo_parser_can_include(pctx, full_path);
+    if(incstack == NULL) {
+        pctx->status = amxd_status_recursion;
+        amxo_parser_msg(pctx, "Recursive include detected \"%s\"", file_path);
+        goto exit;
+    }
+
+    if(pctx->post_includes == NULL) {
+        amxc_var_new(&pctx->post_includes);
+        amxc_var_set_type(pctx->post_includes, AMXC_VAR_ID_LIST);
+    }
+
+    amxc_var_add(cstring_t, pctx->post_includes, full_path);
+
+    retval = 0;
+
+exit:
+    amxc_string_clean(&res_file_path);
+    amxc_var_delete(&incstack);
+    free(full_path);
+    return retval;
 }
 
 int amxo_parser_include(amxo_parser_t* pctx, const char* file_path) {

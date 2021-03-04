@@ -108,7 +108,6 @@ static int amxo_parser_parse_fd_internal(amxo_parser_t* parser,
     amxo_parser_destroy_lex(parser);
 
     parser->fd = -1;
-    parser->object = NULL;
 
     if(retval == 0) {
         amxc_string_clean(&parser->msg);
@@ -177,6 +176,7 @@ void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->connections = NULL;
     parser->listeners = NULL;
     parser->data = NULL;
+    parser->post_includes = NULL;
 
     amxc_rbuffer_init(&parser->rbuffer, 0);
     amxc_string_init(&parser->msg, 0);
@@ -237,6 +237,7 @@ void amxo_parser_clean(amxo_parser_t* parser) {
     amxc_llist_delete(&parser->connections, amxo_parser_connection_free);
     amxc_llist_delete(&parser->listeners, amxo_parser_connection_free);
     amxc_htable_clean(&parser->mibs, amxo_parser_del_mib_info);
+    amxc_var_delete(&parser->post_includes);
 
 exit:
     return;
@@ -446,17 +447,28 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
     int fail_count = 0;
     when_null(parser, exit);
     when_null(dm, exit);
-    if(parser->entry_points == NULL) {
-        retval = 0;
-        goto exit;
+
+    if(parser->entry_points != NULL) {
+        amxc_llist_for_each(it, parser->entry_points) {
+            amxo_entry_t* ep = amxc_llist_it_get_data(it, amxo_entry_t, it);
+            retval = ep->entry_point(reason, dm, parser);
+            if(retval != 0) {
+                fail_count++;
+            }
+        }
     }
 
-    amxc_llist_for_each(it, parser->entry_points) {
-        amxo_entry_t* ep = amxc_llist_it_get_data(it, amxo_entry_t, it);
-        retval = ep->entry_point(reason, dm, parser);
-        if(retval != 0) {
+    retval = fail_count;
+
+    when_true(fail_count > 0, exit);
+    when_true(parser->post_includes == NULL, exit);
+
+    amxc_var_for_each(var, parser->post_includes) {
+        const char* file = amxc_var_constcast(cstring_t, var);
+        if(amxo_parser_parse_file(parser, file, parser->object) != 0) {
             fail_count++;
         }
+        amxc_var_delete(&var);
     }
 
     retval = fail_count;

@@ -188,3 +188,27 @@ void test_include_absolute_path(UNUSED void** state) {
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
+
+void test_post_include(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    char* abs_path = realpath("empty.odl", NULL);
+    char odl[8192];
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    sprintf(odl, "&include \"%s\";", abs_path);
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    sprintf(odl, "&include \"/tmp/fake.odl\";");
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
+
+    assert_int_not_equal(amxo_parser_invoke_entry_points(&parser, &dm, 0), 0);
+
+    free(abs_path);
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}

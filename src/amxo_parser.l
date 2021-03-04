@@ -219,6 +219,9 @@ mib                       { yylval->integer = token_mib;
 parameter                 { yylval->integer = token_keyword;  
                             return PARAMETER; 
                           }
+&include                  { yylval->integer = token_post_include;
+                            return INCLUDE;
+                          }
 #include                  { yylval->integer = token_optional_include;
                             return INCLUDE;
                           }

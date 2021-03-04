@@ -1,3 +1,10 @@
+libamxo (0.7.0) unstable; urgency=medium
+
+  * It must be possible to include odl files that are loaded after invoking the entry points
+  * Migrate to new licenses format (baf)
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Thu, 25 Feb 2021 13:55:02 +0000
+
 libamxo (0.6.7) unstable; urgency=medium
 
   * Step-up versions of libamx,libamxp,libamxd for CI

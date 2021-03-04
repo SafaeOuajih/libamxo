@@ -318,7 +318,12 @@ config_option
 include
   : INCLUDE TEXT ';' {
       $2.txt[$2.length] = 0;
-      int retval = amxo_parser_include(parser_ctx, $2.txt);
+      int retval = 0;
+      if ($1 != token_post_include) {
+          retval = amxo_parser_include(parser_ctx, $2.txt);
+      } else {
+          retval = amxo_parser_add_post_include(parser_ctx, $2.txt);
+      }
       YY_CHECK(retval != 0 && !(retval == 2 && $1 == token_optional_include),
                 $2.txt);
       parser_ctx->status = amxd_status_ok;

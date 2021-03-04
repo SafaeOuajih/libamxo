@@ -178,7 +178,8 @@ typedef struct _amxo_hooks {
 
 typedef enum _amxo_reason {
     AMXO_START,
-    AMXO_STOP
+    AMXO_STOP,
+    AMXO_ODL_LOADED
 } amxo_reason_t;
 
 typedef enum _amxo_con_type {
@@ -250,6 +251,7 @@ struct _amxo_parser {
     amxc_llist_t* listeners;      /**< List of listen sockets */
     amxc_llist_t* entry_points;   /**< List of entry points that needs to be called */
     amxc_llist_t* hooks;          /**< List of parser hooks */
+    amxc_var_t* post_includes;    /**< List of include files that needs to be loaded after entry-points are called*/
 
     amxc_var_t* include_stack;    /**< Used for recursive include tracking */
 

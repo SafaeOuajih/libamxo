@@ -994,11 +994,13 @@ In the above example the `event handler callback` is only called when the event 
 
 ## Include
 
-With `include`, `#include` or `?include` other odl files can be included. Parsing of the include file is done first before continuing the current odl file (that contains the include).
+With `include`, `#include`, `&include` or `?include` other odl files can be included. Parsing of the include file is done first - except when using `&include` - before continuing the current odl file (that contains the include).
 
-Mandatory includes are specified with `include`, optional includes with `#include`. When an optional include file is not available, parsing of the current odl continues. When a mandatory include file is not available, parsing stops with an error.
+Mandatory includes are specified with `include` or `&include`, optional includes with `#include`. When an optional include file is not available, parsing of the current odl continues. When a mandatory include file is not available, parsing stops with an error.
 
 The conditional include `?include` takes two include files separated with a `:`. When the first include file is not found, the second file will be loaded. If none of the files exists, parsing stops with an error. If the first file is found, but is not a valid odl file, parsing stops with an error.
+
+A post include file (`&include`) is parsed after the `entry-points` are invoked. If the file is not found the parser will fail when encountering the `&include`, when the file exists, parsing continues without reading the file. When the `entry-points` are called and all successful, all post include files are loaded. This is mainly used when some initialization needs to be done before loading the default values. Typically a post include only contains a `&populate` section.
 
 Includes can be done anywhere outside a section (`%config`, `%define`, `%populate`).
 
@@ -1012,6 +1014,7 @@ The name of the file must be put between double quotes (`"`) and can contain an 
 > include "<odl file>";
 > #include "<odl file>";
 > ?include "<odl file>":"<odl file>";
+> &include "<odl file>";
 >```
 
 ### Include Example

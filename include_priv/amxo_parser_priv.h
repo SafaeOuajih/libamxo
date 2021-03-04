@@ -85,6 +85,7 @@ enum amxo_parser_tokens_t
     token_include,
     token_optional_include,
     token_conditional_include,
+    token_post_include,
     token_import,
     token_config,
     token_define,
@@ -240,6 +241,8 @@ int amxo_parser_subscribe(amxo_parser_t* pctx,
 
 bool amxo_parser_subscribe_item(amxo_parser_t* pctx);
 
+int AMXO_PRIVATE amxo_parser_add_post_include(amxo_parser_t* pctx,
+                                              const char* file_path);
 int AMXO_PRIVATE amxo_parser_include(amxo_parser_t* pctx, const char* file_path);
 
 amxc_htable_t* AMXO_PRIVATE amxo_parser_get_resolvers(void);

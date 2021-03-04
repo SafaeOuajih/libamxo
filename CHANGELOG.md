@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.7.0 - 2021-02-25(13:54:55 +0000)
+
+### New 
+
+- It must be possible to include odl files that are loaded after invoking the entry points
+
+### Changes
+
+- Migrate to new licenses format (baf)
+
 ## Release 0.6.7 - 2021-02-14(08:19:12 +0000)
 
 ### Changes
