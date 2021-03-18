@@ -463,6 +463,9 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
     when_true(fail_count > 0, exit);
     when_true(parser->post_includes == NULL, exit);
 
+    while(amxp_signal_read() == 0) {
+    }
+
     amxc_var_for_each(var, parser->post_includes) {
         const char* file = amxc_var_constcast(cstring_t, var);
         if(amxo_parser_parse_file(parser, file, parser->object) != 0) {

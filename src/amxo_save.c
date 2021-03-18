@@ -630,22 +630,6 @@ static int amxo_parser_close_file(amxo_parser_t* pctx,
     retval = rename(full_path_tmp, full_path);
     when_failed(retval, exit);
 
-    /*
-       // syncdir
-       int dir_fd = -1;
-       char *containing_dir = dirname((char *)string_buffer(&temp_file));
-       dir_fd = open(containing_dir, O_RDONLY);
-       if (dir_fd < 0) {
-        SAH_TRACEZ_ERROR("pcb","Failed to open containing directory %d - %s", errno,error_string(errno));
-       } else {
-        if (fsync(dir_fd) < 0) {
-            SAH_TRACEZ_ERROR("pcb","Failed to fsync containing directory %d - %s", errno,error_string(errno));
-        }
-        if (close(dir_fd) < 0) {
-            SAH_TRACEZ_ERROR("pcb","Failed to close containing directory %d - %s", errno,error_string(errno));
-        }
-       }
-     */
 exit:
     free(full_path_tmp);
     free(full_path);

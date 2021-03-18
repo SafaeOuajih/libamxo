@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.7.1 - 2021-03-10(12:09:54 +0000)
+
+### Changes
+
+- Step-up versions of libamxc, libamxp and libamxd for CI
+- The function table resolve should provide a function name to default add instance action
+- Handle data model events before post includes
+- Removes commented code
+
 ## Release 0.7.0 - 2021-02-25(13:54:55 +0000)
 
 ### New 

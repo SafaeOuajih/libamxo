@@ -126,10 +126,11 @@ static void amxc_parser_pop(amxo_parser_t* parent,
     parent->resolvers = child->resolvers;
     parent->entry_points = child->entry_points;
     parent->post_includes = child->post_includes;
-    child->resolvers = NULL;
     child->include_stack = NULL;
     child->hooks = NULL;
+    child->resolvers = NULL;
     child->entry_points = NULL;
+    child->post_includes = NULL;
     amxc_llist_for_each(it, (&child->global_config)) {
         amxc_string_t* str_name = amxc_string_from_llist_it(it);
         const char* name = amxc_string_get(str_name, 0);

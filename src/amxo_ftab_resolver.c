@@ -114,6 +114,9 @@ static void amxo_resolver_ftab_defaults(amxo_parser_t* parser,
     amxo_resolver_ftab_add(parser,
                            "hide_value",
                            AMXO_FUNC(amxd_action_param_read_hidden_value));
+    amxo_resolver_ftab_add(parser,
+                           "verify_max_instances",
+                           AMXO_FUNC(amxd_action_object_add_inst));
 }
 
 static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t* parser,

@@ -1,3 +1,12 @@
+libamxo (0.7.1) unstable; urgency=medium
+
+  * Step-up versions of libamxc, libamxp and libamxd for CI
+  * The function table resolve should provide a function name to default add instance action
+  * Handle data model events before post includes
+  * Removes commented code
+
+ -- Peter De Herdt <peter.deherdt@softathome.com>  Wed, 10 Mar 2021 12:10:06 +0000
+
 libamxo (0.7.0) unstable; urgency=medium
 
   * It must be possible to include odl files that are loaded after invoking the entry points
