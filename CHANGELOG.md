@@ -8,6 +8,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 0.8.1 - 2021-03-31(13:58:19 +0000)
+
+### Changes
+
+- Make it possible to call entry-points in reverse order
+
+## Release 0.8.0 - 2021-03-29(17:35:49 +0000)
+
+### New
+
+- Add amxo_parser_load_mib function
+
+### Change 
+
+- Always save persistent instance regardless of template object attributes
+
+## Release 0.7.2 - 2021-03-26(23:31:22 +0000)
+
+### New 
+
+- it must be possible to include a directory
+- It must be possible to add and remove flags to parameters in odl files
+
+### Changes
+
+- Rename keyword flags to userflags
+
+### Fixes
+
+- Clean-up resolvers after reading odl files
+- Send dm:instance-added events when creating instances from odl file
+
 ## Release 0.7.1 - 2021-03-10(12:09:54 +0000)
 
 ### Changes

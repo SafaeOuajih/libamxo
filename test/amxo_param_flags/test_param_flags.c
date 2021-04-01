@@ -57,24 +57,88 @@
 ** POSSIBILITY OF SUCH DAMAGE.
 **
 ****************************************************************************/
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
+#include <string.h>
 #include <stdlib.h>
-#include <setjmp.h>
+#include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <cmocka.h>
 
-#include "test_include.h"
+#include <amxc/amxc.h>
+#include <amxp/amxp_signal.h>
+#include <amxd/amxd_dm.h>
+#include <amxd/amxd_object.h>
+#include <amxd/amxd_parameter.h>
+#include <amxo/amxo.h>
+#include <amxo/amxo_hooks.h>
 
-int main(void) {
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_can_include_empty_file),
-        cmocka_unit_test(test_can_include_between_sections),
-        cmocka_unit_test(test_none_existing_include_file),
-        cmocka_unit_test(test_none_existing_optional_include_file),
-        cmocka_unit_test(test_recursive_include_detection),
-        cmocka_unit_test(test_include_absolute_path),
-        cmocka_unit_test(test_post_include),
-        cmocka_unit_test(test_can_include_directory),
-    };
-    return cmocka_run_group_tests(tests, NULL, NULL);
+#include "test_param_flags.h"
+
+#define UNUSED __attribute__((unused))
+
+void test_flags_are_set(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
+    amxo_parser_t parser;
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_def_param_flags.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    object = amxd_dm_findf(&dm, "TestObject.");
+    assert_non_null(object);
+    param = amxd_object_get_param_def(object, "Text");
+    assert_non_null(param);
+
+    assert_true(amxd_param_has_flag(param, "uci"));
+    assert_true(amxd_param_has_flag(param, "user"));
+    assert_false(amxd_param_has_flag(param, "back-up"));
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_populate_can_change_flags(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxd_object_t* object = NULL;
+    amxd_param_t* param = NULL;
+    amxo_parser_t parser;
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_def_param_flags.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    object = amxd_dm_findf(&dm, "TestObject.");
+    assert_non_null(object);
+    param = amxd_object_get_param_def(object, "Text");
+    assert_non_null(param);
+
+    assert_true(amxd_param_has_flag(param, "uci"));
+    assert_true(amxd_param_has_flag(param, "user"));
+    assert_false(amxd_param_has_flag(param, "back-up"));
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_pop_param_flags.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    assert_true(amxd_param_has_flag(param, "uci"));
+    assert_true(amxd_param_has_flag(param, "back-up"));
+    assert_false(amxd_param_has_flag(param, "user"));
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
 }

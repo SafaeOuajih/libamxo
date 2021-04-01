@@ -85,9 +85,9 @@
 #include "amxo_parser_priv.h"
 
 #define PARAM_ATTR(param, attr_name) \
-    amxc_var_dyncast(bool,                                      \
-                     amxc_var_get_path(param,                   \
-                                       attr_name,               \
+    amxc_var_dyncast(bool,                                        \
+                     amxc_var_get_path(param,                     \
+                                       attr_name,                 \
                                        AMXC_VAR_FLAG_DEFAULT))
 
 #define PARAM_NAME(param) \
@@ -96,9 +96,15 @@
                                          "name",                  \
                                          AMXC_VAR_FLAG_DEFAULT))
 
+#define PARAM_FLAGS(param) \
+    amxc_var_constcast(amxc_llist_t,                              \
+                       amxc_var_get_path(param,                   \
+                                         "flags",                 \
+                                         AMXC_VAR_FLAG_DEFAULT))
+
 #define PARAM_VALUE(param) \
-    amxc_var_get_path(param,                     \
-                      "value",                   \
+    amxc_var_get_path(param,                                      \
+                      "value",                                    \
                       AMXC_VAR_FLAG_DEFAULT)
 
 
@@ -448,6 +454,27 @@ exit:
     return retval;
 }
 
+static int amxo_parser_save_param_flags(amxc_var_t* param,
+                                        amxc_string_t* buffer) {
+    int retval = 0;
+    const amxc_llist_t* flags = PARAM_FLAGS(param);
+    const char* sep = "";
+    amxo_parser_writef(buffer, "{\n");
+    indentation += 4;
+    amxo_parser_writef(buffer, "flags ");
+    amxc_llist_iterate(it, flags) {
+        amxc_var_t* var_flag = amxc_var_from_llist_it(it);
+        const char* flag = amxc_var_constcast(cstring_t, var_flag);
+        amxo_parser_writef(buffer, "%s %%%s", sep, flag);
+        sep = ",";
+    }
+    amxo_parser_writef(buffer, ";\n");
+    indentation -= 4;
+    amxo_parser_writef(buffer, "}\n");
+
+    return retval;
+}
+
 static int amxo_parser_save_params(int fd,
                                    amxd_object_t* object,
                                    amxc_string_t* buffer) {
@@ -463,6 +490,7 @@ static int amxo_parser_save_params(int fd,
         amxc_var_t* param = amxc_var_from_htable_it(it);
         const char* name = PARAM_NAME(param);
         amxc_var_t* value = PARAM_VALUE(param);
+        const amxc_llist_t* flags = PARAM_FLAGS(param);
         bool is_templ_param = PARAM_ATTR(param, "attributes.template");
         bool is_inst_param = PARAM_ATTR(param, "attributes.instance");
         bool is_key_param = PARAM_ATTR(param, "attributes.key");
@@ -485,7 +513,11 @@ static int amxo_parser_save_params(int fd,
         amxo_parser_writef(buffer, "parameter %s = ", name);
         retval = amxo_parser_save_value(value, buffer);
         when_true(retval < 0, exit);
-        amxo_parser_writef(buffer, ";\n", name);
+        if(!amxc_llist_is_empty(flags)) {
+            amxo_parser_save_param_flags(param, buffer);
+        } else {
+            amxo_parser_writef(buffer, ";\n");
+        }
         retval = amxo_parser_flush_buffer(fd, buffer);
         when_true(retval < 0, exit);
     }
@@ -501,7 +533,8 @@ static int amxo_parser_save_leave(int fd,
                                   amxc_string_t* buffer) {
     int retval = 0;
     amxd_object_t* obj = amxc_container_of(it, amxd_object_t, it);
-    if(!amxd_object_is_attr_set(obj, amxd_oattr_persistent)) {
+    if(!amxd_object_is_attr_set(obj, amxd_oattr_persistent) &&
+       ( amxd_object_get_type(obj) != amxd_object_template)) {
         goto exit;
     }
     if(amxd_object_get_type(obj) == amxd_object_instance) {

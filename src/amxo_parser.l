@@ -470,6 +470,9 @@ write                     { yylval->integer = action_write;
 regexp                    { yylval->integer = token_keyword;
                             return REGEXP;
                           }
+userflags                 { yylval->integer = token_keyword;
+                            return FLAGS;
+                          }
 
 [[:digit:]]+              { char *endptr = NULL;
                             yylval->integer = strtoll(yytext, &endptr, 0);; 
@@ -484,8 +487,6 @@ regexp                    { yylval->integer = token_keyword;
                             yylval->cptr.length = yyleng;
                             return STRING;
                           }
-
-
 
 \n|.                      { return yytext[0]; }
 

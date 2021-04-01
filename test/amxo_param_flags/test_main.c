@@ -63,18 +63,12 @@
 #include <stdarg.h>
 #include <cmocka.h>
 
-#include "test_include.h"
+#include "test_param_flags.h"
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_can_include_empty_file),
-        cmocka_unit_test(test_can_include_between_sections),
-        cmocka_unit_test(test_none_existing_include_file),
-        cmocka_unit_test(test_none_existing_optional_include_file),
-        cmocka_unit_test(test_recursive_include_detection),
-        cmocka_unit_test(test_include_absolute_path),
-        cmocka_unit_test(test_post_include),
-        cmocka_unit_test(test_can_include_directory),
+        cmocka_unit_test(test_flags_are_set),
+        cmocka_unit_test(test_populate_can_change_flags),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -133,6 +133,7 @@
 %token <bitmap>  SET_ATTRIBUTE
 %token <bitmap>  UNSET_ATTRIBUTE
 %token <integer> REGEXP
+%token <integer> FLAGS
 
 %token <integer> CONSTRAINT
 %token <integer> MIN
@@ -147,7 +148,7 @@
 %type <integer> define object_def object_def_header multi object_body object_content
 %type <integer> parameter_def counted event_def
 %type <integer> function_def arguments argument_def add_mib
-%type <integer> object_pop_header object_pop_body object_pop_content parameter
+%type <integer> object_pop_header object_pop_body object_pop_content param_pop_head parameter
 %type <action> action_header deprecated_action
 %type <integer> action dep_action
 %type <bitmap>  attributes unset_attributes
@@ -540,7 +541,10 @@ param_content
                        amxd_param_get_name(parser_ctx->param),
                        amxc_var_clean(&$2));
       amxc_var_clean(&$2);
-  }
+    }
+  | FLAGS flags ';' {
+      YY_CHECK(!amxo_parser_set_param_flags(parser_ctx), "Parameter flags");
+    }
   ;
 
 action
@@ -972,9 +976,21 @@ object_pop_body
   ;
 
 object_pop_content
-  : parameter {
+  : param_pop_head ';' {
       amxo_parser_pop_param(parser_ctx); 
     }
+  | param_pop_head '{' '}'  {
+      amxo_parser_pop_param(parser_ctx); 
+    }
+  | param_pop_head '{' param_pop_body '}'  {
+      amxo_parser_pop_param(parser_ctx); 
+    }
+  | object_populate
+  | add_mib
+  ;
+
+param_pop_head
+  : parameter
   | unset_attributes attributes parameter {
         if (parser_ctx->param != NULL) {
             YY_CHECK(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
@@ -986,7 +1002,6 @@ object_pop_content
             YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $2, true),
                       amxd_param_get_name(parser_ctx->param));
       }
-      amxo_parser_pop_param(parser_ctx); 
     }
   | attributes unset_attributes parameter {
       if (parser_ctx->param != NULL) {
@@ -999,7 +1014,6 @@ object_pop_content
           YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $2, false),
                     amxd_param_get_name(parser_ctx->param));
       }
-      amxo_parser_pop_param(parser_ctx); 
     }
   | unset_attributes parameter {
       if (parser_ctx->param != NULL) {
@@ -1008,7 +1022,6 @@ object_pop_content
           YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $1, false),
                     amxd_param_get_name(parser_ctx->param));
       }
-      amxo_parser_pop_param(parser_ctx); 
     }
   | attributes parameter {
       if (parser_ctx->param != NULL) {
@@ -1017,25 +1030,28 @@ object_pop_content
           YY_CHECK(!amxo_parser_set_param_attrs(parser_ctx, $1, true),
                     amxd_param_get_name(parser_ctx->param));
       }
-      amxo_parser_pop_param(parser_ctx); 
     }
-  | object_populate
-  | add_mib
   ;
 
 parameter
-  : PARAMETER name '=' value ';' {
+  : PARAMETER name '=' value {
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_set_param(parser_ctx, $2.txt, &$4);
       YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_clean(&$4));
       YY_WARNING(retval > 0, $2.txt);
       amxc_var_clean(&$4);
     }
-  | PARAMETER name ';' {
+  | PARAMETER name {
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_set_param(parser_ctx, $2.txt, NULL);
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
+    }
+  ;
+
+param_pop_body
+  : FLAGS flags ';' {
+      YY_CHECK(!amxo_parser_set_param_flags(parser_ctx), "Parameter flags");
     }
   ;
 
@@ -1133,6 +1149,34 @@ value
       amxc_var_init(&$$);
       amxc_var_set(bool, &$$, $1);
     }
+  ;
+
+flags
+  : flags ',' flag
+  | flag
+  ;
+
+flag
+  : '%' STRING {
+      $2.txt[$2.length] = 0;
+      amxc_var_t flag;
+      amxc_var_init(&flag);
+      amxc_var_set(bool, &flag, true);
+      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $2.txt, &flag),
+                       $2.txt,
+                       amxc_var_clean(&flag));
+      amxc_var_clean(&flag);
+    }
+  | '!' STRING {
+      $2.txt[$2.length] = 0;
+      amxc_var_t flag;
+      amxc_var_init(&flag);
+      amxc_var_set(bool, &flag, false);
+      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $2.txt, &flag),
+                       $2.txt,
+                       amxc_var_clean(&flag));
+      amxc_var_clean(&flag);
+  }
   ;
 
 %%

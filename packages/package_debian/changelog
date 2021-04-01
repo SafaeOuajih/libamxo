@@ -1,3 +1,26 @@
+libamxo (0.8.1) unstable; urgency=medium
+
+  * Make it possible to call entry-points in reverse order
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 31 Mar 2021 13:58:37 +0000
+
+libamxo (0.8.0) unstable; urgency=medium
+
+  * Add amxo_parser_load_mib function
+  * Always save persistent instance regardless of template object attributes
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Mon, 29 Mar 2021 17:35:54 +0000
+
+libamxo (0.7.2) unstable; urgency=medium
+
+  * Rename keyword flags to userflags
+  * Clean-up resolvers after reading odl files
+  * it must be possible to include a directory
+  * It must be possible to add and remove flags to parameters in odl files
+  * Send dm:instance-added events when creating instances from odl file
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Fri, 26 Mar 2021 23:31:30 +0000
+
 libamxo (0.7.1) unstable; urgency=medium
 
   * Step-up versions of libamxc, libamxp and libamxd for CI

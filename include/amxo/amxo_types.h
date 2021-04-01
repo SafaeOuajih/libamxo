@@ -259,6 +259,7 @@ struct _amxo_parser {
     uint32_t line;
 
     amxc_htable_t mibs;
+    amxc_lstack_t event_stack;    /**< */
 };
 
 #ifdef __cplusplus

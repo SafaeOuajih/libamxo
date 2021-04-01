@@ -1,0 +1,7 @@
+%populate {
+    object MainObject.InstanceObject {
+        instance add(0, "") {
+            parameter Text = "instance-2";
+        }
+    }
+}

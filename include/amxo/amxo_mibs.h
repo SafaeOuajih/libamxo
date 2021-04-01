@@ -129,6 +129,9 @@ int amxo_parser_scan_mib_dir(amxo_parser_t* parser,
 int amxo_parser_scan_mib_dirs(amxo_parser_t* parser,
                               amxc_var_t* dirs);
 
+int amxo_parser_load_mib(amxo_parser_t* parser,
+                         amxd_dm_t* dm,
+                         const char* mib_name);
 /**
    @ingroup amxo_parser_mibs
    @brief

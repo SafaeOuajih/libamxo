@@ -269,19 +269,15 @@ exit:
     return retval;
 }
 
-int amxo_parser_apply_mib(amxo_parser_t* parser,
-                          amxd_object_t* object,
-                          const char* mib_name) {
+int amxo_parser_load_mib(amxo_parser_t* parser,
+                         amxd_dm_t* dm,
+                         const char* mib_name) {
     int retval = -1;
     amxd_status_t status = amxd_status_ok;
     amxd_object_t* mib = NULL;
-    amxd_dm_t* dm = NULL;
 
     when_null(parser, exit);
-    when_null(object, exit);
     when_str_empty(mib_name, exit);
-
-    dm = amxd_object_get_dm(object);
     when_null(dm, exit);
 
     mib = amxd_dm_get_mib(dm, mib_name);
@@ -295,6 +291,30 @@ int amxo_parser_apply_mib(amxo_parser_t* parser,
                                         amxd_dm_get_root(dm));
         when_true(retval != 0, exit);
     }
+
+    retval = status == amxd_status_ok ? 0 : -1;
+
+exit:
+    return retval;
+
+}
+
+int amxo_parser_apply_mib(amxo_parser_t* parser,
+                          amxd_object_t* object,
+                          const char* mib_name) {
+    int retval = -1;
+    amxd_status_t status = amxd_status_ok;
+    amxd_dm_t* dm = NULL;
+
+    when_null(parser, exit);
+    when_null(object, exit);
+    when_str_empty(mib_name, exit);
+
+    dm = amxd_object_get_dm(object);
+    when_null(dm, exit);
+
+    retval = amxo_parser_load_mib(parser, dm, mib_name);
+    when_failed(retval, exit);
 
     status = amxd_object_add_mib(object, mib_name);
     retval = status == amxd_status_ok ? 0 : -1;

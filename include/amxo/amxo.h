@@ -546,6 +546,9 @@ int amxo_parser_add_entry_point(amxo_parser_t* parser,
    If one of the entry points returns a failure (not 0), the other entry points
    are still called.
 
+   If all entry points are executed successfull and post-include files are available
+   these will be loaded as well.
+
    @param parser the odl parser instance
    @param dm pointer to the data model
    @param reason a reason identifier
@@ -559,6 +562,38 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
                                     amxd_dm_t* dm,
                                     int reason);
 
+/**
+   @ingroup amxo_parser
+   @brief
+   Invokes all registered entry points in revered order.
+
+   In an odl file entry-points can be defined.  Any application or library can
+   register extra entry-points using @ref amxo_parser_add_entry_point.
+
+   It is up to the application to invoke these entry-point functions, the parser
+   itself will not call them at any time.
+
+   Provide a well defined reason identifier when invoking the entry point
+   functions. The ODL parser library defines two reasons:
+
+   - AMXO_START
+   - AMXO_END
+
+   If one of the entry points returns a failure (not 0), the other entry points
+   are still called.
+
+   @param parser the odl parser instance
+   @param dm pointer to the data model
+   @param reason a reason identifier
+
+   @return
+   Returns 0 when success.
+   A possitive number indicates the number of failed entry points.
+   A negative number indicates failre on the parser side.
+ */
+int amxo_parser_rinvoke_entry_points(amxo_parser_t* parser,
+                                     amxd_dm_t* dm,
+                                     int reason);
 /**
    @defgroup amxo_parser_config ODL Parser Configuration Options
    @ingroup amxo_parser

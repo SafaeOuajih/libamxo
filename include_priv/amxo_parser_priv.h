@@ -140,6 +140,8 @@ typedef struct _amxo_res_data {
     amxc_htable_t data;
 } amxo_res_data_t;
 
+void AMXO_PRIVATE amxo_parser_free_event(amxc_llist_it_t* it);
+
 void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char* key,
                                     amxc_htable_it_t* it);
 
@@ -169,14 +171,10 @@ int AMXO_PRIVATE amxo_parser_set_config_internal(amxo_parser_t* parser,
                                                  const char* name,
                                                  amxc_var_t* value);
 
-bool AMXO_PRIVATE amxo_parser_file_exists(const char* dir,
-                                          const char* file_path,
-                                          char** full_path);
-
-bool AMXO_PRIVATE amxo_parser_find_file(amxo_parser_t* parser,
-                                        const amxc_llist_t* dirs,
-                                        const char* file_path,
-                                        char** full_path);
+bool AMXO_PRIVATE amxo_parser_find(amxo_parser_t* parser,
+                                   const amxc_llist_t* dirs,
+                                   const char* file_path,
+                                   char** full_path);
 
 bool AMXO_PRIVATE amxo_parser_check_attr(amxo_parser_t* pctx,
                                          int64_t attributes,
@@ -185,6 +183,7 @@ bool AMXO_PRIVATE amxo_parser_check_attr(amxo_parser_t* pctx,
 bool AMXO_PRIVATE amxo_parser_set_param_attrs(amxo_parser_t* pctx,
                                               uint64_t attr,
                                               bool enable);
+bool AMXO_PRIVATE amxo_parser_set_param_flags(amxo_parser_t* pctx);
 
 bool AMXO_PRIVATE amxo_parser_set_object_attrs(amxo_parser_t* pctx,
                                                uint64_t attr,
@@ -250,6 +249,9 @@ amxc_htable_t* AMXO_PRIVATE amxo_parser_get_resolvers(void);
 int AMXO_PRIVATE amxo_parser_resolve_internal(amxo_parser_t* parser,
                                               const char* fn_name,
                                               const char* data);
+
+void AMXO_PRIVATE amxo_resolver_import_clean(amxo_parser_t* parser,
+                                             AMXO_UNUSED void* priv);
 
 int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
                                      const char* resolver_name,

@@ -58,23 +58,10 @@
 **
 ****************************************************************************/
 
-#include <stdlib.h>
-#include <setjmp.h>
-#include <stdarg.h>
-#include <cmocka.h>
+#ifndef __TEST_PARAM_FLAGS_H__
+#define __TEST_PARAM_FLAGS_H__
 
-#include "test_include.h"
+void test_flags_are_set(void** state);
+void test_populate_can_change_flags(void** state);
 
-int main(void) {
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_can_include_empty_file),
-        cmocka_unit_test(test_can_include_between_sections),
-        cmocka_unit_test(test_none_existing_include_file),
-        cmocka_unit_test(test_none_existing_optional_include_file),
-        cmocka_unit_test(test_recursive_include_detection),
-        cmocka_unit_test(test_include_absolute_path),
-        cmocka_unit_test(test_post_include),
-        cmocka_unit_test(test_can_include_directory),
-    };
-    return cmocka_run_group_tests(tests, NULL, NULL);
-}
+#endif // __TEST_PARAM_FLAGS_H__

@@ -181,6 +181,7 @@ void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     amxc_rbuffer_init(&parser->rbuffer, 0);
     amxc_string_init(&parser->msg, 0);
     amxc_astack_init(&parser->object_stack);
+    amxc_lstack_init(&parser->event_stack);
     amxc_var_init(&parser->config);
     amxc_llist_init(&parser->global_config);
     amxc_htable_init(&parser->mibs, 5);
@@ -223,6 +224,7 @@ void amxo_parser_clean(amxo_parser_t* parser) {
     amxc_rbuffer_clean(&parser->rbuffer);
     amxc_string_clean(&parser->msg);
     amxc_astack_clean(&parser->object_stack, NULL);
+    amxc_lstack_clean(&parser->event_stack, amxo_parser_free_event);
     amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
 
     amxo_parser_clean_resolvers(parser);
@@ -289,6 +291,8 @@ int amxo_parser_parse_fd(amxo_parser_t* parser,
     amxo_hooks_start(parser);
     retval = amxo_parser_parse_fd_internal(parser, fd, object);
     amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
+    amxo_resolver_import_clean(parser, NULL);
+
     amxo_hooks_end(parser);
 
 exit:
@@ -325,6 +329,8 @@ int amxo_parser_parse_file(amxo_parser_t* parser,
                                          real_path == NULL ? file_path : real_path,
                                          object);
     amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
+    amxo_resolver_import_clean(parser, NULL);
+
     amxo_hooks_end(parser);
 
     if(real_path != NULL) {
@@ -472,6 +478,30 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
             fail_count++;
         }
         amxc_var_delete(&var);
+    }
+
+    retval = fail_count;
+
+exit:
+    return retval;
+}
+
+int amxo_parser_rinvoke_entry_points(amxo_parser_t* parser,
+                                     amxd_dm_t* dm,
+                                     int reason) {
+    int retval = -1;
+    int fail_count = 0;
+    when_null(parser, exit);
+    when_null(dm, exit);
+
+    if(parser->entry_points != NULL) {
+        amxc_llist_for_each_reverse(it, parser->entry_points) {
+            amxo_entry_t* ep = amxc_llist_it_get_data(it, amxo_entry_t, it);
+            retval = ep->entry_point(reason, dm, parser);
+            if(retval != 0) {
+                fail_count++;
+            }
+        }
     }
 
     retval = fail_count;

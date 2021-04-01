@@ -88,7 +88,9 @@
 
 #define UNUSED __attribute__((unused))
 
-uint32_t event_counter = 0;
+static uint32_t event_counter = 0;
+static uint32_t instance_add_counter = 0;
+static uint32_t object_changed_counter = 0;
 
 static void _print_event(const char* const sig_name,
                          const amxc_var_t* const data,
@@ -97,6 +99,24 @@ static void _print_event(const char* const sig_name,
     printf("Event received %s\n", sig_name);
     amxc_var_dump(data, STDOUT_FILENO);
     event_counter++;
+}
+
+static void _instance_added(const char* const sig_name,
+                            const amxc_var_t* const data,
+                            UNUSED void* const priv) {
+
+    printf("Event received %s\n", sig_name);
+    amxc_var_dump(data, STDOUT_FILENO);
+    instance_add_counter++;
+}
+
+static void _object_changed(const char* const sig_name,
+                            const amxc_var_t* const data,
+                            UNUSED void* const priv) {
+
+    printf("Event received %s\n", sig_name);
+    amxc_var_dump(data, STDOUT_FILENO);
+    object_changed_counter++;
 }
 
 void test_event_subscription(UNUSED void** state) {
@@ -360,6 +380,53 @@ void test_deprecated_subscription_warns_if_function_not_resolved(UNUSED void** s
 
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_populate_section_generates_events(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+
+    const char* odl =
+        "%define {"
+        "    object Test {"
+        "        object MiTest[] {"
+        "            string Text;"
+        "        }"
+        "    }"
+        "}"
+        "%populate {"
+        "    object Test.MiTest {"
+        "        instance add (0,\"welcome\") {"
+        "            parameter Text = \"1234\";"
+        "        }"
+        "    }"
+        "    object Test.MiTest.welcome {"
+        "        parameter Text = \"ABCD\";"
+        "    }"
+        "    on event \"*\" call print_event;"
+        "    on event \"dm:instance-added\" call instance_added;"
+        "    on event \"dm:object-changed\" call object_changed;"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxo_resolver_ftab_add(&parser, "instance_added", AMXO_FUNC(_instance_added));
+    amxo_resolver_ftab_add(&parser, "object_changed", AMXO_FUNC(_object_changed));
+    amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    event_counter = 0;
+    while(amxp_signal_read() == 0) {
+    }
+    assert_int_equal(event_counter, 4);
+    assert_int_equal(instance_add_counter, 1);
+    assert_int_equal(object_changed_counter, 1);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

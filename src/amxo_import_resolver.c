@@ -98,6 +98,7 @@ typedef union _fn_caster {
 } fn_caster_t;
 
 static amxc_htable_t import_libs;
+static bool dbg = false;
 
 static void amxo_import_lib_free(AMXO_UNUSED const char* key,
                                  amxc_htable_it_t* it) {
@@ -106,7 +107,6 @@ static void amxo_import_lib_free(AMXO_UNUSED const char* key,
     char* no_dlclose = getenv("AMXO_NO_DLCLOSE");
 
     if(no_dlclose == NULL) {
-        dlerror();
         dlclose(import->handle);
     }
     free(import);
@@ -168,8 +168,7 @@ static amxo_fn_ptr_t amxo_resolver_try(amxo_parser_t* parser,
                                        amxc_string_t* msg) {
     char* dl_error = NULL;
     fn_caster_t helper;
-    bool dbg = amxc_var_constcast(bool,
-                                  amxo_parser_get_config(parser, "import-dbg"));
+    dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
 
     helper.fn = NULL;
     dlerror();
@@ -391,27 +390,6 @@ static amxo_fn_ptr_t amxo_resolver_import(amxo_parser_t* parser,
     return fn;
 }
 
-static void amxo_resolver_import_clean(amxo_parser_t* parser,
-                                       AMXO_UNUSED void* priv) {
-    amxc_htable_t* import_data = NULL;
-    amxc_htable_it_t* it = NULL;
-    import_data = amxo_parser_get_resolver_data(parser, "import");
-
-    it = amxc_htable_take_first(import_data);
-    while(it) {
-        amxo_import_lib_t* import =
-            amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
-        const char* key = amxc_htable_it_get_key(it);
-        if(import->references != 0) {
-            amxc_htable_insert(&import_libs, key, it);
-        } else {
-            amxc_htable_it_clean(it, amxo_import_lib_free);
-        }
-        it = amxc_htable_take_first(import_data);
-    }
-    amxc_htable_clean(import_data, amxo_import_lib_free);
-}
-
 static bool amxo_resolver_import_alias_exists(amxc_htable_t* import_data,
                                               const char* alias) {
     bool retval = true;
@@ -438,16 +416,12 @@ static void* amxo_resolver_import_lib(amxo_parser_t* parser,
                                       const char* full_path,
                                       int flags) {
     void* handle = NULL;
-    bool dbg = amxc_var_constcast(bool,
-                                  amxo_parser_get_config(parser, "import-dbg"));
+    dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
 
     if((flags & (RTLD_LAZY | RTLD_NOW)) == 0) {
         flags |= RTLD_LAZY;
     }
     dlerror();
-    if(dbg) {
-        fprintf(stderr, "[IMPORT-DBG] - dlopen - %s\n", so_name);
-    }
     handle = dlopen(full_path, flags);
     if(handle == NULL) {
         char* error = dlerror();
@@ -455,6 +429,10 @@ static void* amxo_resolver_import_lib(amxo_parser_t* parser,
             fprintf(stderr, "[IMPORT-DBG] - failed to load %s - %s\n", so_name, error);
         }
         amxc_string_setf(&parser->msg, "Failed to load lib %s", error);
+    } else {
+        if(dbg) {
+            fprintf(stderr, "[IMPORT-DBG] - dlopen - %s (%p)\n", so_name, handle);
+        }
     }
 
     return handle;
@@ -468,7 +446,7 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
     void* handle = NULL;
     amxo_import_lib_t* import_lib = NULL;
     char* full_path = NULL;
-    bool dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
+    dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
     const amxc_llist_t* impdirs =
         amxc_var_constcast(amxc_llist_t, GET_OPTION(parser, "import-dirs"));
     amxc_htable_t* import_data = amxo_parser_claim_resolver_data(parser, "import");
@@ -494,7 +472,7 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
                      exit,
                      retval = 0);
 
-    if(!amxo_parser_find_file(parser, impdirs, so_name, &full_path)) {
+    if(!amxo_parser_find(parser, impdirs, so_name, &full_path)) {
         if(dbg) {
             fprintf(stderr, "[IMPORT-DBG] - file not found %s\n", so_name);
         }
@@ -520,6 +498,30 @@ exit:
         dlclose(handle);
     }
     return retval;
+}
+
+void amxo_resolver_import_clean(amxo_parser_t* parser,
+                                AMXO_UNUSED void* priv) {
+    amxc_htable_t* import_data = NULL;
+    amxc_htable_it_t* it = NULL;
+    import_data = amxo_parser_get_resolver_data(parser, "import");
+
+    it = amxc_htable_take_first(import_data);
+    while(it) {
+        amxo_import_lib_t* import =
+            amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
+        const char* key = amxc_htable_it_get_key(it);
+        if(dbg) {
+            fprintf(stderr, "[IMPORT-DBG] - symbols used of %s = %d\n", key, import->references);
+        }
+        if(import->references != 0) {
+            amxc_htable_insert(&import_libs, key, it);
+        } else {
+            amxc_htable_it_clean(it, amxo_import_lib_free);
+        }
+        it = amxc_htable_take_first(import_data);
+    }
+    amxc_htable_clean(import_data, amxo_import_lib_free);
 }
 
 void amxo_resolver_import_close_all(void) {

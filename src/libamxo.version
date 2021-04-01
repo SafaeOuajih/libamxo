@@ -1,7 +1,6 @@
 AMXO_1.0 { 
     global: 
-      amxo_*; yyparse;
+      amxo_*;
     local:
-      yy_*; yyget_*; yypop_*; yypush_*; yyget_*; yyset_*; yyalloc; yyerror; yyfree;
-      yylex*; yyrealloc; yyrestart; yywarning;
+      *yy*;
 };

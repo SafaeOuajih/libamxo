@@ -1,0 +1,9 @@
+%define {
+    object MainObject {
+        object InstanceObject[] {
+            string Text = "";
+        }
+    }
+}
+
+include "odl_dir";

@@ -2,6 +2,6 @@
 **/run_test
 libamxo-*.*
 libamxo_*.*
-tests/test_plugin/test_plugin.d
-tests/test_plugin/test_plugin.o
-tests/test_plugin/test_plugin.so
+test/test_plugin/test_plugin.d
+test/test_plugin/test_plugin.o
+test/test_plugin/test_plugin.so

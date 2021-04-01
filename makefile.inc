@@ -16,8 +16,8 @@ CAT = $(shell which cat)
 
 # the current version
 RAW_VERSION ?= $(if $(shell git describe --tags 2> /dev/null),$(shell git describe --tags),$(VERSION_PREFIX)v0.0.0)
-VERSION = $(subst $(VERSION_PREFIX)v,,$(strip $(RAW_VERSION)))
-VERSION_PARTS = $(subst ., ,$(VERSION))
+VERSION = $(if $(findstring .,$(RAW_VERSION)),$(subst $(VERSION_PREFIX)v,,$(strip $(RAW_VERSION))),$(strip $(RAW_VERSION)))
+VERSION_PARTS = $(if $(findstring .,$(RAW_VERSION)),$(subst ., ,$(VERSION)),0 0 0)
 VMAJOR = $(word 1,$(VERSION_PARTS))
 VMINOR = $(word 2,$(VERSION_PARTS))
 VBUILD_FULL = $(word 3,$(VERSION_PARTS))

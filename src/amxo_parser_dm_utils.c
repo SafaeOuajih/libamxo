@@ -83,6 +83,7 @@
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
 #include <amxd/amxd_object_expression.h>
+#include <amxd/amxd_object_event.h>
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
@@ -90,6 +91,18 @@
 #include "amxo_parser_priv.h"
 #include "amxo_parser.tab.h"
 #include "amxo_parser_hooks_priv.h"
+
+typedef enum _event_id {
+    event_none,
+    event_instance_add,
+    event_object_change
+} event_id_t;
+
+typedef struct _event {
+    event_id_t id;
+    amxc_var_t data;
+    amxc_llist_it_t it;
+} event_t;
 
 static amxd_action_t object_actions[] = {
     action_object_read,      // action_read,
@@ -112,6 +125,55 @@ static amxd_action_t param_actions[] = {
     action_invalid,         // action_del_inst
     action_param_destroy    // action_destroy
 };
+
+static void amxo_parser_push_event(amxo_parser_t* pctx,
+                                   event_id_t event) {
+    event_t* e = (event_t*) calloc(1, sizeof(event_t));
+    e->id = event;
+    amxc_var_init(&e->data);
+
+    amxc_lstack_push(&pctx->event_stack, &e->it);
+}
+
+static void amxo_parser_set_event(amxo_parser_t* pctx,
+                                  event_id_t event) {
+    amxc_lstack_it_t* it = amxc_lstack_peek(&pctx->event_stack);
+    event_t* e = amxc_container_of(it, event_t, it);
+    e->id = event;
+}
+
+static void amxo_parser_data_event(amxo_parser_t* pctx,
+                                   amxd_param_t* param) {
+    amxc_lstack_it_t* it = amxc_lstack_peek(&pctx->event_stack);
+    event_t* e = amxc_container_of(it, event_t, it);
+    amxc_var_t* value = NULL;
+
+    when_true(e->id != event_object_change, exit);
+    if(amxc_var_type_of(&e->data) != AMXC_VAR_ID_HTABLE) {
+        amxc_var_set_type(&e->data, AMXC_VAR_ID_HTABLE);
+    }
+    value = GET_ARG(&e->data, amxd_param_get_name(param));
+    when_not_null(value, exit);
+
+    amxc_var_set_key(&e->data, amxd_param_get_name(param), &param->value, AMXC_VAR_FLAG_COPY);
+
+exit:
+    return;
+}
+
+static void amxo_parser_pop_event(amxo_parser_t* pctx, amxd_object_t* object) {
+    amxc_lstack_it_t* it = amxc_lstack_pop(&pctx->event_stack);
+    event_t* e = amxc_container_of(it, event_t, it);
+
+    if(e->id == event_instance_add) {
+        amxd_object_send_add_inst(object, false);
+    } else if(e->id == event_object_change) {
+        amxd_object_send_changed(object, &e->data, false);
+    }
+
+    amxc_var_clean(&e->data);
+    free(e);
+}
 
 static bool amxo_parser_check_config(amxo_parser_t* pctx,
                                      const char* path,
@@ -474,6 +536,12 @@ static amxd_object_t* amxd_parser_add_instance_msg(amxo_parser_t* pctx,
     return object;
 }
 
+void amxo_parser_free_event(amxc_llist_it_t* it) {
+    event_t* e = amxc_container_of(it, event_t, it);
+    amxc_var_clean(&e->data);
+    free(e);
+}
+
 bool amxo_parser_check_attr(amxo_parser_t* pctx,
                             int64_t attributes,
                             int64_t bitmask) {
@@ -492,6 +560,29 @@ bool amxo_parser_check_attr(amxo_parser_t* pctx,
 bool amxo_parser_set_param_attrs(amxo_parser_t* pctx, uint64_t attr, bool enable) {
     int64_t pattrs = amxo_attr_2_param_attr(attr);
     amxd_param_set_attrs(pctx->param, pattrs, enable);
+    return true;
+}
+
+bool amxo_parser_set_param_flags(amxo_parser_t* pctx) {
+    const amxc_htable_t* ht_flags = NULL;
+
+    when_null(pctx->data, exit);
+    when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_HTABLE, exit);
+
+    ht_flags = amxc_var_constcast(amxc_htable_t, pctx->data);
+    amxc_htable_for_each(it, ht_flags) {
+        const char* flag_name = amxc_htable_it_get_key(it);
+        amxc_var_t* flag = amxc_var_from_htable_it(it);
+        if(amxc_var_dyncast(bool, flag)) {
+            amxd_param_set_flag(pctx->param, flag_name);
+        } else {
+            amxd_param_unset_flag(pctx->param, flag_name);
+        }
+    }
+
+    amxc_var_delete(&pctx->data);
+
+exit:
     return true;
 }
 
@@ -535,6 +626,7 @@ int amxo_parser_create_object(amxo_parser_t* pctx,
     amxo_hooks_create_object(pctx, name, oattrs, type);
 
     amxc_astack_push(&pctx->object_stack, pctx->object);
+    amxo_parser_push_event(pctx, event_none);
     pctx->object = object;
     retval = 0;
 
@@ -571,6 +663,7 @@ bool amxo_parser_add_instance(amxo_parser_t* pctx,
     when_failed(pctx->status, exit);
     amxo_hooks_add_instance(pctx, index, name);
     amxc_astack_push(&pctx->object_stack, pctx->object);
+    amxo_parser_push_event(pctx, event_instance_add);
     pctx->object = object;
     retval = true;
 
@@ -600,6 +693,7 @@ bool amxo_parser_push_object(amxo_parser_t* pctx,
     amxo_hooks_select_object(pctx, path);
 
     amxc_astack_push(&pctx->object_stack, pctx->object);
+    amxo_parser_push_event(pctx, event_object_change);
     pctx->object = object;
     retval = true;
 
@@ -611,7 +705,6 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     bool retval = false;
     amxd_object_type_t type = amxd_object_get_type(pctx->object);
     const char* type_name = (type == amxd_object_mib) ? "mib" : "object";
-    amxd_object_t* object = NULL;
     pctx->status = amxd_object_validate(pctx->object, 0);
 
     if(pctx->status != amxd_status_ok) {
@@ -622,8 +715,8 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     }
     amxo_hooks_end_object(pctx);
 
-    object = (amxd_object_t*) amxc_astack_pop(&pctx->object_stack);
-    pctx->object = object;
+    amxo_parser_pop_event(pctx, pctx->object);
+    pctx->object = (amxd_object_t*) amxc_astack_pop(&pctx->object_stack);
 
     retval = true;
 
@@ -640,6 +733,8 @@ bool amxo_parser_push_param(amxo_parser_t* pctx,
     bool retval = false;
     amxc_string_t res_name;
     amxc_string_init(&res_name, 0);
+
+    amxo_parser_set_event(pctx, event_none);
 
     if(amxc_string_set_resolved(&res_name, name, &pctx->config) > 0) {
         name = amxc_string_get(&res_name, 0);
@@ -720,6 +815,9 @@ int amxo_parser_set_param(amxo_parser_t* pctx,
             pctx->status = amxd_status_parameter_not_found;
             goto exit;
         }
+    }
+    if(param != NULL) {
+        amxo_parser_data_event(pctx, param);
     }
     retval = amxo_parser_set_param_value(pctx, parent_path, name, param, value);
 
@@ -1013,6 +1111,11 @@ bool amxo_parser_add_mib(amxo_parser_t* pctx,
     if(mib == NULL) {
         amxo_parser_msg(pctx, "MIB %s is not found", mib_name);
         pctx->status = amxd_status_object_not_found;
+        goto exit;
+    }
+
+    if(amxd_object_has_mib(pctx->object, mib_name)) {
+        retval = true;
         goto exit;
     }
 
