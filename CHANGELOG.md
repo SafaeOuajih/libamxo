@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 1.0.0 - 2021-04-08(20:40:58 +0000)
+
+### Fixes
+
+- Loading empty directory must return 2 (not found
+- When including an empty directory the parser must fail
+- When saving an odl file all names must be quoted
+
+### Changes
+
+
+
 ## Release 0.8.1 - 2021-03-31(13:58:19 +0000)
 
 ### Changes
@@ -57,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-- Migrate to new licenses format (baf)
+
 
 ## Release 0.6.7 - 2021-02-14(08:19:12 +0000)
 
@@ -85,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New
 
-- Generate makefiles using build agnostic file (baf)
+
 
 ### Fixes
 
@@ -370,7 +382,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New 
 
 - Support for csv_string and ssv_string variant type
-- Copybara file
+
 
 ### Changes
 

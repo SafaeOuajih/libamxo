@@ -231,6 +231,7 @@ static int amxo_parser_include_file(amxo_parser_t* pctx,
 static int amxo_parser_include_dir(amxo_parser_t* pctx,
                                    const char* full_path) {
     int retval = -1;
+    int count = 0;
     struct dirent** namelist;
     amxc_string_t file;
     int n;
@@ -261,9 +262,15 @@ static int amxo_parser_include_dir(amxo_parser_t* pctx,
         }
         amxc_string_setf(&file, "%s/%s", full_path, namelist[i]->d_name);
         retval = amxo_parser_include_file(pctx, amxc_string_get(&file, 0));
+        count++;
         free(namelist[i]);
     }
 
+    if(count == 0) {
+        pctx->status = amxd_status_ok;
+        amxo_parser_msg(pctx, "Empty directory \"%s\"", full_path);
+        retval = 2;
+    }
     free(namelist);
 
 exit:

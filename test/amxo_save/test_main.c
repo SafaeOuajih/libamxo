@@ -77,6 +77,7 @@ int main(void) {
         cmocka_unit_test(test_save_can_append_config_values),
         cmocka_unit_test(test_can_save_object),
         cmocka_unit_test(test_can_save_instance),
+        cmocka_unit_test(test_can_save_load_objects_with_keyword_names),
         cmocka_unit_test(test_can_save_from_root),
         cmocka_unit_test(test_save_fails_if_file_can_not_be_opened),
         cmocka_unit_test(test_save_fails_if_append_to_none_existing_file),

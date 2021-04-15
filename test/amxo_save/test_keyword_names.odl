@@ -1,0 +1,15 @@
+%define {
+    %persistent object MainObject {
+        %persistent object InstanceObject[] {
+            %persistent string Text = "";
+        }
+    }
+}
+
+%populate {
+    object MainObject.InstanceObject {
+        instance add(0, "default") {
+            parameter Text = "default";
+        }
+    }
+}

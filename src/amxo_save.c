@@ -381,7 +381,7 @@ static int amxo_parser_instance_header(amxd_object_t* object,
 
     amxo_parser_writef(buffer, "instance add(%d", amxd_object_get_index(object));
     if(amxd_name_is_valid(inst_name)) {
-        amxo_parser_writef(buffer, ", %s", inst_name);
+        amxo_parser_writef(buffer, ", '%s'", inst_name);
     }
 
     amxc_var_init(&params);
@@ -396,7 +396,7 @@ static int amxo_parser_instance_header(amxd_object_t* object,
             if(!is_key_param) {
                 continue;
             }
-            amxo_parser_writef(buffer, ", %s = ", name);
+            amxo_parser_writef(buffer, ", '%s' = ", name);
             retval = amxo_parser_save_value(value, buffer);
             when_true(retval < 0, exit);
         }
@@ -427,7 +427,7 @@ static int amxo_parser_open_parent_tree(int fd,
         amxo_parser_instance_header(object, buffer);
     } else {
         amxo_parser_writef(buffer,
-                           "object %s {\n",
+                           "object '%s' {\n",
                            amxd_object_get_name(object, AMXD_OBJECT_NAMED));
     }
     retval = amxo_parser_flush_buffer(fd, buffer);
@@ -444,7 +444,7 @@ static int amxo_parser_save_mibs(int fd,
     amxc_array_it_t* it = amxc_array_get_first(&object->mib_names);
     while(it) {
         const char* name = (const char*) amxc_array_it_get_data(it);
-        amxo_parser_writef(buffer, "extend using mib %s;\n", name);
+        amxo_parser_writef(buffer, "extend using mib '%s';\n", name);
         retval = amxo_parser_flush_buffer(fd, buffer);
         when_true(retval < 0, exit);
         it = amxc_array_it_get_next(it);
@@ -510,7 +510,7 @@ static int amxo_parser_save_params(int fd,
             }
         }
 
-        amxo_parser_writef(buffer, "parameter %s = ", name);
+        amxo_parser_writef(buffer, "parameter '%s' = ", name);
         retval = amxo_parser_save_value(value, buffer);
         when_true(retval < 0, exit);
         if(!amxc_llist_is_empty(flags)) {
@@ -541,7 +541,7 @@ static int amxo_parser_save_leave(int fd,
         amxo_parser_instance_header(obj, buffer);
     } else {
         amxo_parser_writef(buffer,
-                           "object %s {\n",
+                           "object '%s' {\n",
                            amxd_object_get_name(obj, AMXD_OBJECT_NAMED));
 
     }

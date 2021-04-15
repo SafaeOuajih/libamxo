@@ -69,5 +69,6 @@ void test_recursive_include_detection(void** state);
 void test_include_absolute_path(void** state);
 void test_post_include(void** state);
 void test_can_include_directory(void** state);
+void test_empty_directory(void** state);
 
 #endif // __TEST_INCLUDE_H__

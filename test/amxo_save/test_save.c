@@ -393,6 +393,29 @@ void test_can_save_instance(UNUSED void** state) {
     amxd_dm_clean(&dm);
 }
 
+void test_can_save_load_objects_with_keyword_names(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxd_object_t* object = NULL;
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_keyword_names.odl", amxd_dm_get_root(&dm)), 0);
+    object = amxd_dm_findf(&dm, "MainObject");
+    assert_int_equal(amxo_parser_save_object(&parser, "test_save.odl", object, false), 0);
+    object = amxd_dm_findf(&dm, "MainObject.InstanceObject.1");
+    amxd_object_delete(&object);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_save.odl", amxd_dm_get_root(&dm)), 0);
+    object = amxd_dm_findf(&dm, "MainObject.InstanceObject.1");
+    assert_non_null(object);
+
+    unlink("test_save.odl");
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
 void test_save_fails_if_file_can_not_be_opened(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
