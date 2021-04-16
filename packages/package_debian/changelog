@@ -1,3 +1,15 @@
+libamxo (1.0.2) unstable; urgency=medium
+
+  *  remove fakeroot dependency on host to build WRT image 
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 15 Apr 2021 20:07:55 +0000
+
+libamxo (1.0.1) unstable; urgency=medium
+
+  * parsing multiple odl files with import causes a segmentation fault 
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 15 Apr 2021 10:57:27 +0000
+
 libamxo (1.0.0) unstable; urgency=medium
 
   * Loading empty directory must return 2 (not found

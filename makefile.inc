@@ -1,5 +1,5 @@
 # check pre-requisites
-EXECUTABLES = install strip ln tar $(CC) $(AR) fakeroot mkdir git echo cat
+EXECUTABLES = install strip ln tar $(CC) $(AR) mkdir git echo cat
 K := $(foreach exec,$(EXECUTABLES),\
         $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
 
@@ -8,7 +8,6 @@ INSTALL = $(shell which install)
 STRIP = $(shell which strip)
 LN = $(shell which ln)
 TAR = $(shell which tar)
-FAKEROOT = $(shell which fakeroot)
 MKDIR = $(shell which mkdir)
 GIT = $(shell which git)
 ECHO = $(shell which echo)

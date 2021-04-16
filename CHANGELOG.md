@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release 1.0.2 - 2021-04-15(20:07:54 +0000)
+
+### Changes
+
+-  remove fakeroot dependency on host to build WRT image 
+
+## Release 1.0.1 - 2021-04-15(10:57:27 +0000)
+
+### Fixes
+
+- parsing multiple odl files with import causes a segmentation fault 
+
 ## Release 1.0.0 - 2021-04-08(20:40:58 +0000)
 
 ### Fixes

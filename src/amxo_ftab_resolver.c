@@ -161,6 +161,7 @@ static void amxo_resolver_ftab_clean(amxo_parser_t* parser,
     amxc_htable_t* ftab_data = NULL;
     ftab_data = amxo_parser_get_resolver_data(parser, "ftab");
     amxc_htable_clean(ftab_data, amxo_ftab_fn_free);
+    amxo_parser_remove_resolver_data(parser, "ftab");
 }
 
 static bool amxo_ftab_func_name_is_valid(const char* name) {

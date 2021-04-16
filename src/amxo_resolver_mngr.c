@@ -130,15 +130,12 @@ void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser) {
     hit_data = amxc_htable_get_first(parser->resolvers);
     while(hit_data) {
         const char* key = amxc_htable_it_get_key(hit_data);
-        amxo_res_data_t* data = amxc_htable_it_get_data(hit_data, amxo_res_data_t, hit);
         amxo_resolver_t* resolver = NULL;
         hit_resolver = amxc_htable_get(&resolvers, key);
         resolver = amxc_htable_it_get_data(hit_resolver, amxo_resolver_t, hit);
         if(resolver->clean != NULL) {
             resolver->clean(parser, resolver->priv);
         }
-        amxc_htable_it_clean(hit_data, NULL);
-        free(data);
         hit_data = amxc_htable_get_first(parser->resolvers);
     }
 
@@ -235,6 +232,26 @@ amxc_htable_t* amxo_parser_get_resolver_data(amxo_parser_t* parser,
 
 exit:
     return data_table;
+}
+
+void amxo_parser_remove_resolver_data(amxo_parser_t* parser,
+                                      const char* resolver_name) {
+    amxo_res_data_t* resolver_data = NULL;
+    amxc_htable_it_t* it = NULL;
+    when_null(parser, exit);
+    when_str_empty(resolver_name, exit);
+    when_null(parser->resolvers, exit);
+    when_null(amxc_htable_get(&resolvers, resolver_name), exit);
+
+    it = amxc_htable_get(parser->resolvers, resolver_name);
+    when_null(it, exit);
+    resolver_data = amxc_htable_it_get_data(it, amxo_res_data_t, hit);
+    amxc_htable_it_take(&resolver_data->hit);
+    amxc_htable_it_clean(&resolver_data->hit, NULL);
+    free(resolver_data);
+
+exit:
+    return;
 }
 
 AMXO_CONSTRUCTOR(101) static void amxo_resolvers_init(void) {

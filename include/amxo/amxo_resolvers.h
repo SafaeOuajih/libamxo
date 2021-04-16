@@ -304,6 +304,20 @@ amxc_htable_t* amxo_parser_get_resolver_data(amxo_parser_t* parser,
 
 /**
    @ingroup amxo_resolver
+   @brief
+   Removes the resolver specific parser data.
+
+   Removes the resolver specific data. If the resolver allocated memory for the
+   resolver specific data it is the responsibility of the resolver to free
+   the allocated memory for the data before removing it from the parser context
+
+   @param parser the odl parser instance
+   @param resolver_name name of the resolver
+ */
+void amxo_parser_remove_resolver_data(amxo_parser_t* parser,
+                                      const char* resolver_name);
+/**
+   @ingroup amxo_resolver
    @defgroup amxo_resolver_ftab Function Table Resolver API
  */
 

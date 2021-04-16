@@ -522,6 +522,7 @@ void amxo_resolver_import_clean(amxo_parser_t* parser,
         it = amxc_htable_take_first(import_data);
     }
     amxc_htable_clean(import_data, amxo_import_lib_free);
+    amxo_parser_remove_resolver_data(parser, "import");
 }
 
 void amxo_resolver_import_close_all(void) {

@@ -1,6 +1,7 @@
 include ../../makefile.inc
 
 ALIEN = $(shell which alien)
+FAKEROOT = $(shell which fakeroot)
 
 NOW = $(shell date +"%a, %d %b %Y %H:%M:%S %z")
 PKGDIR = ../../output/$(MACHINE)/
