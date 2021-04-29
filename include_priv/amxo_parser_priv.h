@@ -220,6 +220,8 @@ int AMXO_PRIVATE amxo_parser_push_func(amxo_parser_t* pctx,
                                        int64_t attr_bitmask,
                                        uint32_t type);
 
+bool AMXO_PRIVATE amxo_parser_set_function_flags(amxo_parser_t* pctx);
+
 void AMXO_PRIVATE amxo_parser_pop_func(amxo_parser_t* pctx);
 
 bool AMXO_PRIVATE amxo_parser_add_arg(amxo_parser_t* pctx,
@@ -282,6 +284,8 @@ bool AMXO_PRIVATE amxo_parser_add_mib(amxo_parser_t* pctx,
                                       const char* mib_name);
 
 void AMXO_PRIVATE amxo_parser_connection_free(amxc_llist_it_t* it);
+
+bool AMXO_PRIVATE amxo_parser_no_resolve(amxo_parser_t* parser);
 
 #ifdef __cplusplus
 }

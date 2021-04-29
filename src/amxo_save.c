@@ -483,7 +483,7 @@ static int amxo_parser_save_params(int fd,
     amxc_var_t params;
     amxc_var_init(&params);
 
-    amxd_object_describe_params(object, &params, amxd_dm_access_public);
+    amxd_object_describe_params(object, &params, amxd_dm_access_private);
     ht_params = amxc_var_constcast(amxc_htable_t, &params);
 
     amxc_htable_for_each(it, ht_params) {

@@ -111,6 +111,17 @@ static char* amxo_parser_get_resolver_name(const char* data) {
     return name;
 }
 
+bool amxo_parser_no_resolve(amxo_parser_t* parser) {
+    amxc_var_t* var_resolve = GET_ARG(&parser->config, "odl-resolve");
+    bool resolve = true;
+
+    if(var_resolve != NULL) {
+        resolve = amxc_var_dyncast(bool, var_resolve);
+    }
+
+    return !resolve;
+}
+
 void amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) {
     amxc_string_reset(&parser->msg);
     va_list args;
@@ -142,6 +153,8 @@ int amxo_parser_resolve_internal(amxo_parser_t* pctx,
     int retval = -1;
     char* name = NULL;
     const char* res_data = NULL;
+
+    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
 
     if((data == NULL) || (data[0] == '\0')) {
         amxo_parser_msg(pctx, "Resolver name must be provide (is empty)");

@@ -701,36 +701,36 @@ deprecated_action
   ;
 
 function_def
-  : function_header '(' ')' ';' {
+  : function_header func_args ';' {
       const char *func_name = amxd_function_get_name(parser_ctx->func);
       int retval = amxo_parser_resolve_internal(parser_ctx, func_name, "auto");
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
     }
-  | function_header '(' arguments ')' ';' { 
+  | function_header func_args RESOLVER ';' {
+      if ($3.length != 0) {
+        $3.txt[$3.length] = 0;
+      }
+      const char *func_name = amxd_function_get_name(parser_ctx->func);
+      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $3.txt);
+      YY_CHECK(retval < 0, func_name);
+      YY_WARNING(retval > 0, func_name);
+      amxo_parser_pop_func(parser_ctx); 
+    }
+  | function_header func_args '{' func_body '}'  {
       const char *func_name = amxd_function_get_name(parser_ctx->func);
       int retval = amxo_parser_resolve_internal(parser_ctx, func_name, "auto");
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
-    } 
-  | function_header '(' ')' RESOLVER ';' {
-      if ($4.length != 0) {
-        $4.txt[$4.length] = 0;
-      }
-      const char *func_name = amxd_function_get_name(parser_ctx->func);
-      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $4.txt);
-      YY_CHECK(retval < 0, func_name);
-      YY_WARNING(retval > 0, func_name);
-      amxo_parser_pop_func(parser_ctx); 
     }
-  | function_header '(' arguments ')' RESOLVER';' { 
-      if ($5.length != 0) {
-        $5.txt[$5.length] = 0;
+  | function_header func_args RESOLVER '{' func_body '}' {
+      if ($3.length != 0) {
+        $3.txt[$3.length] = 0;
       }
       const char *func_name = amxd_function_get_name(parser_ctx->func);
-      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $5.txt);
+      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $3.txt);
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
@@ -753,9 +753,20 @@ function_header
     }
   ;
 
+func_args
+  : '(' ')'
+  | '(' arguments ')'
+  ;
+
 arguments
   : argument_def ',' arguments
   | argument_def
+  ;
+
+func_body
+  : FLAGS flags ';' {
+      YY_CHECK(!amxo_parser_set_function_flags(parser_ctx), "Function flags");
+    }
   ;
 
 argument_def

@@ -901,6 +901,29 @@ exit:
     return retval;
 }
 
+bool amxo_parser_set_function_flags(amxo_parser_t* pctx) {
+    const amxc_htable_t* ht_flags = NULL;
+
+    when_null(pctx->data, exit);
+    when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_HTABLE, exit);
+
+    ht_flags = amxc_var_constcast(amxc_htable_t, pctx->data);
+    amxc_htable_for_each(it, ht_flags) {
+        const char* flag_name = amxc_htable_it_get_key(it);
+        amxc_var_t* flag = amxc_var_from_htable_it(it);
+        if(amxc_var_dyncast(bool, flag)) {
+            amxd_function_set_flag(pctx->func, flag_name);
+        } else {
+            amxd_function_unset_flag(pctx->func, flag_name);
+        }
+    }
+
+    amxc_var_delete(&pctx->data);
+
+exit:
+    return true;
+}
+
 void amxo_parser_pop_func(amxo_parser_t* pctx) {
     amxo_hooks_end_func(pctx);
     amxd_object_fn_t fn = (amxd_object_fn_t) pctx->resolved_fn;
@@ -974,6 +997,8 @@ int amxo_parser_subscribe(amxo_parser_t* pctx,
     int retval = 1;
     amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
     amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
+
+    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
     when_null(dm, exit);
 
     if(pctx->resolved_fn == NULL) {
@@ -1013,6 +1038,8 @@ bool amxo_parser_subscribe_item(amxo_parser_t* pctx) {
     char* regexp_path = NULL;
     amxc_string_t expression;
     const char* event_pattern = NULL;
+
+    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = true);
     when_null(dm, exit);
 
     if(pctx->resolved_fn == NULL) {
@@ -1054,6 +1081,13 @@ int amxo_parser_set_action(amxo_parser_t* pctx,
 
     int retval = -1;
     pctx->status = amxd_status_ok;
+
+    if(amxo_parser_no_resolve(pctx)) {
+        retval = 0;
+        amxc_var_delete(&pctx->data);
+        goto exit;
+    }
+
     if(pctx->resolved_fn == NULL) {
         retval = 1;
         pctx->status = amxd_status_file_not_found;

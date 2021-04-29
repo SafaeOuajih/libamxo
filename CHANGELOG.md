@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.0.4 - 2021-04-23(18:44:40 +0000)
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
+## Release v1.0.3 - 2021-04-21(09:10:31 +0000)
+
+### Fixes
+
+- Save persistent protected and private parameters
+
+### Changes
+
+- Add configuration option to disable function resolving
+- It must be possible to add user flags to functions
+
 ## Release 1.0.2 - 2021-04-15(20:07:54 +0000)
 
 ### Changes
