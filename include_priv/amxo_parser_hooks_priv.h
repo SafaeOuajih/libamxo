@@ -66,6 +66,10 @@ extern "C"
 {
 #endif
 
+void AMXO_PRIVATE amxo_hooks_comment(amxo_parser_t* parser,
+                                     char* comment,
+                                     uint32_t len);
+
 void AMXO_PRIVATE amxo_hooks_start(amxo_parser_t* parser);
 
 void AMXO_PRIVATE amxo_hooks_end(amxo_parser_t* parser);
@@ -122,6 +126,9 @@ void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
                                           int64_t attr_bitmask,
                                           uint32_t type,
                                           amxc_var_t* def_value);
+
+void AMXO_PRIVATE amxo_hooks_add_mib(amxo_parser_t* parser,
+                                     const char* mib);
 
 #ifdef __cplusplus
 }

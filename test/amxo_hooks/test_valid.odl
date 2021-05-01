@@ -66,6 +66,8 @@
 include "test_include.odl";
 
 %define {
+    /* This is multi line comment and should be passed
+       to the comment hook*/
     object TestObjectRoot {
 
         object TestObjectSingelton;
@@ -73,7 +75,11 @@ include "test_include.odl";
         object TestObjectTemplate[];
         %read-only %persistent %private object TestObjTemplateAttr[];
 
+        /**
+         Documentation multi-line comment 
+         */
         object TestObjectParamTypes {
+            // single line comment
             string Param1;
             int32 Param2;
             int64 Param3;

@@ -40,12 +40,12 @@ endif
 LDFLAGS += $(STAGING_LIBDIR) -shared -fPIC -Wl,--version-script=libamxo.version -lamxc -lamxp -lamxd -ldl
 
 # targets
-all: $(TARGET_SO) $(TARGET_A)
+all: ../include_priv/amxo_version.h $(TARGET_SO) $(TARGET_A)
 
-$(TARGET_SO): $(OBJECTS)
+$(TARGET_SO): ../include_priv/amxo_version.h $(OBJECTS)
 	$(CC) -Wl,-soname,$(COMPONENT).so.$(VMAJOR) -o $@ $(OBJECTS) $(LDFLAGS)
 
-$(TARGET_A): $(OBJECTS)
+$(TARGET_A): ../include_priv/amxo_version.h $(OBJECTS)
 	$(AR) rcs $(@) $(OBJECTS)
 
 -include $(OBJECTS:.o=.d)
@@ -62,12 +62,16 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(OBJDIR)/amxo_parser.tab.h | $(OBJDIR)/
 	$(CC) $(CFLAGS) -c -o $@ $<
 	@$(CC) $(CFLAGS) -MM -MP -MT '$(@) $(@:.o=.d)' -MF $(@:.o=.d) $(<)
 
+../include_priv/amxo_version.h : ../include_priv/amxo_version.h.m4
+	@echo "Current library version = $(VMAJOR).$(VMINOR).$(VBUILD)"
+	m4 -DMAJOR=$(VMAJOR) -DMINOR=$(VMINOR) -DBUILD=$(VBUILD) $(<) > $(@)
+
 $(OBJDIR)/:
 	$(MKDIR) -p $@
 
 clean:
-	rm -rf ../output/ ../$(COMPONENT)-*.* ../$(COMPONENT)_*.*
+	rm -rf ../output/ ../$(COMPONENT)-*.* ../$(COMPONENT)_*.* ../include_priv/amxo_version.h
 	make -C ../test clean
 	find ../ -name "run_test" -delete
 
-.PHONY: all clean
+.PHONY: all clean ../include_priv/amxo_version.h

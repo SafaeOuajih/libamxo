@@ -88,6 +88,10 @@
 
 static amxc_aqueue_t expected_order;
 
+static void test_hook_comment(UNUSED amxo_parser_t* parser, const char* comment) {
+    printf("%s\n", comment);
+}
+
 static void test_hook_start(UNUSED amxo_parser_t* parser) {
     const char* check = amxc_aqueue_remove(&expected_order);
     assert_ptr_not_equal(check, NULL);
@@ -223,6 +227,7 @@ static void test_hook_add_func_arg(UNUSED amxo_parser_t* parser,
 static amxo_hooks_t test_hooks = {
     .start = test_hook_start,
     .end = test_hook_end,
+    .comment = test_hook_comment,
     .start_include = test_hook_start_include,
     .end_include = test_hook_end_include,
     .set_config = test_hook_set_config,

@@ -168,6 +168,7 @@ static amxo_fn_ptr_t amxo_resolver_try(amxo_parser_t* parser,
                                        amxc_string_t* msg) {
     char* dl_error = NULL;
     fn_caster_t helper;
+    bool silent = amxc_var_constcast(bool, GET_OPTION(parser, "silent"));
     dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
 
     helper.fn = NULL;
@@ -175,7 +176,7 @@ static amxo_fn_ptr_t amxo_resolver_try(amxo_parser_t* parser,
     helper.fn = dlsym(lib->handle, symbol);
     dl_error = dlerror();
     if(dl_error == NULL) {
-        if(dbg) {
+        if(dbg && !silent) {
             fprintf(stderr,
                     "[IMPORT-DBG] - symbol %s resolved (for %s) from %s\n",
                     symbol,
@@ -184,7 +185,7 @@ static amxo_fn_ptr_t amxo_resolver_try(amxo_parser_t* parser,
         }
         lib->references++;
     } else {
-        if(dbg) {
+        if(dbg && !silent) {
             amxc_string_appendf(msg,
                                 "[IMPORT-DBG] - resolving symbol %s (for %s) from %s failed - [%s]\n",
                                 symbol,
@@ -411,11 +412,23 @@ exit:
     return retval;
 }
 
+static bool amxo_parser_no_import(amxo_parser_t* parser) {
+    amxc_var_t* var_import = GET_OPTION(parser, "odl-import");
+    bool import = true;
+
+    if(var_import != NULL) {
+        import = amxc_var_dyncast(bool, var_import);
+    }
+
+    return !import;
+}
+
 static void* amxo_resolver_import_lib(amxo_parser_t* parser,
                                       const char* so_name,
                                       const char* full_path,
                                       int flags) {
     void* handle = NULL;
+    bool silent = amxc_var_constcast(bool, GET_OPTION(parser, "silent"));
     dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
 
     if((flags & (RTLD_LAZY | RTLD_NOW)) == 0) {
@@ -425,12 +438,12 @@ static void* amxo_resolver_import_lib(amxo_parser_t* parser,
     handle = dlopen(full_path, flags);
     if(handle == NULL) {
         char* error = dlerror();
-        if(dbg) {
+        if(dbg && !silent) {
             fprintf(stderr, "[IMPORT-DBG] - failed to load %s - %s\n", so_name, error);
         }
         amxc_string_setf(&parser->msg, "Failed to load lib %s", error);
     } else {
-        if(dbg) {
+        if(dbg && !silent) {
             fprintf(stderr, "[IMPORT-DBG] - dlopen - %s (%p)\n", so_name, handle);
         }
     }
@@ -446,7 +459,7 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
     void* handle = NULL;
     amxo_import_lib_t* import_lib = NULL;
     char* full_path = NULL;
-    dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
+    bool silent = amxc_var_constcast(bool, GET_OPTION(parser, "silent"));
     const amxc_llist_t* impdirs =
         amxc_var_constcast(amxc_llist_t, GET_OPTION(parser, "import-dirs"));
     amxc_htable_t* import_data = amxo_parser_claim_resolver_data(parser, "import");
@@ -455,12 +468,16 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
     amxc_string_init(&res_so_name, 0);
     amxc_string_init(&res_alias, 0);
 
+    dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
+
     when_null(parser, exit);
     parser->status = amxd_status_invalid_arg;
     when_str_empty(so_name, exit);
     when_true(alias != NULL && alias[0] == 0, exit);
 
     parser->status = amxd_status_ok;
+    when_true_status(amxo_parser_no_import(parser), exit, retval = 0);
+
     if(amxc_string_set_resolved(&res_alias, alias, &parser->config) > 0) {
         alias = amxc_string_get(&res_alias, 0);
     }
@@ -473,7 +490,7 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
                      retval = 0);
 
     if(!amxo_parser_find(parser, impdirs, so_name, &full_path)) {
-        if(dbg) {
+        if(dbg && !silent) {
             fprintf(stderr, "[IMPORT-DBG] - file not found %s\n", so_name);
         }
         parser->status = amxd_status_file_not_found;
@@ -504,6 +521,8 @@ void amxo_resolver_import_clean(amxo_parser_t* parser,
                                 AMXO_UNUSED void* priv) {
     amxc_htable_t* import_data = NULL;
     amxc_htable_it_t* it = NULL;
+    bool silent = amxc_var_constcast(bool, GET_OPTION(parser, "silent"));
+    dbg = amxc_var_constcast(bool, GET_OPTION(parser, "import-dbg"));
     import_data = amxo_parser_get_resolver_data(parser, "import");
 
     it = amxc_htable_take_first(import_data);
@@ -511,7 +530,7 @@ void amxo_resolver_import_clean(amxo_parser_t* parser,
         amxo_import_lib_t* import =
             amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
         const char* key = amxc_htable_it_get_key(it);
-        if(dbg) {
+        if(dbg && !silent) {
             fprintf(stderr, "[IMPORT-DBG] - symbols used of %s = %d\n", key, import->references);
         }
         if(import->references != 0) {

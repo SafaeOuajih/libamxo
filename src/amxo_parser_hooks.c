@@ -82,6 +82,16 @@
 #include "amxo_parser_hooks_priv.h"
 #include "amxo_parser.tab.h"
 
+void amxo_hooks_comment(amxo_parser_t* parser, char* comment, uint32_t len) {
+    comment[len] = 0;
+    amxc_llist_for_each(it, parser->hooks) {
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        if(hook->comment != NULL) {
+            hook->comment(parser, comment);
+        }
+    }
+}
+
 void amxo_hooks_start(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
         amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
@@ -265,6 +275,19 @@ void amxo_hooks_end_func(amxo_parser_t* parser) {
         }
     }
 }
+
+void amxo_hooks_add_mib(amxo_parser_t* parser,
+                        const char* mib) {
+    amxc_llist_for_each(it, parser->hooks) {
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        if(hook->add_mib != NULL) {
+            hook->add_mib(parser,
+                          parser->object,
+                          mib);
+        }
+    }
+}
+
 
 void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
                                           const char* name,

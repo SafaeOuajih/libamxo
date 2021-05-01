@@ -130,10 +130,13 @@ void amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) {
     va_end(args);
 }
 
-int amxo_parser_printf(const char* format, ...) {
+int amxo_parser_printf(amxo_parser_t* parser, const char* format, ...) {
+    bool silent = GET_BOOL(&parser->config, "silent");
     va_list args;
     va_start(args, format);
-    vfprintf(stderr, format, args);
+    if(!silent) {
+        vfprintf(stderr, format, args);
+    }
     va_end(args);
     return 0;
 }
@@ -199,6 +202,8 @@ int amxo_parser_call_entry_point(amxo_parser_t* pctx,
     amxc_string_init(&data, 0);
     amxc_string_setf(&data, "%s", lib_name);
 
+    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
+
     pctx->resolved_fn = NULL;
     retval = amxo_parser_resolve(pctx, "import", fn_name, amxc_string_get(&data, 0));
     if(retval == 1) {
@@ -214,6 +219,7 @@ int amxo_parser_call_entry_point(amxo_parser_t* pctx,
         retval = amxo_parser_add_entry_point(pctx, fn);
     }
 
+exit:
     amxc_string_clean(&data);
     return retval;
 }

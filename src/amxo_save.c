@@ -475,6 +475,30 @@ static int amxo_parser_save_param_flags(amxc_var_t* param,
     return retval;
 }
 
+static bool amxo_parser_must_save_param(amxd_object_t* object, amxc_var_t* param) {
+    bool is_templ_param = PARAM_ATTR(param, "attributes.template");
+    bool is_inst_param = PARAM_ATTR(param, "attributes.instance");
+    bool is_key_param = PARAM_ATTR(param, "attributes.key");
+    bool is_persist_param = PARAM_ATTR(param, "attributes.persistent");
+    bool must_save = true;
+
+    if(amxd_object_get_type(object) == amxd_object_template) {
+        if(is_key_param || !is_persist_param || !is_templ_param) {
+            must_save = false;
+        }
+    } else if(amxd_object_get_type(object) == amxd_object_instance) {
+        if(is_key_param || !is_persist_param || !is_inst_param) {
+            must_save = false;
+        }
+    } else {
+        if(!is_persist_param) {
+            must_save = false;
+        }
+    }
+
+    return must_save;
+}
+
 static int amxo_parser_save_params(int fd,
                                    amxd_object_t* object,
                                    amxc_string_t* buffer) {
@@ -491,23 +515,9 @@ static int amxo_parser_save_params(int fd,
         const char* name = PARAM_NAME(param);
         amxc_var_t* value = PARAM_VALUE(param);
         const amxc_llist_t* flags = PARAM_FLAGS(param);
-        bool is_templ_param = PARAM_ATTR(param, "attributes.template");
-        bool is_inst_param = PARAM_ATTR(param, "attributes.instance");
-        bool is_key_param = PARAM_ATTR(param, "attributes.key");
-        bool is_persist_param = PARAM_ATTR(param, "attributes.persistent");
 
-        if(amxd_object_get_type(object) == amxd_object_template) {
-            if(is_key_param || !is_persist_param || !is_templ_param) {
-                continue;
-            }
-        } else if(amxd_object_get_type(object) == amxd_object_instance) {
-            if(is_key_param || !is_persist_param || !is_inst_param) {
-                continue;
-            }
-        } else {
-            if(!is_persist_param) {
-                continue;
-            }
+        if(!amxo_parser_must_save_param(object, param)) {
+            continue;
         }
 
         amxo_parser_writef(buffer, "parameter '%s' = ", name);

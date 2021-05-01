@@ -125,8 +125,7 @@ NEWLINE  \r?\n
     [^*\n]*{NEWLINE}   { yymore(); }
     "*/"               { yylval->cptr.txt = yytext;
                          yylval->cptr.length = yyleng - 2;
-                         // yylval->cptr = calloc(1,yyleng+1);
-                         // memcpy(yylval->cptr ,yytext,yyleng-2);
+                         amxo_hooks_comment(yyextra, yylval->cptr.txt, yylval->cptr.length);
                          BEGIN(INITIAL);
                        }
 }
@@ -135,7 +134,10 @@ NEWLINE  \r?\n
 "//"                                   { BEGIN( SINGLE_LINE_COMMENT ); }
 <SINGLE_LINE_COMMENT>{NEWLINE}         { BEGIN(INITIAL); }
 <SINGLE_LINE_COMMENT>"*"               { }
-<SINGLE_LINE_COMMENT>[^*\n]+           { }
+<SINGLE_LINE_COMMENT>[^*\n]+           { yylval->cptr.txt = yytext;
+                                         yylval->cptr.length = yyleng;
+                                         amxo_hooks_comment(yyextra, yylval->cptr.txt, yylval->cptr.length);
+                                       }
 
 "'"                                   { BEGIN(LONG_TEXT_SQ); }
 <LONG_TEXT_SQ>{

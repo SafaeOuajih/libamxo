@@ -98,6 +98,19 @@ extern "C"
 /**
    @ingroup amxo_parser
    @brief
+   Returns the version of lib amxo
+
+   Returns the version of lib amxo in string format X.Y.Z, where X is the major,
+   Y is the minor and Z is the build number.
+
+   @return
+   a zero terminated string
+ */
+const char* amxo_lib_version(void);
+
+/**
+   @ingroup amxo_parser
+   @brief
    Initializes a new odl parser instance
 
    Before using an odl parser, it must be initialized.

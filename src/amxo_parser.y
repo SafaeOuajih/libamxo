@@ -166,27 +166,27 @@
         amxo_parser_t *context = (amxo_parser_t *)yyget_extra(scanner);
         if (context->status == amxd_status_ok) {
             if (!amxc_string_is_empty(&context->msg)) {
-                amxo_parser_printf("ERROR %s@%s:line %d\n", 
+                amxo_parser_printf(context, "ERROR  : %s@%s:line %d\n", 
                                    amxc_string_get(&context->msg, 0),
                                    context->file,
                                    locp->first_line);
                 amxc_string_reset(&context->msg);
             } else {
-                amxo_parser_printf("ERROR %s@%s:line %d\n", 
+                amxo_parser_printf(context, "ERROR  : %s@%s:line %d\n", 
                                    err,
                                    context->file,
                                    locp->first_line);
             }
         } else {
             if (!amxc_string_is_empty(&context->msg)) {
-                amxo_parser_printf("ERROR %d - %s@%s:line %d\n",
+                amxo_parser_printf(context, "ERROR  : %d - %s@%s:line %d\n",
                                    context->status,
                                    amxc_string_get(&context->msg, 0),
                                    context->file,
                                    locp->first_line);
                 amxc_string_reset(&context->msg);
             } else {
-                amxo_parser_printf("ERROR %d - %s - %s@%s:line %d\n",
+                amxo_parser_printf(context, "ERROR  : %d - %s - %s@%s:line %d\n",
                                    context->status,
                                    amxd_status_string(context->status),
                                    err,
@@ -199,13 +199,13 @@
     void yywarning(YYLTYPE* locp, void* scanner, const char* err) {
         amxo_parser_t *context = (amxo_parser_t *)yyget_extra(scanner);
         if (!amxc_string_is_empty(&context->msg)) {
-            amxo_parser_printf("WARNING %s@%s:line %d\n",
+            amxo_parser_printf(context, "WARNING: %s@%s:line %d\n",
                                amxc_string_get(&context->msg, 0),
                                context->file,
                                locp->first_line);
             amxc_string_reset(&context->msg);
         } else {
-            amxo_parser_printf("WARNING %s@%s:line %d\n",
+            amxo_parser_printf(context, "WARNING: %s@%s:line %d\n",
                                err,
                                context->file,
                                locp->first_line);

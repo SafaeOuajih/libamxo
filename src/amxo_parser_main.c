@@ -324,13 +324,13 @@ int amxo_parser_parse_file(amxo_parser_t* parser,
         dir_name[strlen(dir_name)] = '/';
     }
 
+    parser->file = (real_path == NULL) ? file_path : real_path;
     amxo_hooks_start(parser);
     retval = amxo_parser_parse_file_impl(parser,
                                          real_path == NULL ? file_path : real_path,
                                          object);
     amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
     amxo_resolver_import_clean(parser, NULL);
-
     amxo_hooks_end(parser);
 
     if(real_path != NULL) {
@@ -357,9 +357,11 @@ int amxo_parser_parse_string(amxo_parser_t* parser,
     parser->reader = amxo_parser_string_reader;
     parser->status = amxd_status_ok;
 
+    amxo_hooks_start(parser);
     amxo_parser_create_lex(parser);
     retval = yyparse(parser->scanner);
     amxo_parser_destroy_lex(parser);
+    amxo_hooks_end(parser);
 
     amxc_rbuffer_clean(&parser->rbuffer);
     parser->object = NULL;

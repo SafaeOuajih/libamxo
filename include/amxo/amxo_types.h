@@ -99,6 +99,8 @@ typedef struct _amxo_resolver {
     void* priv;
 } amxo_resolver_t;
 
+typedef void (* amxo_comment_t) (amxo_parser_t* parser, const char* comment);
+
 typedef void (* amxo_start_end_t) (amxo_parser_t* parser);
 
 typedef void (* amxo_include_t) (amxo_parser_t* parser,
@@ -129,6 +131,10 @@ typedef void (* amxo_select_object_t) (amxo_parser_t* parser,
 typedef void (* amxo_end_object_t) (amxo_parser_t* parser,
                                     amxd_object_t* object);
 
+typedef void (* amxo_add_mib_t) (amxo_parser_t* parser,
+                                 amxd_object_t* object,
+                                 const char* mib);
+
 typedef void (* amxo_add_param_func_t) (amxo_parser_t* parser,
                                         amxd_object_t* object,
                                         const char* name,
@@ -157,6 +163,7 @@ typedef void (* amxo_add_func_arg_t) (amxo_parser_t* parser,
 
 typedef struct _amxo_hooks {
     amxc_llist_it_t it;
+    amxo_comment_t comment;
     amxo_start_end_t start;
     amxo_start_end_t end;
     amxo_include_t start_include;
@@ -174,6 +181,7 @@ typedef struct _amxo_hooks {
     amxo_add_param_func_t add_func;
     amxo_add_func_arg_t add_func_arg;
     amxo_end_func_t end_func;
+    amxo_add_mib_t add_mib;
 } amxo_hooks_t;
 
 typedef enum _amxo_reason {

@@ -92,18 +92,6 @@
 #include "amxo_parser.tab.h"
 #include "amxo_parser_hooks_priv.h"
 
-typedef enum _event_id {
-    event_none,
-    event_instance_add,
-    event_object_change
-} event_id_t;
-
-typedef struct _event {
-    event_id_t id;
-    amxc_var_t data;
-    amxc_llist_it_t it;
-} event_t;
-
 static amxd_action_t object_actions[] = {
     action_object_read,      // action_read,
     action_object_write,     // action_write
@@ -135,32 +123,6 @@ static void amxo_parser_push_event(amxo_parser_t* pctx,
     amxc_lstack_push(&pctx->event_stack, &e->it);
 }
 
-static void amxo_parser_set_event(amxo_parser_t* pctx,
-                                  event_id_t event) {
-    amxc_lstack_it_t* it = amxc_lstack_peek(&pctx->event_stack);
-    event_t* e = amxc_container_of(it, event_t, it);
-    e->id = event;
-}
-
-static void amxo_parser_data_event(amxo_parser_t* pctx,
-                                   amxd_param_t* param) {
-    amxc_lstack_it_t* it = amxc_lstack_peek(&pctx->event_stack);
-    event_t* e = amxc_container_of(it, event_t, it);
-    amxc_var_t* value = NULL;
-
-    when_true(e->id != event_object_change, exit);
-    if(amxc_var_type_of(&e->data) != AMXC_VAR_ID_HTABLE) {
-        amxc_var_set_type(&e->data, AMXC_VAR_ID_HTABLE);
-    }
-    value = GET_ARG(&e->data, amxd_param_get_name(param));
-    when_not_null(value, exit);
-
-    amxc_var_set_key(&e->data, amxd_param_get_name(param), &param->value, AMXC_VAR_FLAG_COPY);
-
-exit:
-    return;
-}
-
 static void amxo_parser_pop_event(amxo_parser_t* pctx, amxd_object_t* object) {
     amxc_lstack_it_t* it = amxc_lstack_pop(&pctx->event_stack);
     event_t* e = amxc_container_of(it, event_t, it);
@@ -173,22 +135,6 @@ static void amxo_parser_pop_event(amxo_parser_t* pctx, amxd_object_t* object) {
 
     amxc_var_clean(&e->data);
     free(e);
-}
-
-static bool amxo_parser_check_config(amxo_parser_t* pctx,
-                                     const char* path,
-                                     const char* check) {
-    amxc_var_t* option = amxc_var_get_path(&pctx->config,
-                                           path,
-                                           AMXC_VAR_FLAG_DEFAULT);
-    const char* value = NULL;
-    value = amxc_var_constcast(cstring_t, option);
-
-    if(value == NULL) {
-        value = "error";
-    }
-
-    return strcmp(value, check) == 0;
 }
 
 static amxd_status_t amxo_cleanup_data(amxd_object_t* const object,
@@ -283,72 +229,6 @@ static int64_t amxo_attr_2_object_attr(int64_t attributes) {
     return obj_attrs;
 }
 
-static int64_t amxo_attr_2_param_attr(int64_t attributes) {
-    int64_t param_attrs = 0;
-    if(SET_BIT(attr_readonly) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_read_only);
-    }
-    if(SET_BIT(attr_persistent) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_persistent);
-    }
-    if(SET_BIT(attr_private) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_private);
-    }
-    if(SET_BIT(attr_protected) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_protected);
-    }
-    if(SET_BIT(attr_template) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_template);
-    }
-    if(SET_BIT(attr_instance) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_instance);
-    }
-    if(SET_BIT(attr_variable) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_variable);
-    }
-    if(SET_BIT(attr_key) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_key);
-    }
-    if(SET_BIT(attr_unique) & attributes) {
-        param_attrs |= SET_BIT(amxd_pattr_unique);
-    }
-    return param_attrs;
-}
-
-static int64_t amxo_attr_2_func_attr(int64_t attributes) {
-    int64_t func_attrs = 0;
-    if(SET_BIT(attr_private) & attributes) {
-        func_attrs |= SET_BIT(amxd_fattr_private);
-    }
-    if(SET_BIT(attr_protected) & attributes) {
-        func_attrs |= SET_BIT(amxd_fattr_protected);
-    }
-    if(SET_BIT(attr_template) & attributes) {
-        func_attrs |= SET_BIT(amxd_fattr_template);
-    }
-    if(SET_BIT(attr_instance) & attributes) {
-        func_attrs |= SET_BIT(amxd_fattr_instance);
-    }
-    return func_attrs;
-}
-
-static int64_t amxo_attr_2_arg_attr(int64_t attributes) {
-    int64_t arg_attrs = 0;
-    if(SET_BIT(attr_in) & attributes) {
-        arg_attrs |= SET_BIT(amxd_aattr_in);
-    }
-    if(SET_BIT(attr_out) & attributes) {
-        arg_attrs |= SET_BIT(amxd_aattr_out);
-    }
-    if(SET_BIT(attr_mandatory) & attributes) {
-        arg_attrs |= SET_BIT(amxd_aattr_mandatory);
-    }
-    if(SET_BIT(attr_strict) & attributes) {
-        arg_attrs |= SET_BIT(amxd_aattr_strict);
-    }
-    return arg_attrs;
-}
-
 static amxd_object_t* amxo_parser_new_object(amxo_parser_t* pctx,
                                              amxd_dm_t* dm,
                                              const char* name,
@@ -387,61 +267,6 @@ static int amxo_parser_can_update_object(amxo_parser_t* pctx,
     amxo_parser_msg(pctx, "Duplicate %s %s", type_name, name);
     pctx->status = amxd_status_duplicate;
     retval = -1;
-
-exit:
-    return retval;
-}
-
-static amxd_param_t* amxo_parser_new_param(amxo_parser_t* pctx,
-                                           const char* name,
-                                           int64_t pattrs,
-                                           uint32_t type) {
-    amxd_param_t* param = NULL;
-
-    pctx->status = amxd_param_new(&param, name, type);
-    if(pctx->status != amxd_status_ok) {
-        amxo_parser_msg(pctx, "Failed to create parameter %s", name);
-        goto exit;
-    }
-    amxd_param_set_attrs(param, pattrs, true);
-    pctx->status = amxd_object_add_param(pctx->object, param);
-
-exit:
-    return param;
-}
-
-static int amxo_parser_set_param_value(amxo_parser_t* pctx,
-                                       const char* parent_path,
-                                       const char* name,
-                                       amxd_param_t* param,
-                                       amxc_var_t* value) {
-    int retval = -1;
-    if((value != NULL) && (param != NULL)) {
-        pctx->status = amxd_param_set_value(param, value);
-        if(pctx->status == amxd_status_invalid_value) {
-            amxo_parser_msg(pctx,
-                            "Invalid parameter value for parameter %s in object \"%s\"",
-                            name,
-                            parent_path);
-            goto exit;
-        }
-
-        if(pctx->status == amxd_status_ok) {
-            pctx->param = param;
-            amxo_hooks_set_param(pctx, value);
-            retval = 0;
-        } else {
-            retval = -1;
-        }
-    } else {
-        pctx->param = param;
-        if(param != NULL) {
-            retval = 0;
-            amxo_hooks_set_param(pctx, value);
-        } else {
-            retval = 1;
-        }
-    }
 
 exit:
     return retval;
@@ -536,6 +361,22 @@ static amxd_object_t* amxd_parser_add_instance_msg(amxo_parser_t* pctx,
     return object;
 }
 
+bool amxo_parser_check_config(amxo_parser_t* pctx,
+                              const char* path,
+                              const char* check) {
+    amxc_var_t* option = amxc_var_get_path(&pctx->config,
+                                           path,
+                                           AMXC_VAR_FLAG_DEFAULT);
+    const char* value = NULL;
+    value = amxc_var_constcast(cstring_t, option);
+
+    if(value == NULL) {
+        value = "error";
+    }
+
+    return strcmp(value, check) == 0;
+}
+
 void amxo_parser_free_event(amxc_llist_it_t* it) {
     event_t* e = amxc_container_of(it, event_t, it);
     amxc_var_clean(&e->data);
@@ -555,35 +396,6 @@ bool amxo_parser_check_attr(amxo_parser_t* pctx,
         amxo_parser_msg(pctx, "Invalid attributes given");
     }
     return retval;
-}
-
-bool amxo_parser_set_param_attrs(amxo_parser_t* pctx, uint64_t attr, bool enable) {
-    int64_t pattrs = amxo_attr_2_param_attr(attr);
-    amxd_param_set_attrs(pctx->param, pattrs, enable);
-    return true;
-}
-
-bool amxo_parser_set_param_flags(amxo_parser_t* pctx) {
-    const amxc_htable_t* ht_flags = NULL;
-
-    when_null(pctx->data, exit);
-    when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_HTABLE, exit);
-
-    ht_flags = amxc_var_constcast(amxc_htable_t, pctx->data);
-    amxc_htable_for_each(it, ht_flags) {
-        const char* flag_name = amxc_htable_it_get_key(it);
-        amxc_var_t* flag = amxc_var_from_htable_it(it);
-        if(amxc_var_dyncast(bool, flag)) {
-            amxd_param_set_flag(pctx->param, flag_name);
-        } else {
-            amxd_param_unset_flag(pctx->param, flag_name);
-        }
-    }
-
-    amxc_var_delete(&pctx->data);
-
-exit:
-    return true;
 }
 
 bool amxo_parser_set_object_attrs(amxo_parser_t* pctx, uint64_t attr, bool enable) {
@@ -718,241 +530,6 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     amxo_parser_pop_event(pctx, pctx->object);
     pctx->object = (amxd_object_t*) amxc_astack_pop(&pctx->object_stack);
 
-    retval = true;
-
-exit:
-    return retval;
-}
-
-bool amxo_parser_push_param(amxo_parser_t* pctx,
-                            const char* name,
-                            int64_t attr_bitmask,
-                            uint32_t type) {
-    amxd_param_t* param = NULL;
-    int64_t pattrs = amxo_attr_2_param_attr(attr_bitmask);
-    bool retval = false;
-    amxc_string_t res_name;
-    amxc_string_init(&res_name, 0);
-
-    amxo_parser_set_event(pctx, event_none);
-
-    if(amxc_string_set_resolved(&res_name, name, &pctx->config) > 0) {
-        name = amxc_string_get(&res_name, 0);
-    }
-
-    pctx->status = amxd_status_ok;
-    param = amxd_object_get_param_def(pctx->object, name);
-    if(param == NULL) {
-        if(amxd_object_get_type(pctx->object) == amxd_object_instance) {
-            pattrs |= SET_BIT(amxd_pattr_instance);
-        }
-        param = amxo_parser_new_param(pctx, name, pattrs, type);
-        when_null(param, exit);
-        amxo_hooks_add_param(pctx, name, pattrs, type);
-    } else {
-        if(!amxo_parser_check_config(pctx,
-                                     "define-behavior.existing-parameter",
-                                     "update")) {
-            amxo_parser_msg(pctx, "Duplicate parameter %s", name);
-            pctx->status = amxd_status_duplicate;
-            goto exit;
-        }
-        if((type != AMXC_VAR_ID_LIST) &&
-           ( type != AMXC_VAR_ID_HTABLE) &&
-           ( type != AMXC_VAR_ID_FD)) {
-            amxc_var_set_type(&param->value, type);
-        } else {
-            amxo_parser_msg(pctx, "Invalid parameter type for parameter %s", name);
-            pctx->status = amxd_status_invalid_type;
-            goto exit;
-        }
-    }
-
-    pctx->param = param;
-    retval = true;
-
-exit:
-    amxc_string_clean(&res_name);
-    return retval;
-}
-
-int amxo_parser_set_param(amxo_parser_t* pctx,
-                          const char* name,
-                          amxc_var_t* value) {
-    amxd_param_t* param = NULL;
-    int retval = -1;
-    char* parent_path = amxd_object_get_path(pctx->object, AMXD_OBJECT_NAMED);
-    amxc_string_t res_name;
-    amxc_string_init(&res_name, 0);
-
-    if(amxc_string_set_resolved(&res_name, name, &pctx->config) > 0) {
-        name = amxc_string_get(&res_name, 0);
-    }
-
-    pctx->status = amxd_status_ok;
-    param = pctx->param == NULL ? amxd_object_get_param_def(pctx->object, name) : pctx->param;
-    if(param == NULL) {
-        if(amxo_parser_check_config(pctx, "populate-behavior.unknown-parameter", "add")) {
-            uint32_t type = amxc_var_is_null(value) ? AMXC_VAR_ID_CSTRING : amxc_var_type_of(value);
-            param = amxo_parser_new_param(pctx, name,
-                                          SET_BIT(amxd_pattr_persistent),
-                                          type);
-            when_null(param, exit);
-        } else if(amxo_parser_check_config(pctx,
-                                           "populate-behavior.unknown-parameter",
-                                           "warning")) {
-            amxo_parser_msg(pctx,
-                            "Parameter %s not found in object \"%s\"",
-                            name,
-                            parent_path);
-            pctx->status = amxd_status_parameter_not_found;
-            param = NULL;
-        } else {
-            amxo_parser_msg(pctx,
-                            "Parameter %s not found in object \"%s\"",
-                            name,
-                            parent_path);
-            pctx->status = amxd_status_parameter_not_found;
-            goto exit;
-        }
-    }
-    if(param != NULL) {
-        amxo_parser_data_event(pctx, param);
-    }
-    retval = amxo_parser_set_param_value(pctx, parent_path, name, param, value);
-
-exit:
-    amxc_string_clean(&res_name);
-    free(parent_path);
-    return retval;
-}
-
-bool amxo_parser_pop_param(amxo_parser_t* pctx) {
-    bool retval = false;
-    amxc_var_t value;
-    amxc_var_init(&value);
-
-    if(pctx->param != NULL) {
-        amxd_param_get_value(pctx->param, &value);
-        pctx->status = amxd_param_validate(pctx->param, &value);
-        if(pctx->status != amxd_status_ok) {
-            amxo_parser_msg(pctx, "Parameter %s validation failed",
-                            amxd_param_get_name(pctx->param));
-            goto exit;
-        }
-
-        amxo_hooks_end_param(pctx);
-        pctx->param = NULL;
-    }
-    retval = true;
-
-exit:
-    amxc_var_clean(&value);
-    return retval;
-}
-
-int amxo_parser_push_func(amxo_parser_t* pctx,
-                          const char* name,
-                          int64_t attr_bitmask,
-                          uint32_t type) {
-    amxd_function_t* func = NULL;
-    amxd_function_t* orig_func = NULL;
-    int64_t fattrs = amxo_attr_2_func_attr(attr_bitmask);
-    int retval = -1;
-    amxc_string_t res_name;
-    amxc_string_init(&res_name, 0);
-
-    if(amxc_string_set_resolved(&res_name, name, &pctx->config) > 0) {
-        name = amxc_string_get(&res_name, 0);
-    }
-
-    orig_func = amxd_object_get_function(pctx->object, name);
-
-    pctx->status = amxd_function_new(&func, name, type, NULL);
-    if(pctx->status != amxd_status_ok) {
-        amxo_parser_msg(pctx, "Failed to create function %s", name);
-        goto exit;
-    }
-
-    if(amxd_object_get_type(pctx->object) == amxd_object_instance) {
-        fattrs |= SET_BIT(amxd_fattr_instance);
-    }
-
-    amxd_function_set_attrs(func, fattrs, true);
-
-    if(orig_func != NULL) {
-        if(amxd_function_get_owner(orig_func) == pctx->object) {
-            amxd_function_delete(&orig_func);
-        }
-        amxo_parser_msg(pctx, "Overriding function %s", name);
-        pctx->status = amxd_object_add_function(pctx->object, func);
-        retval = 1;
-    } else {
-        pctx->status = amxd_object_add_function(pctx->object, func);
-        retval = 0;
-    }
-
-    amxo_hooks_add_func(pctx, name, fattrs, type);
-
-    pctx->func = func;
-
-exit:
-    amxc_string_clean(&res_name);
-    return retval;
-}
-
-bool amxo_parser_set_function_flags(amxo_parser_t* pctx) {
-    const amxc_htable_t* ht_flags = NULL;
-
-    when_null(pctx->data, exit);
-    when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_HTABLE, exit);
-
-    ht_flags = amxc_var_constcast(amxc_htable_t, pctx->data);
-    amxc_htable_for_each(it, ht_flags) {
-        const char* flag_name = amxc_htable_it_get_key(it);
-        amxc_var_t* flag = amxc_var_from_htable_it(it);
-        if(amxc_var_dyncast(bool, flag)) {
-            amxd_function_set_flag(pctx->func, flag_name);
-        } else {
-            amxd_function_unset_flag(pctx->func, flag_name);
-        }
-    }
-
-    amxc_var_delete(&pctx->data);
-
-exit:
-    return true;
-}
-
-void amxo_parser_pop_func(amxo_parser_t* pctx) {
-    amxo_hooks_end_func(pctx);
-    amxd_object_fn_t fn = (amxd_object_fn_t) pctx->resolved_fn;
-    amxd_function_set_impl(pctx->func, fn);
-    pctx->func = NULL;
-    pctx->resolved_fn = NULL;
-}
-
-bool amxo_parser_add_arg(amxo_parser_t* pctx,
-                         const char* name,
-                         int64_t attr_bitmask,
-                         uint32_t type,
-                         amxc_var_t* def_value) {
-    bool retval = false;
-    int64_t aattrs = amxo_attr_2_arg_attr(attr_bitmask);
-    if(!IS_BIT_SET(aattrs, amxd_aattr_in) &&
-       !IS_BIT_SET(aattrs, amxd_aattr_out)) {
-        aattrs |= 1 << amxd_aattr_in;
-    }
-
-    amxo_hooks_add_func_arg(pctx, name, aattrs, type, def_value);
-
-    pctx->status = amxd_function_new_arg(pctx->func, name, type, def_value);
-    if(pctx->status != amxd_status_ok) {
-        amxo_parser_msg(pctx, "Failed to create/add function argument %s", name);
-        goto exit;
-    }
-
-    amxd_function_arg_set_attrs(pctx->func, name, aattrs, true);
     retval = true;
 
 exit:
@@ -1163,6 +740,8 @@ bool amxo_parser_add_mib(amxo_parser_t* pctx,
     }
 
     retval = true;
+
+    amxo_hooks_add_mib(pctx, mib_name);
 
 exit:
     amxc_string_clean(&res_mib_name);

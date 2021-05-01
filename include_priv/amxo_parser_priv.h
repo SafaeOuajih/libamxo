@@ -125,6 +125,18 @@ typedef enum _amxo_action {
     action_max = action_destroy
 } amxo_action_t;
 
+typedef enum _event_id {
+    event_none,
+    event_instance_add,
+    event_object_change
+} event_id_t;
+
+typedef struct _event {
+    event_id_t id;
+    amxc_var_t data;
+    amxc_llist_it_t it;
+} event_t;
+
 typedef struct _amxo_txt {
     char* txt;
     int length;
@@ -164,8 +176,8 @@ void AMXO_PRIVATE amxo_parser_destroy_lex(amxo_parser_t* parser);
 void AMXO_PRIVATE amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) \
     __attribute__ ((format(printf, 2, 3)));
 
-int AMXO_PRIVATE amxo_parser_printf(const char* format, ...) \
-    __attribute__ ((format(printf, 1, 2)));
+int AMXO_PRIVATE amxo_parser_printf(amxo_parser_t* parser, const char* format, ...) \
+    __attribute__ ((format(printf, 2, 3)));
 
 int AMXO_PRIVATE amxo_parser_set_config_internal(amxo_parser_t* parser,
                                                  const char* name,
@@ -287,6 +299,9 @@ void AMXO_PRIVATE amxo_parser_connection_free(amxc_llist_it_t* it);
 
 bool AMXO_PRIVATE amxo_parser_no_resolve(amxo_parser_t* parser);
 
+bool AMXO_PRIVATE amxo_parser_check_config(amxo_parser_t* pctx,
+                                           const char* path,
+                                           const char* check);
 #ifdef __cplusplus
 }
 #endif

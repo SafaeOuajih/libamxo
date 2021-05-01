@@ -1,5 +1,6 @@
 **/output/*
 **/run_test
+**/amxo_version.h
 libamxo-*.*
 libamxo_*.*
 test/test_plugin/test_plugin.d
