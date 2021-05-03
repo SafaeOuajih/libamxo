@@ -29,7 +29,7 @@ libamxo (1.0.0) unstable; urgency=medium
   * Loading empty directory must return 2 (not found
   * When including an empty directory the parser must fail
   * When saving an odl file all names must be quoted
-
+  * Move copybara to baf
 
  -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 08 Apr 2021 20:40:59 +0000
 
@@ -68,7 +68,7 @@ libamxo (0.7.1) unstable; urgency=medium
 libamxo (0.7.0) unstable; urgency=medium
 
   * It must be possible to include odl files that are loaded after invoking the entry points
-
+  * Migrate to new licenses format (baf)
 
  -- Peter De Herdt <peter.deherdt@softathome.com>  Thu, 25 Feb 2021 13:55:02 +0000
 
@@ -93,7 +93,7 @@ libamxo (0.6.5) unstable; urgency=medium
 
 libamxo (0.6.4) unstable; urgency=medium
 
-
+  * Generate makefiles using build agnostic file (baf)
   * Only include objects in static library
 
  -- Peter De Herdt <peter.deherdt@softathome.com>  Mon, 18 Jan 2021 17:26:52 +0000
@@ -332,7 +332,7 @@ libamxo (0.0.10) unstable; urgency=medium
 libamxo (0.0.9) unstable; urgency=medium
 
   * Support for csv_string and ssv_string variant type
-
+  * Copybara file
   * Build libraries in target specific output directory
 
  -- sah4009 <peter.deherdt@softathome.com>  Fri, 26 Jun 2020 18:01:17 +0000
