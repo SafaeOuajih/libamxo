@@ -87,7 +87,6 @@
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 #include "amxo_parser.tab.h"
 #include "amxo_parser_hooks_priv.h"
@@ -140,8 +139,8 @@ static void amxo_parser_pop_event(amxo_parser_t* pctx, amxd_object_t* object) {
 static amxd_status_t amxo_cleanup_data(amxd_object_t* const object,
                                        amxd_param_t* const param,
                                        amxd_action_t reason,
-                                       AMXO_UNUSED const amxc_var_t* const args,
-                                       AMXO_UNUSED amxc_var_t* const retval,
+                                       UNUSED const amxc_var_t* const args,
+                                       UNUSED amxc_var_t* const retval,
                                        void* priv) {
     amxd_status_t status = amxd_status_ok;
     amxc_var_t* data = (amxc_var_t*) priv;

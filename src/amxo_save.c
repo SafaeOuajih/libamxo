@@ -81,7 +81,6 @@
 #include <amxo/amxo.h>
 #include <amxo/amxo_save.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 
 #define PARAM_ATTR(param, attr_name) \

@@ -80,7 +80,6 @@
 #include <amxd/amxd_action.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 
 typedef struct _amxo_ftab_fn {
@@ -89,7 +88,7 @@ typedef struct _amxo_ftab_fn {
 } amxo_ftab_fn_t;
 
 static void amxo_resolver_ftab_defaults(amxo_parser_t* parser,
-                                        AMXO_UNUSED void* priv) {
+                                        UNUSED void* priv) {
     amxo_resolver_ftab_add(parser,
                            "check_minimum",
                            AMXO_FUNC(amxd_action_param_check_minimum));
@@ -122,7 +121,7 @@ static void amxo_resolver_ftab_defaults(amxo_parser_t* parser,
 static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t* parser,
                                         const char* fn_name,
                                         const char* data,
-                                        AMXO_UNUSED void* priv) {
+                                        UNUSED void* priv) {
     amxo_fn_ptr_t fn = NULL;
     amxo_ftab_fn_t* ftab_fn = NULL;
     amxc_htable_t* ftab_data = NULL;
@@ -157,7 +156,7 @@ exit:
 }
 
 static void amxo_resolver_ftab_clean(amxo_parser_t* parser,
-                                     AMXO_UNUSED void* priv) {
+                                     UNUSED void* priv) {
     amxc_htable_t* ftab_data = NULL;
     ftab_data = amxo_parser_get_resolver_data(parser, "ftab");
     amxc_htable_clean(ftab_data, amxo_ftab_fn_free);
@@ -184,8 +183,8 @@ exit:
 }
 
 
-void AMXO_PRIVATE amxo_ftab_fn_free(AMXO_UNUSED const char* key,
-                                    amxc_htable_it_t* it) {
+void PRIVATE amxo_ftab_fn_free(UNUSED const char* key,
+                               amxc_htable_it_t* it) {
     amxo_ftab_fn_t* ftab_fn = amxc_htable_it_get_data(it, amxo_ftab_fn_t, hit);
     free(ftab_fn);
 }
@@ -252,10 +251,10 @@ static amxo_resolver_t ftab = {
     .priv = NULL
 };
 
-AMXO_CONSTRUCTOR(110) static void amxo_ftab_init(void) {
+CONSTRUCTOR_LVL(110) static void amxo_ftab_init(void) {
     amxo_register_resolver("ftab", &ftab);
 }
 
-AMXO_DESTRUCTOR(110) static void amxo_ftab_cleanup(void) {
+DESTRUCTOR_LVL(110) static void amxo_ftab_cleanup(void) {
     amxo_unregister_resolver("ftab");
 }

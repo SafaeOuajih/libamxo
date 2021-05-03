@@ -84,8 +84,7 @@
 
 #include "test_ftab_resolver.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static amxd_status_t dm_method_impl(UNUSED amxd_object_t* object,
                                     UNUSED amxd_function_t* func,
                                     UNUSED amxc_var_t* args,

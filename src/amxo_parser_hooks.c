@@ -77,7 +77,6 @@
 #include <amxo/amxo.h>
 #include <amxo/amxo_hooks.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 #include "amxo_parser_hooks_priv.h"
 #include "amxo_parser.tab.h"
@@ -289,11 +288,11 @@ void amxo_hooks_add_mib(amxo_parser_t* parser,
 }
 
 
-void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
-                                          const char* name,
-                                          int64_t attr_bitmask,
-                                          uint32_t type,
-                                          amxc_var_t* def_value) {
+void PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
+                                     const char* name,
+                                     int64_t attr_bitmask,
+                                     uint32_t type,
+                                     amxc_var_t* def_value) {
     amxc_llist_for_each(it, parser->hooks) {
         amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
         if(hook->add_func_arg != NULL) {

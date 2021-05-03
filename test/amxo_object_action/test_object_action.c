@@ -83,8 +83,7 @@
 
 #include "test_object_action.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static bool called = false;
 
 static amxd_status_t failing_action(UNUSED amxd_object_t* const object,

@@ -86,8 +86,7 @@
 
 #include "test_mibs.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 void test_can_scan_mib_dir(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;

@@ -84,8 +84,7 @@
 
 #include "test_import_resolver.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static void check_can_invoke_functions(amxd_dm_t* dm) {
     amxc_var_t args;
     amxc_var_t ret;

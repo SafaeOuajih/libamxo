@@ -83,8 +83,7 @@
 
 #include "test_invalid_odl.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static amxd_status_t test_dummy_action(UNUSED amxd_object_t* const object,
                                        UNUSED amxd_param_t* const param,
                                        UNUSED amxd_action_t reason,

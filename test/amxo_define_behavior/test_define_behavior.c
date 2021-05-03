@@ -83,8 +83,7 @@
 
 #include "test_define_behavior.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 void test_duplicate_objects_default_behavior(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;

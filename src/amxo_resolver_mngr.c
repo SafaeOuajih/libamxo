@@ -78,15 +78,14 @@
 #include <amxd/amxd_dm.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 
 static amxc_htable_t resolvers;
 
-int AMXO_PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
-                                     const char* resolver_name,
-                                     const char* func_name,
-                                     const char* data) {
+int PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
+                                const char* resolver_name,
+                                const char* func_name,
+                                const char* data) {
     int retval = -1;
     amxo_resolver_t* resolver = NULL;
     amxc_htable_it_t* hit = NULL;
@@ -117,11 +116,11 @@ exit:
     return retval;
 }
 
-amxc_htable_t* AMXO_PRIVATE amxo_parser_get_resolvers(void) {
+amxc_htable_t* PRIVATE amxo_parser_get_resolvers(void) {
     return &resolvers;
 }
 
-void AMXO_PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser) {
+void PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser) {
     amxc_htable_it_t* hit_data = NULL;
     amxc_htable_it_t* hit_resolver = NULL;
 
@@ -143,7 +142,7 @@ exit:
     return;
 }
 
-void AMXO_PRIVATE amxo_parser_init_resolvers(amxo_parser_t* parser) {
+void PRIVATE amxo_parser_init_resolvers(amxo_parser_t* parser) {
     amxc_htable_for_each(hit, (&resolvers)) {
         amxo_resolver_t* resolver =
             amxc_htable_it_get_data(hit, amxo_resolver_t, hit);
@@ -254,10 +253,10 @@ exit:
     return;
 }
 
-AMXO_CONSTRUCTOR(101) static void amxo_resolvers_init(void) {
+CONSTRUCTOR_LVL(101) static void amxo_resolvers_init(void) {
     amxc_htable_init(&resolvers, 10);
 }
 
-AMXO_DESTRUCTOR(101) static void amxo_resolvers_cleanup(void) {
+DESTRUCTOR_LVL(101) static void amxo_resolvers_cleanup(void) {
     amxc_htable_clean(&resolvers, NULL);
 }

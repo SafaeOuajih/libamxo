@@ -66,69 +66,69 @@ extern "C"
 {
 #endif
 
-void AMXO_PRIVATE amxo_hooks_comment(amxo_parser_t* parser,
-                                     char* comment,
-                                     uint32_t len);
+void PRIVATE amxo_hooks_comment(amxo_parser_t* parser,
+                                char* comment,
+                                uint32_t len);
 
-void AMXO_PRIVATE amxo_hooks_start(amxo_parser_t* parser);
+void PRIVATE amxo_hooks_start(amxo_parser_t* parser);
 
-void AMXO_PRIVATE amxo_hooks_end(amxo_parser_t* parser);
+void PRIVATE amxo_hooks_end(amxo_parser_t* parser);
 
-void AMXO_PRIVATE amxo_hooks_start_include(amxo_parser_t* parser,
-                                           const char* file);
+void PRIVATE amxo_hooks_start_include(amxo_parser_t* parser,
+                                      const char* file);
 
-void AMXO_PRIVATE amxo_hooks_end_include(amxo_parser_t* parser,
-                                         const char* file);
+void PRIVATE amxo_hooks_end_include(amxo_parser_t* parser,
+                                    const char* file);
 
-void AMXO_PRIVATE amxo_hooks_start_section(amxo_parser_t* parser,
-                                           int section_id);
+void PRIVATE amxo_hooks_start_section(amxo_parser_t* parser,
+                                      int section_id);
 
-void AMXO_PRIVATE amxo_hooks_end_section(amxo_parser_t* parser,
-                                         int section_id);
+void PRIVATE amxo_hooks_end_section(amxo_parser_t* parser,
+                                    int section_id);
 
-void AMXO_PRIVATE amxo_hooks_set_config(amxo_parser_t* parser,
-                                        const char* name,
-                                        amxc_var_t* value);
+void PRIVATE amxo_hooks_set_config(amxo_parser_t* parser,
+                                   const char* name,
+                                   amxc_var_t* value);
 
-void AMXO_PRIVATE amxo_hooks_create_object(amxo_parser_t* parser,
-                                           const char* name,
-                                           int64_t attr_bitmask,
-                                           amxd_object_type_t type);
-
-void AMXO_PRIVATE amxo_hooks_add_instance(amxo_parser_t* parser,
-                                          uint32_t index,
-                                          const char* name);
-
-void AMXO_PRIVATE amxo_hooks_select_object(amxo_parser_t* parser,
-                                           const char* path);
-
-void AMXO_PRIVATE amxo_hooks_end_object(amxo_parser_t* parser);
-
-void AMXO_PRIVATE amxo_hooks_add_param(amxo_parser_t* parser,
-                                       const char* name,
-                                       int64_t attr_bitmask,
-                                       uint32_t type);
-
-void AMXO_PRIVATE amxo_hooks_set_param(amxo_parser_t* parser,
-                                       amxc_var_t* value);
-
-void AMXO_PRIVATE amxo_hooks_end_param(amxo_parser_t* parser);
-
-void AMXO_PRIVATE amxo_hooks_add_func(amxo_parser_t* parser,
+void PRIVATE amxo_hooks_create_object(amxo_parser_t* parser,
                                       const char* name,
                                       int64_t attr_bitmask,
-                                      uint32_t type);
+                                      amxd_object_type_t type);
 
-void AMXO_PRIVATE amxo_hooks_end_func(amxo_parser_t* parser);
+void PRIVATE amxo_hooks_add_instance(amxo_parser_t* parser,
+                                     uint32_t index,
+                                     const char* name);
 
-void AMXO_PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
-                                          const char* name,
-                                          int64_t attr_bitmask,
-                                          uint32_t type,
-                                          amxc_var_t* def_value);
+void PRIVATE amxo_hooks_select_object(amxo_parser_t* parser,
+                                      const char* path);
 
-void AMXO_PRIVATE amxo_hooks_add_mib(amxo_parser_t* parser,
-                                     const char* mib);
+void PRIVATE amxo_hooks_end_object(amxo_parser_t* parser);
+
+void PRIVATE amxo_hooks_add_param(amxo_parser_t* parser,
+                                  const char* name,
+                                  int64_t attr_bitmask,
+                                  uint32_t type);
+
+void PRIVATE amxo_hooks_set_param(amxo_parser_t* parser,
+                                  amxc_var_t* value);
+
+void PRIVATE amxo_hooks_end_param(amxo_parser_t* parser);
+
+void PRIVATE amxo_hooks_add_func(amxo_parser_t* parser,
+                                 const char* name,
+                                 int64_t attr_bitmask,
+                                 uint32_t type);
+
+void PRIVATE amxo_hooks_end_func(amxo_parser_t* parser);
+
+void PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
+                                     const char* name,
+                                     int64_t attr_bitmask,
+                                     uint32_t type,
+                                     amxc_var_t* def_value);
+
+void PRIVATE amxo_hooks_add_mib(amxo_parser_t* parser,
+                                const char* mib);
 
 #ifdef __cplusplus
 }

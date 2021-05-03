@@ -84,8 +84,7 @@
 
 #include "test_hooks.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static amxc_aqueue_t expected_order;
 
 static void test_hook_comment(UNUSED amxo_parser_t* parser, const char* comment) {

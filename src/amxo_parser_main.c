@@ -78,7 +78,6 @@
 #include <amxd/amxd_object.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 #include "amxo_parser_hooks_priv.h"
 #include "amxo_parser.tab.h"
@@ -121,9 +120,9 @@ static void amxo_parser_entry_point_free(amxc_llist_it_t* it) {
     free(entry);
 }
 
-ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
-                                           void* buf,
-                                           size_t max_size) {
+ssize_t PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
+                                      void* buf,
+                                      size_t max_size) {
     ssize_t result = 0;
     errno = 0;
     result = read(parser->fd, buf, max_size);
@@ -135,9 +134,9 @@ ssize_t AMXO_PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
     return result;
 }
 
-int AMXO_PRIVATE amxo_parser_parse_file_impl(amxo_parser_t* parser,
-                                             const char* file_path,
-                                             amxd_object_t* object) {
+int PRIVATE amxo_parser_parse_file_impl(amxo_parser_t* parser,
+                                        const char* file_path,
+                                        amxd_object_t* object) {
     int retval = -1;
     int fd = -1;
 
@@ -160,7 +159,7 @@ exit:
     return retval;
 }
 
-void AMXO_PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
+void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     when_null(parser, exit);
 
     parser->fd = -1;

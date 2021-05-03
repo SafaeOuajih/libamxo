@@ -80,7 +80,6 @@
 #include <amxd/amxd_object.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 
 #define GET_OPTION(parser, name) \
@@ -100,7 +99,7 @@ typedef union _fn_caster {
 static amxc_htable_t import_libs;
 static bool dbg = false;
 
-static void amxo_import_lib_free(AMXO_UNUSED const char* key,
+static void amxo_import_lib_free(UNUSED const char* key,
                                  amxc_htable_it_t* it) {
     amxo_import_lib_t* import =
         amxc_htable_it_get_data(it, amxo_import_lib_t, hit);
@@ -113,7 +112,7 @@ static void amxo_import_lib_free(AMXO_UNUSED const char* key,
 }
 
 static void amxo_resolver_import_defaults(amxo_parser_t* parser,
-                                          AMXO_UNUSED void* priv) {
+                                          UNUSED void* priv) {
     amxc_var_t* config = amxo_parser_claim_config(parser, "import-dirs");
 
     amxc_var_set_type(config, AMXC_VAR_ID_LIST);
@@ -349,7 +348,7 @@ exit:
 static amxo_fn_ptr_t amxo_resolver_import(amxo_parser_t* parser,
                                           const char* fn_name,
                                           const char* data,
-                                          AMXO_UNUSED void* priv) {
+                                          UNUSED void* priv) {
     amxc_htable_t* import_data = amxo_parser_get_resolver_data(parser, "import");
     bool pcb = amxc_var_constcast(bool,
                                   amxo_parser_get_config(parser, "import-pcb-compat"));
@@ -518,7 +517,7 @@ exit:
 }
 
 void amxo_resolver_import_clean(amxo_parser_t* parser,
-                                AMXO_UNUSED void* priv) {
+                                UNUSED void* priv) {
     amxc_htable_t* import_data = NULL;
     amxc_htable_it_t* it = NULL;
     bool silent = amxc_var_constcast(bool, GET_OPTION(parser, "silent"));
@@ -557,12 +556,12 @@ static amxo_resolver_t import = {
     .priv = NULL
 };
 
-AMXO_CONSTRUCTOR(110) static void amxo_import_init(void) {
+CONSTRUCTOR_LVL(110) static void amxo_import_init(void) {
     amxc_htable_init(&import_libs, 10);
     amxo_register_resolver("import", &import);
 }
 
-AMXO_DESTRUCTOR(110) static void amxo_import_cleanup(void) {
+DESTRUCTOR_LVL(110) static void amxo_import_cleanup(void) {
     amxc_htable_clean(&import_libs, amxo_import_lib_free);
     amxo_unregister_resolver("import");
 }

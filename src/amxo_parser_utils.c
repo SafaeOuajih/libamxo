@@ -86,7 +86,6 @@
 
 #include "amxo_parser_priv.h"
 #include "amxo_parser_hooks_priv.h"
-#include "amxo_assert.h"
 #include "amxo_parser.tab.h"
 
 static char* amxo_parser_get_resolver_name(const char* data) {

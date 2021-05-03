@@ -81,7 +81,6 @@
 #include <amxo/amxo.h>
 #include <amxo/amxo_mibs.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 #include "amxo_parser_hooks_priv.h"
 
@@ -201,7 +200,7 @@ exit:
     return retval;
 }
 
-void amxo_parser_del_mib_info(AMXO_UNUSED const char* key,
+void amxo_parser_del_mib_info(UNUSED const char* key,
                               amxc_htable_it_t* it) {
     mib_info_t* info = amxc_htable_it_get_data(it, mib_info_t, hit);
     free(info->expression);

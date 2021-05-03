@@ -83,8 +83,7 @@
 
 #include "test_valid_odl.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static void check_options_are_available(amxo_parser_t* parser) {
     amxc_var_t* option = amxo_parser_get_config(parser, "test_option_number");
     assert_ptr_not_equal(option, NULL);

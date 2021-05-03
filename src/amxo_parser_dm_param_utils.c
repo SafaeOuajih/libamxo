@@ -87,7 +87,6 @@
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 #include "amxo_parser.tab.h"
 #include "amxo_parser_hooks_priv.h"

@@ -77,11 +77,10 @@
 #include <amxd/amxd_dm.h>
 #include <amxo/amxo.h>
 
-#include "amxo_assert.h"
 #include "amxo_parser_priv.h"
 
 static void amxo_resolver_auto_defaults(amxo_parser_t* parser,
-                                        AMXO_UNUSED void* priv) {
+                                        UNUSED void* priv) {
     amxc_var_t* config = amxo_parser_claim_config(parser, "auto-resolver-order");
     amxc_var_set_type(config, AMXC_VAR_ID_LIST);
 
@@ -94,8 +93,8 @@ static void amxo_resolver_auto_defaults(amxo_parser_t* parser,
 
 static amxo_fn_ptr_t amxo_resolver_auto(amxo_parser_t* parser,
                                         const char* fn_name,
-                                        AMXO_UNUSED const char* data,
-                                        AMXO_UNUSED void* priv) {
+                                        UNUSED const char* data,
+                                        UNUSED void* priv) {
     int retval = -1;
     amxc_var_t* config = amxo_parser_claim_config(parser, "auto-resolver-order");
     const amxc_llist_t* order = amxc_var_constcast(amxc_llist_t, config);
@@ -144,10 +143,10 @@ static amxo_resolver_t res_auto = {
     .priv = NULL
 };
 
-AMXO_CONSTRUCTOR(110) static void amxo_auto_init(void) {
+CONSTRUCTOR_LVL(110) static void amxo_auto_init(void) {
     amxo_register_resolver("auto", &res_auto);
 }
 
-AMXO_DESTRUCTOR(110) static void amxo_auto_cleanup(void) {
+DESTRUCTOR_LVL(110) static void amxo_auto_cleanup(void) {
     amxo_unregister_resolver("auto");
 }

@@ -71,8 +71,7 @@
 
 #include <amxo/amxo.h>
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static amxo_parser_t* local_parser = NULL;
 
 int _test_entry_point(int reason,

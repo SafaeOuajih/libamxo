@@ -84,8 +84,7 @@
 
 #include "test_function_flags.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 void test_flags_are_set(UNUSED void** state) {
     amxd_dm_t dm;
     amxd_object_t* object = NULL;

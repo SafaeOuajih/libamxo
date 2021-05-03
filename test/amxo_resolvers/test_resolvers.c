@@ -83,8 +83,7 @@
 
 #include "test_resolvers.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static const char* priv_data = "PRIVATE";
 
 static void test_resolver_get(amxo_parser_t* parser,

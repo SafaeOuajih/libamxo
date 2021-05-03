@@ -87,7 +87,6 @@
 
 #include "amxo_parser_priv.h"
 #include "amxo_parser_hooks_priv.h"
-#include "amxo_assert.h"
 #include "amxo_parser.tab.h"
 
 static void amxo_parser_push(amxo_parser_t* parent,

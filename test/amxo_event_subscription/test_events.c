@@ -86,8 +86,7 @@
 
 #include "test_events.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 static uint32_t event_counter = 0;
 static uint32_t instance_add_counter = 0;
 static uint32_t object_changed_counter = 0;

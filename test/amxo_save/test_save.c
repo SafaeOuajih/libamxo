@@ -84,8 +84,7 @@
 
 #include "test_save.h"
 
-#define UNUSED __attribute__((unused))
-
+#include <amxc/amxc_macros.h>
 void test_save_config_array(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
