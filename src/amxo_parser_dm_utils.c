@@ -488,6 +488,13 @@ bool amxo_parser_push_object(amxo_parser_t* pctx,
                              const char* path) {
     amxd_object_t* object = NULL;
     bool retval = false;
+    amxc_string_t res_path;
+    amxc_string_init(&res_path, 0);
+
+    if(amxc_string_set_resolved(&res_path, path, &pctx->config) > 0) {
+        path = amxc_string_get(&res_path, 0);
+    }
+
     pctx->status = amxd_status_ok;
     object = amxd_object_findf(pctx->object, "%s", path);
     if(object == NULL) {
@@ -509,6 +516,7 @@ bool amxo_parser_push_object(amxo_parser_t* pctx,
     retval = true;
 
 exit:
+    amxc_string_clean(&res_path);
     return retval;
 }
 

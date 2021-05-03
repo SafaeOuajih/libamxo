@@ -1,0 +1,20 @@
+%config {
+    prefix_ = "X_SOFTATHOME-COM_";
+}
+
+%define {
+    object Firewall {
+        %persistent object '${prefix_}Policy'[] {
+        }
+    }
+}
+
+%define {
+    select 'Firewall.${prefix_}Policy' {
+    }
+}
+
+%populate {
+    object 'Firewall.${prefix_}Policy' {
+    }
+}
