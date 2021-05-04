@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.1.0 - 2021-05-04(08:00:16 +0000)
+
+### New
+
+- Comments in an odl file must be extracted and passed to a hook functions
+
+### Fixes
+
+- ODL populate section does not resolve config variables
+
+### Changes
+
+- Use common macros from libamxc
+- Removes core dumps
+- Update dependencies in .gitlab-ci.yml
+
+### Other
+
+- Enable auto opensourcing
+
 ## Release v1.0.4 - 2021-04-23(18:44:40 +0000)
 
 ### Changes
