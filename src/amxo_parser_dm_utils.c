@@ -472,7 +472,8 @@ bool amxo_parser_add_instance(amxo_parser_t* pctx,
     object = amxd_parser_add_instance_msg(pctx, index, name, object);
     when_null(object, exit);
     when_failed(pctx->status, exit);
-    amxo_hooks_add_instance(pctx, index, name);
+    amxo_hooks_add_instance(pctx, amxd_object_get_index(object),
+                            amxd_object_get_name(object, AMXD_OBJECT_NAMED));
     amxc_astack_push(&pctx->object_stack, pctx->object);
     amxo_parser_push_event(pctx, event_instance_add);
     pctx->object = object;

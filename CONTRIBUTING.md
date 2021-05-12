@@ -4,7 +4,7 @@ First off, thank you for considering contributing to libamxo and the [Ambiorix](
 
 Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your merge requests.
 
-All members of our community are expected to follow our [Code of Conduct](https://gitlab.com/soft.at.home/ambiorix/ambiorix/blob/master/doc/CODE_OF_CONDUCT.md). Please make sure you are welcoming and friendly in all of our spaces.
+All members of our community are expected to follow our [Code of Conduct](https://gitlab.com/soft.at.home/ambiorix/ambiorix/-/blob/master/doc/CODE_OF_CONDUCT.md). Please make sure you are welcoming and friendly in all of our spaces.
 
 # What can I contribute?
 
@@ -82,7 +82,7 @@ Otherwise, you can update your branch (in your forked project), the MR will be u
 - Code changes should be tested - the README.md explains how to run tests
 - Always start from an issue, check the [issue tracker](https://gitlab.com/groups/soft.at.home/ambiorix/-/issues). If no issue exists for your new feature/bug fix, just create one.
 - Always document public API
-- Make sure new code is following the [coding guidelines](https://gitlab.com/soft.at.home/ambiorix/ambiorix/blob/master/doc/CODING_GUIDELINES.md)
+- Make sure new code is following the [coding guidelines](https://gitlab.com/soft.at.home/ambiorix/ambiorix/-/blob/master/doc/CODING_GUIDELINES.md)
 
 ## No issue tracking needed for small contributions
 
