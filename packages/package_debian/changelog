@@ -1,3 +1,9 @@
+libamxo (1.1.2) unstable; urgency=medium
+
+  * Issue: ambiorix/libraries/libamxo#50 When a new instance is added the correct index and name of the object must be passed to the hook function
+
+ -- SAH bot <sahbot@softathome.com>  Wed, 12 May 2021 15:29:21 +0000
+
 libamxo (1.1.1) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml

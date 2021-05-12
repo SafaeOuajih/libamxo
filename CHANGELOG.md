@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.1.2 - 2021-05-12(15:29:21 +0000)
+
+- Issue: ambiorix/libraries/libamxo#50 When a new instance is added the correct index and name of the object must be passed to the hook function
+
 ## Release v1.1.1 - 2021-05-09(20:32:00 +0000)
 
 ### Changes
