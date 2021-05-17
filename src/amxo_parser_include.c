@@ -78,7 +78,8 @@
 #include <dirent.h>
 
 #include <amxc/amxc.h>
-#include <amxp/amxp_signal.h>
+#include <amxp/amxp.h>
+
 #include <amxd/amxd_common.h>
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
@@ -187,13 +188,11 @@ static int amxo_parser_check(amxo_parser_t* pctx,
         goto exit;
     }
 
-    if(!S_ISDIR(statbuf.st_mode)) {
-        *incstack = amxo_parser_can_include(pctx, *full_path);
-        if(*incstack == NULL) {
-            pctx->status = amxd_status_recursion;
-            amxo_parser_msg(pctx, "Recursive include detected \"%s\"", file_path);
-            goto exit;
-        }
+    *incstack = amxo_parser_can_include(pctx, *full_path);
+    if(*incstack == NULL) {
+        pctx->status = amxd_status_recursion;
+        amxo_parser_msg(pctx, "Recursive include detected \"%s\"", file_path);
+        goto exit;
     }
 
     retval = 0;

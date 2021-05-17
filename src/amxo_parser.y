@@ -71,7 +71,7 @@
 #include <sys/types.h>
 #include <dlfcn.h>
 #include <amxc/amxc.h>
-#include <amxp/amxp_signal.h>
+#include <amxp/amxp.h>
 #include <amxd/amxd_common.h>
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
