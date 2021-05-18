@@ -72,6 +72,7 @@ int main(void) {
         cmocka_unit_test(test_none_existing_include_file),
         cmocka_unit_test(test_none_existing_optional_include_file),
         cmocka_unit_test(test_recursive_include_detection),
+        cmocka_unit_test(test_recursive_dir_include_detection),
         cmocka_unit_test(test_include_absolute_path),
         cmocka_unit_test(test_post_include),
         cmocka_unit_test(test_can_include_directory),
