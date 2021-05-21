@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.1.3 - 2021-05-21(12:02:37 +0000)
+
+### Fixes
+
+- Recursive includes when parsing odl files can cause a segmentation fault
+- Extend event filter parser to resolve variables
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.1.2 - 2021-05-12(15:29:21 +0000)
 
 - Issue: ambiorix/libraries/libamxo#50 When a new instance is added the correct index and name of the object must be passed to the hook function

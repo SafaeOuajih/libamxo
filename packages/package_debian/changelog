@@ -1,3 +1,11 @@
+libamxo (1.1.3) unstable; urgency=medium
+
+  * Recursive includes when parsing odl files can cause a segmentation fault
+  * Extend event filter parser to resolve variables
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Fri, 21 May 2021 12:02:38 +0000
+
 libamxo (1.1.2) unstable; urgency=medium
 
   * Issue: ambiorix/libraries/libamxo#50 When a new instance is added the correct index and name of the object must be passed to the hook function
