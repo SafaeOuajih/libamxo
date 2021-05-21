@@ -837,16 +837,14 @@ event_populate
   : ON EVENT text_or_regexp event_func ';' {
       int retval = amxo_parser_subscribe(parser_ctx, 
                                          $3.txt, $3.is_regexp, 
-                                         NULL, false,
                                          NULL);
       YY_CHECK(retval < 0, $3.txt);
       YY_WARNING(retval > 0, $3.txt);
     }
   | ON EVENT text_or_regexp OF text_or_regexp event_func';' {
-      int retval = amxo_parser_subscribe(parser_ctx,
-                                         $3.txt, $3.is_regexp,
-                                         $5.txt, $5.is_regexp,
-                                         NULL);
+      int retval = amxo_parser_subscribe_path(parser_ctx,
+                                              $3.txt, $3.is_regexp,
+                                              $5.txt, $5.is_regexp);
       YY_CHECK(retval < 0, $3.txt);
       YY_WARNING(retval > 0, $3.txt);
     }
@@ -854,7 +852,6 @@ event_populate
       $5.txt[$5.length] = 0;
       int retval = amxo_parser_subscribe(parser_ctx, 
                                          $3.txt, $3.is_regexp,
-                                         NULL, false,
                                          $5.txt);
       YY_CHECK(retval < 0, $3.txt);
       YY_WARNING(retval > 0, $3.txt);

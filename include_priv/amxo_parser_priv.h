@@ -232,17 +232,21 @@ bool PRIVATE amxo_parser_add_arg(amxo_parser_t* pctx,
                                  uint32_t type,
                                  amxc_var_t* def_value);
 
-bool amxo_parser_set_counter(amxo_parser_t* pctx,
-                             const char* param_name);
+bool PRIVATE amxo_parser_set_counter(amxo_parser_t* pctx,
+                                     const char* param_name);
 
-int amxo_parser_subscribe(amxo_parser_t* pctx,
-                          const char* event,
-                          bool event_is_regexp,
-                          const char* path_regexp,
-                          bool path_is_regexp,
-                          const char* full_expr);
+int PRIVATE amxo_parser_subscribe_path(amxo_parser_t* pctx,
+                                       const char* event,
+                                       bool event_is_regexp,
+                                       const char* path,
+                                       bool path_is_regexp);
 
-bool amxo_parser_subscribe_item(amxo_parser_t* pctx);
+int PRIVATE amxo_parser_subscribe(amxo_parser_t* pctx,
+                                  const char* event,
+                                  bool event_is_regexp,
+                                  const char* full_expr);
+
+bool PRIVATE amxo_parser_subscribe_item(amxo_parser_t* pctx);
 
 int PRIVATE amxo_parser_add_post_include(amxo_parser_t* pctx,
                                          const char* file_path);

@@ -573,11 +573,53 @@ exit:
     return retval;
 }
 
+int amxo_parser_subscribe_path(amxo_parser_t* pctx,
+                               const char* event,
+                               bool event_is_regexp,
+                               const char* path,
+                               bool path_is_regexp) {
+    int retval = 1;
+    amxc_string_t res_path;
+    amxc_string_t expression;
+    const char* expr = NULL;
+    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
+    amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
+
+    amxc_string_init(&expression, 0);
+    amxc_string_init(&res_path, 0);
+
+    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
+    when_null(dm, exit);
+
+    if(pctx->resolved_fn == NULL) {
+        amxo_parser_msg(pctx,
+                        "No event subscription created - no function was resolved");
+        pctx->status = amxd_status_ok;
+        amxc_var_delete(&pctx->data);
+        goto exit;
+    }
+
+    if(amxc_string_set_resolved(&res_path, path, &pctx->config) > 0) {
+        path = amxc_string_get(&res_path, 0);
+    }
+    if(path_is_regexp) {
+        amxc_string_appendf(&expression, "object matches \"%s\"", path);
+    } else {
+        amxc_string_appendf(&expression, "object starts with \"%s\"", path);
+    }
+    expr = amxc_string_get(&expression, 0);
+    retval = amxo_parser_connect(pctx, &dm->sigmngr, event, event_is_regexp, expr, fn);
+
+exit:
+    amxc_string_clean(&expression);
+    amxc_string_clean(&res_path);
+
+    return retval;
+}
+
 int amxo_parser_subscribe(amxo_parser_t* pctx,
                           const char* event,
                           bool event_is_regexp,
-                          const char* path,
-                          bool path_is_regexp,
                           const char* full_expr) {
     int retval = 1;
     amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
@@ -594,20 +636,14 @@ int amxo_parser_subscribe(amxo_parser_t* pctx,
         goto exit;
     }
 
-    if(path != NULL) {
-        amxc_string_t expression;
-        const char* expr = NULL;
-        amxc_string_init(&expression, 0);
-        if(path_is_regexp) {
-            amxc_string_appendf(&expression, "object matches \"%s\"", path);
-        } else {
-            amxc_string_appendf(&expression, "object starts with \"%s\"", path);
+    if(full_expr != NULL) {
+        amxc_string_t res_expr;
+        amxc_string_init(&res_expr, 0);
+        if(amxc_string_set_resolved(&res_expr, full_expr, &pctx->config) > 0) {
+            full_expr = amxc_string_get(&res_expr, 0);
         }
-        expr = amxc_string_get(&expression, 0);
-        retval = amxo_parser_connect(pctx, &dm->sigmngr, event, event_is_regexp, expr, fn);
-        amxc_string_clean(&expression);
-    } else if(full_expr != NULL) {
         retval = amxo_parser_connect(pctx, &dm->sigmngr, event, event_is_regexp, full_expr, fn);
+        amxc_string_clean(&res_expr);
     } else {
         retval = amxo_parser_connect(pctx, &dm->sigmngr, event, event_is_regexp, NULL, fn);
     }
