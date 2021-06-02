@@ -54,8 +54,10 @@ $(OBJDIR)/lex.amxo_parser.o $(OBJDIR)/lex.amxo_parser.c: $(OBJDIR)/amxo_parser.t
 	flex --header-file=$(OBJDIR)/amxo_parser_flex.h -o $(OBJDIR)/lex.amxo_parser.c amxo_parser.l
 	$(CC) $(CFLAGS) -Wno-sign-compare -c -o $(OBJDIR)/lex.amxo_parser.o $(OBJDIR)/lex.amxo_parser.c
 
-$(OBJDIR)/amxo_parser.tab.o $(OBJDIR)/amxo_parser.tab.c $(OBJDIR)/amxo_parser.tab.h: amxo_parser.y | $(OBJDIR)/
+$(OBJDIR)/amxo_parser.tab.c $(OBJDIR)/amxo_parser.tab.h: amxo_parser.y | $(OBJDIR)/
 	bison -d --verbose -o $(OBJDIR)/amxo_parser.tab.c amxo_parser.y
+
+$(OBJDIR)/amxo_parser.tab.o: $(OBJDIR)/amxo_parser.tab.c $(OBJDIR)/amxo_parser.tab.h
 	$(CC) $(CFLAGS) -c -o $(OBJDIR)/amxo_parser.tab.o $(OBJDIR)/amxo_parser.tab.c
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(OBJDIR)/amxo_parser.tab.h | $(OBJDIR)/
