@@ -66,6 +66,38 @@ extern "C"
 {
 #endif
 
+#ifndef __AMXC_VARIANT_H__
+#pragma GCC error "include <amxc/amxc_variant.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXC_HTABLE_H__
+#pragma GCC error "include <amxc/amxc_htable.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXC_LLIST_H__
+#pragma GCC error "include <amxc/amxc_llist.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXC_RBUFFER_H__
+#pragma GCC error "include <amxc/amxc_rbuffer.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXC_STRING_H__
+#pragma GCC error "include <amxc/amxc_string.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXC_ASTACK_H__
+#pragma GCC error "include <amxc/amxc_astack.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXC_LSTACK_H__
+#pragma GCC error "include <amxc/amxc_lstack.h> before <amxo/amxo_types.h>"
+#endif
+
+#ifndef __AMXD_TYPES_H__
+#pragma GCC error "include <amxd/amxd_types.h> before <amxo/amxo_types.h>"
+#endif
+
 typedef struct _amxo_parser amxo_parser_t;
 
 typedef ssize_t (* amxo_reader_t) (amxo_parser_t* parser, void* buf, size_t max_size);
