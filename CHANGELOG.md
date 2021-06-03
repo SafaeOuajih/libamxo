@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.1.6 - 2021-06-03(08:06:12 +0000)
+
+- TM NET Build issue with libamxo
+
 ## Release v1.1.5 - 2021-06-01(07:06:21 +0000)
 
 ### Changes
