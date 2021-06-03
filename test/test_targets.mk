@@ -28,6 +28,6 @@ $(OBJDIR)/:
 	mkdir -p $@
 
 clean:
-	rm -f $(TARGET) $(OBJDIR)/* 
+	rm -rf $(TARGET) $(OBJDIR) 
 
 .PHONY: clean $(OBJDIR)/
