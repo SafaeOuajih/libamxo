@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.1.7 - 2021-06-08(09:09:25 +0000)
+
+### Fixes
+
+- [tr181 plugins][makefile] Dangerous clean target for all tr181 components
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.1.6 - 2021-06-03(08:06:12 +0000)
 
 - TM NET Build issue with libamxo
