@@ -1,3 +1,10 @@
+libamxo (1.2.0) unstable; urgency=medium
+
+  * A hook must be added for counter parameters
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 10 Jun 2021 12:18:46 +0000
+
 libamxo (1.1.7) unstable; urgency=medium
 
   * [tr181 plugins][makefile] Dangerous clean target for all tr181 components

@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.2.0 - 2021-06-10(12:18:46 +0000)
+
+### New
+
+- A hook must be added for counter parameters
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.1.7 - 2021-06-08(09:09:25 +0000)
 
 ### Fixes
