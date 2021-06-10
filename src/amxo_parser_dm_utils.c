@@ -566,6 +566,8 @@ bool amxo_parser_set_counter(amxo_parser_t* pctx,
         goto exit;
     }
 
+    amxo_hooks_set_counter(pctx, param_name);
+
     retval = true;
 
 exit:

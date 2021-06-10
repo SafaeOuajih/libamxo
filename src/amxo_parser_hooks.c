@@ -307,6 +307,18 @@ void PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
     }
 }
 
+void amxo_hooks_set_counter(amxo_parser_t* parser,
+                            const char* param_name) {
+    amxc_llist_for_each(it, parser->hooks) {
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        if(hook->set_counter != NULL) {
+            hook->set_counter(parser,
+                              parser->object,
+                              param_name);
+        }
+    }
+}
+
 int amxo_parser_set_hooks(amxo_parser_t* parser,
                           amxo_hooks_t* hooks) {
     int retval = -1;

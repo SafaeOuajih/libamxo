@@ -223,6 +223,12 @@ static void test_hook_add_func_arg(UNUSED amxo_parser_t* parser,
                                    UNUSED amxc_var_t* def_value) {
 }
 
+static void test_hook_set_counter(UNUSED amxo_parser_t* parser,
+                                  UNUSED amxd_object_t* parent,
+                                  const char* name) {
+    assert_string_equal(name, "NumberOfChildren");
+}
+
 static amxo_hooks_t test_hooks = {
     .start = test_hook_start,
     .end = test_hook_end,
@@ -241,7 +247,8 @@ static amxo_hooks_t test_hooks = {
     .end_param = test_hook_end_param,
     .add_func = test_hook_add_func,
     .end_func = test_hook_end_func,
-    .add_func_arg = test_hook_add_func_arg
+    .add_func_arg = test_hook_add_func_arg,
+    .set_counter = test_hook_set_counter
 };
 
 static amxo_hooks_t test_empty_hooks = { };

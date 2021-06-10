@@ -130,6 +130,9 @@ void PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
 void PRIVATE amxo_hooks_add_mib(amxo_parser_t* parser,
                                 const char* mib);
 
+void PRIVATE amxo_hooks_set_counter(amxo_parser_t* parser,
+                                    const char* param_name);
+
 #ifdef __cplusplus
 }
 #endif

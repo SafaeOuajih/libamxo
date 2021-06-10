@@ -134,6 +134,7 @@ include "test_include.odl";
         }
 
         object TestObjectTemplateWithChild[] {
+            counted with NumberOfChildren;
             object TemplateChildObject {
                 string Param1;
                 void func1();
