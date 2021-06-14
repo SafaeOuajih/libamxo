@@ -498,6 +498,7 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
     }
 
     handle = amxo_resolver_import_lib(parser, so_name, full_path, flags);
+    when_null(handle, exit);
 
     import_lib = (amxo_import_lib_t*) calloc(1, sizeof(amxo_import_lib_t));
     when_true_status(import_lib == NULL, exit, parser->status = amxd_status_out_of_mem);
