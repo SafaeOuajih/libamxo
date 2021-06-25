@@ -125,14 +125,14 @@ static int64_t amxo_attr_2_param_attr(int64_t attributes) {
 
 static void amxo_parser_set_event(amxo_parser_t* pctx,
                                   event_id_t event) {
-    amxc_lstack_it_t* it = amxc_lstack_peek(&pctx->event_stack);
+    amxc_lstack_it_t* it = amxc_llist_get_last(&pctx->event_list);
     event_t* e = amxc_container_of(it, event_t, it);
     e->id = event;
 }
 
 static void amxo_parser_data_event(amxo_parser_t* pctx,
                                    amxd_param_t* param) {
-    amxc_lstack_it_t* it = amxc_lstack_peek(&pctx->event_stack);
+    amxc_lstack_it_t* it = amxc_llist_get_last(&pctx->event_list);
     event_t* e = amxc_container_of(it, event_t, it);
     amxc_var_t* value = NULL;
 

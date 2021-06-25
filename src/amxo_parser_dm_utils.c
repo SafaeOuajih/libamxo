@@ -83,7 +83,6 @@
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
 #include <amxd/amxd_object_expression.h>
-#include <amxd/amxd_object_event.h>
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
@@ -117,23 +116,10 @@ static void amxo_parser_push_event(amxo_parser_t* pctx,
                                    event_id_t event) {
     event_t* e = (event_t*) calloc(1, sizeof(event_t));
     e->id = event;
+    e->path = amxd_object_get_path(pctx->object, AMXD_OBJECT_TERMINATE);
     amxc_var_init(&e->data);
 
-    amxc_lstack_push(&pctx->event_stack, &e->it);
-}
-
-static void amxo_parser_pop_event(amxo_parser_t* pctx, amxd_object_t* object) {
-    amxc_lstack_it_t* it = amxc_lstack_pop(&pctx->event_stack);
-    event_t* e = amxc_container_of(it, event_t, it);
-
-    if(e->id == event_instance_add) {
-        amxd_object_send_add_inst(object, false);
-    } else if(e->id == event_object_change) {
-        amxd_object_send_changed(object, &e->data, false);
-    }
-
-    amxc_var_clean(&e->data);
-    free(e);
+    amxc_llist_append(&pctx->event_list, &e->it);
 }
 
 static amxd_status_t amxo_cleanup_data(amxd_object_t* const object,
@@ -437,8 +423,8 @@ int amxo_parser_create_object(amxo_parser_t* pctx,
     amxo_hooks_create_object(pctx, name, oattrs, type);
 
     amxc_astack_push(&pctx->object_stack, pctx->object);
-    amxo_parser_push_event(pctx, event_none);
     pctx->object = object;
+    amxo_parser_push_event(pctx, event_none);
     retval = 0;
 
 exit:
@@ -475,8 +461,8 @@ bool amxo_parser_add_instance(amxo_parser_t* pctx,
     amxo_hooks_add_instance(pctx, amxd_object_get_index(object),
                             amxd_object_get_name(object, AMXD_OBJECT_NAMED));
     amxc_astack_push(&pctx->object_stack, pctx->object);
-    amxo_parser_push_event(pctx, event_instance_add);
     pctx->object = object;
+    amxo_parser_push_event(pctx, event_instance_add);
     retval = true;
 
 exit:
@@ -512,8 +498,8 @@ bool amxo_parser_push_object(amxo_parser_t* pctx,
     amxo_hooks_select_object(pctx, path);
 
     amxc_astack_push(&pctx->object_stack, pctx->object);
-    amxo_parser_push_event(pctx, event_object_change);
     pctx->object = object;
+    amxo_parser_push_event(pctx, event_object_change);
     retval = true;
 
 exit:
@@ -535,7 +521,6 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     }
     amxo_hooks_end_object(pctx);
 
-    amxo_parser_pop_event(pctx, pctx->object);
     pctx->object = (amxd_object_t*) amxc_astack_pop(&pctx->object_stack);
 
     retval = true;

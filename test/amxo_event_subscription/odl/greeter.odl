@@ -1,0 +1,16 @@
+#!/usr/bin/amxrt
+
+%config {
+    // Application name
+    name = "greeter";
+    definition_file = "${name}_definition.odl";
+    extra_file = "${name}_extra.odl";
+    defaults_file = "${name}_defaults.odl";
+}
+
+include "${definition_file}";
+include "${defaults_file}";
+
+%populate {
+    on event "*" call check_event;
+}

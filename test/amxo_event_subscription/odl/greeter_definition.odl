@@ -1,0 +1,18 @@
+%define {
+    %persistent object Greeter {
+        %persistent %read-only uint32 MaxHistory = 10;
+        string State = "Idle";
+
+        %persistent %read-only object History[] {
+            counted with HistorySize;
+            %persistent %read-only string From;
+            %persistent %read-only string Message;
+            %persistent bool Retain = false;
+
+            object Info[] {
+                counted with NumberOfInfoEntries;
+                string Text = "";
+            }
+        }
+    }
+}

@@ -86,10 +86,16 @@
 
 #include "test_events.h"
 
+typedef struct _expected_events {
+    const char* path;
+    const char* signame;
+} expected_events_t;
+
 #include <amxc/amxc_macros.h>
 static uint32_t event_counter = 0;
 static uint32_t instance_add_counter = 0;
 static uint32_t object_changed_counter = 0;
+static amxc_var_t events;
 
 static void _print_event(const char* const sig_name,
                          const amxc_var_t* const data,
@@ -97,6 +103,18 @@ static void _print_event(const char* const sig_name,
 
     printf("Event received %s\n", sig_name);
     amxc_var_dump(data, STDOUT_FILENO);
+    event_counter++;
+}
+
+static void _check_event(const char* const sig_name,
+                         const amxc_var_t* const data,
+                         UNUSED void* const priv) {
+
+    amxc_var_t* event = NULL;
+    printf("Event received %s\n", sig_name);
+    event = amxc_var_add(amxc_htable_t, &events, NULL);
+    amxc_var_copy(event, data);
+    amxc_var_add_key(cstring_t, event, "signame", sig_name);
     event_counter++;
 }
 
@@ -427,6 +445,57 @@ void test_populate_section_generates_events(UNUSED void** state) {
     assert_int_equal(instance_add_counter, 1);
     assert_int_equal(object_changed_counter, 1);
 
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_events_are_in_correct_order(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* file = "./odl/greeter.odl";
+    const amxc_llist_t* levents = NULL;
+
+    expected_events_t eevents[] = {
+        { "Greeter.", "dm:object-added" },
+        { "Greeter.History.", "dm:object-added" },
+        { "Greeter.History.Info.", "dm:object-added" },
+        { "Greeter.History.", "dm:instance-added" },
+        { "Greeter.History.1.Info.", "dm:object-added" },
+        { "Greeter.History.1.Info.", "dm:instance-added" },
+        { "Greeter.History.1.Info.", "dm:instance-added" },
+        { "Greeter.History.1.Info.", "dm:instance-added" },
+        { "Greeter.History.1.Info.", "dm:instance-added" },
+        { "Greeter.", "dm:object-changed" },
+        { "Greeter.History.1.", "dm:object-changed" },
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxc_var_init(&events);
+    amxc_var_set_type(&events, AMXC_VAR_ID_LIST);
+    amxo_resolver_ftab_add(&parser, "check_event", AMXO_FUNC(_check_event));
+    assert_int_equal(amxo_parser_parse_file(&parser, file, amxd_dm_get_root(&dm)), 0);
+
+    event_counter = 0;
+    while(amxp_signal_read() == 0) {
+    }
+
+    levents = amxc_var_constcast(amxc_llist_t, &events);
+    assert_int_equal(sizeof(eevents) / sizeof(expected_events_t), amxc_llist_size(levents));
+    amxc_var_dump(&events, STDOUT_FILENO);
+    for(uint32_t i = 0; i < sizeof(eevents) / sizeof(expected_events_t); i++) {
+        amxc_llist_it_t* it = amxc_llist_get_first(levents);
+        assert_non_null(it);
+        amxc_var_t* event = amxc_var_from_llist_it(it);
+
+        assert_string_equal(eevents[i].path, GET_CHAR(event, "path"));
+        assert_string_equal(eevents[i].signame, GET_CHAR(event, "signame"));
+
+        amxc_var_delete(&event);
+    }
+
+    amxc_var_clean(&events);
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }

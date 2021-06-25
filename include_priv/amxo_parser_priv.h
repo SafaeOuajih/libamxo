@@ -124,6 +124,7 @@ typedef enum _event_id {
 typedef struct _event {
     event_id_t id;
     amxc_var_t data;
+    char* path;
     amxc_llist_it_t it;
 } event_t;
 

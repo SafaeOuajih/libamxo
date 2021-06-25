@@ -76,6 +76,7 @@
 #include <amxp/amxp.h>
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
+#include <amxd/amxd_object_event.h>
 #include <amxo/amxo.h>
 
 #include "amxo_parser_priv.h"
@@ -134,6 +135,31 @@ ssize_t PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
     return result;
 }
 
+static void amxo_parser_pop_event(event_t* e, amxd_dm_t* dm) {
+    amxd_object_t* object = amxd_dm_findf(dm, "%s", e->path);
+
+    when_null(object, exit);
+
+    if(e->id == event_instance_add) {
+        amxd_object_send_add_inst(object, false);
+    } else if(e->id == event_object_change) {
+        amxd_object_send_changed(object, &e->data, false);
+    }
+
+exit:
+    amxc_llist_it_take(&e->it);
+    amxc_var_clean(&e->data);
+    free(e->path);
+    free(e);
+}
+
+static void amxo_parser_send_events(amxo_parser_t* parser, amxd_dm_t* dm) {
+    amxc_llist_for_each(it, &parser->event_list) {
+        event_t* e = amxc_container_of(it, event_t, it);
+        amxo_parser_pop_event(e, dm);
+    }
+}
+
 int PRIVATE amxo_parser_parse_file_impl(amxo_parser_t* parser,
                                         const char* file_path,
                                         amxd_object_t* object) {
@@ -180,7 +206,7 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     amxc_rbuffer_init(&parser->rbuffer, 0);
     amxc_string_init(&parser->msg, 0);
     amxc_astack_init(&parser->object_stack);
-    amxc_lstack_init(&parser->event_stack);
+    amxc_llist_init(&parser->event_list);
     amxc_var_init(&parser->config);
     amxc_llist_init(&parser->global_config);
     amxc_htable_init(&parser->mibs, 5);
@@ -223,7 +249,7 @@ void amxo_parser_clean(amxo_parser_t* parser) {
     amxc_rbuffer_clean(&parser->rbuffer);
     amxc_string_clean(&parser->msg);
     amxc_astack_clean(&parser->object_stack, NULL);
-    amxc_lstack_clean(&parser->event_stack, amxo_parser_free_event);
+    amxc_llist_clean(&parser->event_list, amxo_parser_free_event);
     amxc_llist_clean(&parser->global_config, amxc_string_list_it_free);
 
     amxo_parser_clean_resolvers(parser);
@@ -294,6 +320,8 @@ int amxo_parser_parse_fd(amxo_parser_t* parser,
 
     amxo_hooks_end(parser);
 
+    amxo_parser_send_events(parser, amxd_object_get_dm(object));
+
 exit:
     return retval;
 }
@@ -332,6 +360,8 @@ int amxo_parser_parse_file(amxo_parser_t* parser,
     amxo_resolver_import_clean(parser, NULL);
     amxo_hooks_end(parser);
 
+    amxo_parser_send_events(parser, amxd_object_get_dm(object));
+
     if(real_path != NULL) {
         when_true(chdir(current_wd) == -1, exit);
     }
@@ -361,6 +391,8 @@ int amxo_parser_parse_string(amxo_parser_t* parser,
     retval = yyparse(parser->scanner);
     amxo_parser_destroy_lex(parser);
     amxo_hooks_end(parser);
+
+    amxo_parser_send_events(parser, amxd_object_get_dm(object));
 
     amxc_rbuffer_clean(&parser->rbuffer);
     parser->object = NULL;
