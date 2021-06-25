@@ -497,13 +497,16 @@ int amxo_resolver_import_open(amxo_parser_t* parser,
         goto exit;
     }
 
-    handle = amxo_resolver_import_lib(parser, so_name, full_path, flags);
+    handle = amxo_resolver_import_lib(parser, so_name, full_path, (flags & ~RTLD_NODELETE));
     when_null(handle, exit);
 
     import_lib = (amxo_import_lib_t*) calloc(1, sizeof(amxo_import_lib_t));
     when_true_status(import_lib == NULL, exit, parser->status = amxd_status_out_of_mem);
 
     import_lib->handle = handle;
+    if((flags & RTLD_NODELETE) == RTLD_NODELETE) {
+        import_lib->references++;
+    }
     amxc_htable_insert(import_data, alias, &import_lib->hit);
     retval = 0;
 

@@ -406,6 +406,10 @@ RTLD_GLOBAL               { yylval->integer = RTLD_GLOBAL;
                             return LDFLAG;
                           }
 
+RTLD_NODELETE             { yylval->integer = RTLD_NODELETE;
+                            return LDFLAG;
+                          }
+
 entry-point               { yylval->integer = token_keyword;
                             return ENTRY;
                           }

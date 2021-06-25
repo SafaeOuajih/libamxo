@@ -70,6 +70,7 @@ int main(void) {
         cmocka_unit_test(test_import_resolver_resolves_pcb_style),
         cmocka_unit_test(test_import_resolver_resolves),
         cmocka_unit_test(test_import_resolver_invalid_data),
+        cmocka_unit_test(test_import_resolver_can_specify_flags),
         cmocka_unit_test(test_import_resolver_multiple_import),
         cmocka_unit_test(test_can_call_entry_point),
         cmocka_unit_test(test_entry_point_invocation_continues_after_failing_entry_point),

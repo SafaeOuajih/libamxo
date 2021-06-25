@@ -73,6 +73,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cmocka.h>
+#include <dlfcn.h>
 
 #include <amxc/amxc.h>
 #include <amxp/amxp_signal.h>
@@ -159,6 +160,30 @@ void test_import_resolver_invalid_data(UNUSED void** state) {
         assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
         assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
         amxd_dm_clean(&dm);
+    }
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+    amxo_resolver_import_close_all();
+}
+
+void test_import_resolver_can_specify_flags(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odls[] = {
+        "import \"../test_plugin/test_plugin.so\" RTLD_NOW RTLD_GLOBAL RTLD_NODELETE; %define { object TestObject { void TestFunc1(); } }",
+        NULL
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    for(int i = 0; odls[i] != NULL; i++) {
+        assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+        amxd_dm_clean(&dm);
+        amxo_parser_clean(&parser);
+        amxo_parser_init(&parser);
     }
 
     amxo_parser_clean(&parser);
