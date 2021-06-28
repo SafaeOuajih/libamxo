@@ -76,4 +76,4 @@ clean:
 	make -C ../test clean
 	find ../ -name "run_test" -delete
 
-.PHONY: all clean ../include_priv/amxo_version.h
+.PHONY: all clean
