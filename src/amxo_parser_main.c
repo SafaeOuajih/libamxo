@@ -484,6 +484,7 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
                                     int reason) {
     int retval = -1;
     int fail_count = 0;
+    bool dm_eventing_enabled = true;
     when_null(parser, exit);
     when_null(dm, exit);
 
@@ -505,6 +506,8 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
     while(amxp_signal_read() == 0) {
     }
 
+    dm_eventing_enabled = GET_BOOL(&parser->config, "dm-eventing-enabled");
+    amxp_sigmngr_enable(&dm->sigmngr, dm_eventing_enabled);
     amxc_var_for_each(var, parser->post_includes) {
         const char* file = amxc_var_constcast(cstring_t, var);
         if(amxo_parser_parse_file(parser, file, parser->object) != 0) {
@@ -512,6 +515,7 @@ int amxo_parser_invoke_entry_points(amxo_parser_t* parser,
         }
         amxc_var_delete(&var);
     }
+    amxp_sigmngr_enable(&dm->sigmngr, true);
 
     retval = fail_count;
 

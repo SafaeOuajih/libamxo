@@ -216,11 +216,15 @@ void test_post_include(UNUSED void** state) {
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
+    assert_true(dm.sigmngr.enabled);
+
     sprintf(odl, "&include \"/tmp/fake.odl\";");
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_file_not_found);
 
     assert_int_not_equal(amxo_parser_invoke_entry_points(&parser, &dm, 0), 0);
+
+    assert_true(dm.sigmngr.enabled);
 
     free(abs_path);
     amxo_parser_clean(&parser);
