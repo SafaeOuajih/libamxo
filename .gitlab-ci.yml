@@ -3,7 +3,7 @@ variables:
   UTEST_TEST_COV_CMD: "make coverage"
   DOC_GEN_CMD: "make doc"
   BUILD_TARGET: libamxo
-  BUILD_DEPS: libamxc=1.1.1 libamxd=3.1.0 libamxp=0.9.1 flex bison
+  BUILD_DEPS: libamxc=1.2.0 libamxd=3.1.1 libamxp=0.9.2 flex bison
 
 include:
   - remote: 'https://gitlab.com/soft.at.home/ci/gitlab-ci/raw/master/ambiorix-default-pipeline.yml'
