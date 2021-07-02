@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.2.8 - 2021-07-02(18:58:30 +0000)
+
+### Fixes
+
+- Generation of version.h files should not be .PHONY
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.2.7 - 2021-06-28(12:56:25 +0000)
 
 ### Fixes
