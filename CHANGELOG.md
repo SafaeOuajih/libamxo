@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.3.0 - 2021-07-12(09:30:38 +0000)
+
+### New
+
+- Make it possible to declare required objects from remote processes
+
 ## Release v1.2.11 - 2021-07-09(09:30:26 +0000)
 
 ### Changes
