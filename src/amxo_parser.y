@@ -97,6 +97,7 @@
   amxo_action_t action;
 }
 
+%token <integer> REQUIRES
 %token <integer> INCLUDE
 %token <integer> IMPORT
 %token <integer> AS
@@ -143,7 +144,7 @@
 %token <integer> CUSTOM
 
 %type <integer> stream sections section config_options config_option
-%type <integer> include import ldflags entry_point
+%type <integer> requires include import ldflags entry_point
 %type <integer> defines populates populate object_populate event_populate
 %type <integer> define object_def object_def_header multi object_body object_content
 %type <integer> parameter_def counted event_def
@@ -263,6 +264,7 @@ sections
 section
   : include
   | import
+  | requires
   | CONFIG '{' '}' {
       amxo_hooks_end_section(parser_ctx, 0);
     }
@@ -316,6 +318,24 @@ config_option
     }
   ;
 
+requires
+  : REQUIRES TEXT ';' {
+      $2.txt[$2.length] = 0;
+      amxc_var_t* requires = NULL;
+      amxc_string_t *name = NULL;
+      amxc_string_new(&name, 0);
+      amxc_string_append(name, "requires", strlen("requires") + 1);
+      amxc_llist_append(&parser_ctx->global_config, &name->it);
+
+      requires = amxo_parser_claim_config(parser_ctx, "requires");
+      if (amxc_var_type_of(requires) != AMXC_VAR_ID_LIST) {
+          amxc_var_set_type(requires, AMXC_VAR_ID_LIST);
+      }
+      amxc_var_add(cstring_t, requires, $2.txt);
+      $$ = 0;
+    }
+  ;
+
 include
   : INCLUDE TEXT ';' {
       $2.txt[$2.length] = 0;
@@ -338,7 +358,7 @@ include
           retval = amxo_parser_include(parser_ctx, $4.txt);
       }
       YY_CHECK(retval != 0, $2.txt); 
-  }
+    }
   ;
 
 import

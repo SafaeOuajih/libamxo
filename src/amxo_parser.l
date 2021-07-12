@@ -233,6 +233,9 @@ parameter                 { yylval->integer = token_keyword;
 include                   { yylval->integer = token_include;
                             return INCLUDE;
                           }
+requires                  { yylval->integer = token_requires;
+                            return REQUIRES;
+                          }
 import                    { yylval->integer = token_import;
                             return IMPORT;
                           }

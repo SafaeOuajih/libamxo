@@ -83,7 +83,8 @@ enum amxo_parser_tokens_t
     token_object,
     token_mib,
     token_keyword,
-    token_eof
+    token_eof,
+    token_requires,
 };
 
 typedef enum _amxo_parser_attr {

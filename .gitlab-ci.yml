@@ -6,4 +6,4 @@ variables:
   BUILD_DEPS: libamxc=1.2.1 libamxd=3.1.5 libamxp=0.9.3 flex bison
 
 include:
-  - remote: 'https://gitlab.com/soft.at.home/ci/gitlab-ci/raw/master/ambiorix-default-pipeline.yml'
+  - remote: 'https://gitlab.com/soft.at.home/ci/gitlab-ci/raw/main/ambiorix-default-pipeline.yml'
