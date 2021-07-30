@@ -404,6 +404,7 @@ populates
 
 define
   : object_def
+  | function_def
   | entry_point
   ; 
 
