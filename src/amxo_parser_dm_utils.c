@@ -85,6 +85,7 @@
 #include <amxd/amxd_object_expression.h>
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
+#include <amxo/amxo_mibs.h>
 
 #include "amxo_parser_priv.h"
 #include "amxo_parser.tab.h"
@@ -749,16 +750,23 @@ bool amxo_parser_add_mib(amxo_parser_t* pctx,
 
     when_null(dm, exit);
 
-    mib = amxd_dm_get_mib(dm, mib_name);
-    if(mib == NULL) {
-        amxo_parser_msg(pctx, "MIB %s is not found", mib_name);
-        pctx->status = amxd_status_object_not_found;
-        goto exit;
-    }
-
     if(amxd_object_has_mib(pctx->object, mib_name)) {
         retval = true;
         goto exit;
+    }
+
+    mib = amxd_dm_get_mib(dm, mib_name);
+    if(mib == NULL) {
+        const char* file = amxo_parser_get_mib_file(pctx, mib_name);
+        if(file != NULL) {
+            amxo_parser_include(pctx, file);
+            mib = amxd_dm_get_mib(dm, mib_name);
+        }
+        if(mib == NULL) {
+            amxo_parser_msg(pctx, "MIB %s is not found", mib_name);
+            pctx->status = amxd_status_object_not_found;
+            goto exit;
+        }
     }
 
     pctx->status = amxd_object_add_mib(pctx->object, mib_name);

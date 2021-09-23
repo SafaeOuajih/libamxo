@@ -97,6 +97,7 @@ static void amxo_parser_push(amxo_parser_t* parent,
     child->include_stack = parent->include_stack;
     child->entry_points = parent->entry_points;
     child->post_includes = parent->post_includes;
+    child->parent = parent;
     amxc_var_copy(&child->config, &parent->config);
 }
 
@@ -111,6 +112,7 @@ static void amxo_parser_pop(amxo_parser_t* parent,
     child->resolvers = NULL;
     child->entry_points = NULL;
     child->post_includes = NULL;
+    child->parent = NULL;
     amxc_llist_for_each(it, (&child->global_config)) {
         amxc_string_t* str_name = amxc_string_from_llist_it(it);
         const char* name = amxc_string_get(str_name, 0);

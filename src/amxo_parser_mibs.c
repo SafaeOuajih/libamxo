@@ -268,6 +268,29 @@ exit:
     return retval;
 }
 
+const char* amxo_parser_get_mib_file(amxo_parser_t* parser,
+                                     const char* mib_name) {
+    const char* file = NULL;
+    mib_info_t* info = NULL;
+    amxc_htable_it_t* it = NULL;
+
+    when_null(parser, exit);
+    when_str_empty(mib_name, exit);
+
+    it = amxc_htable_get(&parser->mibs, mib_name);
+    while(it == NULL && parser->parent != NULL) {
+        parser = parser->parent;
+        it = amxc_htable_get(&parser->mibs, mib_name);
+    }
+    when_null(it, exit);
+    info = amxc_htable_it_get_data(it, mib_info_t, hit);
+
+    file = info->file;
+
+exit:
+    return file;
+}
+
 int amxo_parser_load_mib(amxo_parser_t* parser,
                          amxd_dm_t* dm,
                          const char* mib_name) {
@@ -281,13 +304,9 @@ int amxo_parser_load_mib(amxo_parser_t* parser,
 
     mib = amxd_dm_get_mib(dm, mib_name);
     if(mib == NULL) {
-        mib_info_t* info = NULL;
-        amxc_htable_it_t* it = amxc_htable_get(&parser->mibs, mib_name);
-        when_null(it, exit);
-        info = amxc_htable_it_get_data(it, mib_info_t, hit);
-        retval = amxo_parser_parse_file(parser,
-                                        info->file,
-                                        amxd_dm_get_root(dm));
+        const char* file = amxo_parser_get_mib_file(parser, mib_name);
+        amxd_object_t* root = amxd_dm_get_root(dm);
+        retval = amxo_parser_parse_file(parser, file, root);
         when_true(retval != 0, exit);
     }
 

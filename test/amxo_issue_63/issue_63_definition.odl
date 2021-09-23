@@ -1,0 +1,7 @@
+%define {
+    %persistent object TestRoot {
+        %persistent object TestInstances[] {
+            %persistent string Text;
+        }
+    }
+}

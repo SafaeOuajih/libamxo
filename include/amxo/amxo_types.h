@@ -305,6 +305,8 @@ struct _amxo_parser {
 
     amxc_htable_t mibs;
     amxc_lstack_t event_list;    /**< */
+
+    amxo_parser_t* parent;
 };
 
 #ifdef __cplusplus

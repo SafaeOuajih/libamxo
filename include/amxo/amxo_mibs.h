@@ -129,6 +129,48 @@ int amxo_parser_scan_mib_dir(amxo_parser_t* parser,
 int amxo_parser_scan_mib_dirs(amxo_parser_t* parser,
                               amxc_var_t* dirs);
 
+/**
+   @ingroup amxo_parser_mibs
+   @brief
+   Get full path and file name of odl file describing a mib
+
+   After scanning the mib directories using @ref amxo_parser_scan_mib_dir or
+   @ref amxo_parser_scan_mib_dirs, this function returns the file name for
+   a mib definition.
+
+   The mib can be loaded using @ref amxo_parser_parse_file
+
+   @param parser the odl parser instance
+   @param mib_name name of the mib.
+
+   @return
+   Returns a string containing the full path and file name of the file containing
+   the mib definition or NULL when no file found
+ */
+const char* amxo_parser_get_mib_file(amxo_parser_t* parser,
+                                     const char* mib_name);
+
+/**
+   @ingroup amxo_parser_mibs
+   @brief
+   Loads the mib definition.
+
+   Mibs can be loaded by mib name after @ref amxo_parser_scan_mib_dir or
+   @ref amxo_parser_scan_mib_dirs was called.
+
+   This function calls:
+   - @ref amxo_parser_get_mib_file
+   - @ref amxo_parser_parse_file
+
+   If the mib was already loaded nothing is done.
+
+   @param parser the odl parser instance
+   @param dm data model for which the mib must be loaded
+   @param mib_name name of the mib.
+
+   @return
+   Returns 0 when success, any other value indicates failure.
+ */
 int amxo_parser_load_mib(amxo_parser_t* parser,
                          amxd_dm_t* dm,
                          const char* mib_name);

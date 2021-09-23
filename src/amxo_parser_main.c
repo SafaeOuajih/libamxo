@@ -202,6 +202,7 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->listeners = NULL;
     parser->data = NULL;
     parser->post_includes = NULL;
+    parser->parent = NULL;
 
     amxc_rbuffer_init(&parser->rbuffer, 0);
     amxc_string_init(&parser->msg, 0);

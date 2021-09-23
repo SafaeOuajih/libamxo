@@ -1,0 +1,8 @@
+%populate {
+    object TestRoot.TestInstances {
+        instance add() {
+            extend with mib test;
+            parameter Text = "Extended";
+        }
+    }
+}

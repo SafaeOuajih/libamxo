@@ -1,0 +1,5 @@
+%define {
+    mib test {
+        %persistent string MibParam;
+    }
+}
