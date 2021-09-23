@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.3.6 - 2021-09-23(09:59:47 +0000)
+
+### Fixes
+
+- Saved odl files with mib extensions can not be loaded
+- it must be possible to indicate that an instance parameter must be saved in the header
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.3.5 - 2021-09-07(05:56:13 +0000)
 
 ## Release v1.3.4 - 2021-08-23(11:05:21 +0000)
