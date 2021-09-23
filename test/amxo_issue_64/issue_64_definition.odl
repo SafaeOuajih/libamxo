@@ -1,0 +1,10 @@
+%define {
+    %persistent object TestRoot {
+        %persistent object TestInstances[] {
+            %persistent string Text = "" {
+                on action validate call check_text;
+                userflags %odl-creation-param;
+            }
+        }
+    }
+}

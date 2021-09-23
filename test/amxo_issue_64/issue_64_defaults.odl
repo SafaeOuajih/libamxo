@@ -1,0 +1,6 @@
+%populate {
+    object TestRoot.TestInstances {
+        instance add(Text = "Validated") {
+        }
+    }
+}

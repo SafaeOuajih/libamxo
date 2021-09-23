@@ -7,3 +7,4 @@ libamxo_*.*
 test/test_plugin/test_plugin.d
 test/test_plugin/test_plugin.o
 test/test_plugin/test_plugin.so
+test/**/saved.odl

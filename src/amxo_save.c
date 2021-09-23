@@ -70,6 +70,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <errno.h>
+#include <string.h>
 
 #include <amxc/amxc.h>
 #include <amxp/amxp.h>
@@ -356,13 +357,33 @@ exit:
     return retval;
 }
 
+static bool amxo_parser_is_creation_parameter(const amxc_llist_t* flags) {
+    bool retval = false;
+    amxc_llist_for_each(it, flags) {
+        amxc_var_t* flag = amxc_var_from_llist_it(it);
+        if(strcmp(GET_CHAR(flag, NULL), "odl-creation-param") == 0) {
+            retval = true;
+            break;
+        }
+    }
+
+    return retval;
+}
+
 static bool amxo_parser_has_key_params(const amxc_htable_t* params) {
     bool retval = false;
 
     amxc_htable_for_each(it, params) {
         amxc_var_t* param = amxc_var_from_htable_it(it);
+        const amxc_llist_t* flags = amxc_var_constcast(amxc_llist_t,
+                                                       GET_ARG(param, "flags"));
 
         if(PARAM_ATTR(param, "attributes.key")) {
+            retval = true;
+            break;
+        }
+
+        if(amxo_parser_is_creation_parameter(flags)) {
             retval = true;
             break;
         }
@@ -392,7 +413,8 @@ static int amxo_parser_instance_header(amxd_object_t* object,
             const char* name = amxc_htable_it_get_key(it);
             amxc_var_t* value = PARAM_VALUE(param);
             bool is_key_param = PARAM_ATTR(param, "attributes.key");
-            if(!is_key_param) {
+            bool is_creation_param = amxo_parser_is_creation_parameter(PARAM_FLAGS(param));
+            if(!is_key_param && !is_creation_param) {
                 continue;
             }
             amxo_parser_writef(buffer, ", '%s' = ", name);
@@ -453,14 +475,17 @@ exit:
     return retval;
 }
 
-static int amxo_parser_save_param_flags(amxc_var_t* param,
+static int amxo_parser_save_param_flags(int fd,
+                                        amxc_var_t* param,
                                         amxc_string_t* buffer) {
     int retval = 0;
     const amxc_llist_t* flags = PARAM_FLAGS(param);
     const char* sep = "";
-    amxo_parser_writef(buffer, "{\n");
+    amxo_parser_writef(buffer, " {\n");
+    retval = amxo_parser_flush_buffer(fd, buffer);
+    when_true(retval < 0, exit);
     indentation += 4;
-    amxo_parser_writef(buffer, "flags ");
+    amxo_parser_writef(buffer, "userflags ");
     amxc_llist_iterate(it, flags) {
         amxc_var_t* var_flag = amxc_var_from_llist_it(it);
         const char* flag = amxc_var_constcast(cstring_t, var_flag);
@@ -468,9 +493,12 @@ static int amxo_parser_save_param_flags(amxc_var_t* param,
         sep = ",";
     }
     amxo_parser_writef(buffer, ";\n");
+    retval = amxo_parser_flush_buffer(fd, buffer);
+    when_true(retval < 0, exit);
     indentation -= 4;
     amxo_parser_writef(buffer, "}\n");
 
+exit:
     return retval;
 }
 
@@ -479,14 +507,17 @@ static bool amxo_parser_must_save_param(amxd_object_t* object, amxc_var_t* param
     bool is_inst_param = PARAM_ATTR(param, "attributes.instance");
     bool is_key_param = PARAM_ATTR(param, "attributes.key");
     bool is_persist_param = PARAM_ATTR(param, "attributes.persistent");
+    bool is_creation_param = amxo_parser_is_creation_parameter(PARAM_FLAGS(param));
     bool must_save = true;
 
     if(amxd_object_get_type(object) == amxd_object_template) {
-        if(is_key_param || !is_persist_param || !is_templ_param) {
+        if(is_key_param || is_creation_param ||
+           !is_persist_param || !is_templ_param) {
             must_save = false;
         }
     } else if(amxd_object_get_type(object) == amxd_object_instance) {
-        if(is_key_param || !is_persist_param || !is_inst_param) {
+        if(is_key_param || is_creation_param ||
+           !is_persist_param || !is_inst_param) {
             must_save = false;
         }
     } else {
@@ -523,7 +554,7 @@ static int amxo_parser_save_params(int fd,
         retval = amxo_parser_save_value(value, buffer);
         when_true(retval < 0, exit);
         if(!amxc_llist_is_empty(flags)) {
-            amxo_parser_save_param_flags(param, buffer);
+            amxo_parser_save_param_flags(fd, param, buffer);
         } else {
             amxo_parser_writef(buffer, ";\n");
         }
