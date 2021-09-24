@@ -1,3 +1,9 @@
+libamxo (1.3.7) unstable; urgency=medium
+
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Fri, 24 Sep 2021 15:50:01 +0000
+
 libamxo (1.3.6) unstable; urgency=medium
 
   * Saved odl files with mib extensions can not be loaded
