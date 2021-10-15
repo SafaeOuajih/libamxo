@@ -686,33 +686,156 @@ int amxo_parser_set_config(amxo_parser_t* parser,
                            const char* name,
                            amxc_var_t* value);
 
+/**
+   @defgroup amxo_parser_connection Connection management
+   @ingroup amxo_parser
+ */
 
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Adds a file descriptor (fd) to the list of fds that must be watched
+
+   This function will trigger the signal "connection-added" or "listen-added"
+   depending on the type given.
+
+   If the type given is "AMXO_LISTEN" the fd will be added to the list of listen
+   fds and the signal "listen-added" is triggered.
+
+   A callback function must be given. This callback function is called whenever
+   data is available for read.
+
+   @param parser the odl parser instance
+   @param fd the fd that must be watched
+   @param reader the read callback function, is called when data is available for read
+   @param uri (option, can be NULL) a uri representing the fd
+   @param type one of AMXO_BUS, AMXO_LISTEN, AMXO_CUSTOM
+   @param priv private data, will be passed to the callback function
+
+   @return
+   Returns 0 when success, any other value indicates failure.
+ */
 int amxo_connection_add(amxo_parser_t* parser,
                         int fd,
-                        amxo_fd_read_t reader,
+                        amxo_fd_cb_t reader,
                         const char* uri,
                         amxo_con_type_t type,
                         void* priv);
 
-int amxo_connection_add_listen(amxo_parser_t* parser,
-                               int fd,
-                               amxo_fd_read_t reader,
-                               const char* uri,
-                               void* priv);
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Adds a watcher to check if a fd is ready for write
 
+   It can happen that a fd is not ready for write. Most of the time the
+   write fails with error code EAGAIN or WOULDBLOCK. Whenever this happens
+   it is possible to indicate to the event-loop implementation that the fd
+   must be watched and a callback must be called as soon as the fd is available
+   again for writing.
+
+   Another use case for this function is a asynchronous connect.
+
+   This function will trigger the signal "connection-wait-write". Event-loop
+   implementations can connect to this signal, to add a watcher for the fd.
+
+   Typically when the fd is ready for write the watcher is removed.
+
+   @note
+   Before calling this function make sure the fd is added to the list of
+   connections using @ref amxo_connection_add
+
+   @param parser the odl parser instance
+   @param fd the fd that must be watched
+   @param write a callback function called when the socket is available for write
+
+   @return
+   Returns 0 when success, any other value indicates failure.
+ */
+int amxo_connection_wait_write(amxo_parser_t* parser,
+                               int fd,
+                               amxo_fd_cb_t writer);
+
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Removes the fd from the connection list.
+
+   This function triggers the signal "connection-deleted".
+
+   Event-loop implementations can connect to this signal and when it is triggered
+   remove the watchers for the given fd.
+
+   @param parser the odl parser instance
+   @param fd the fd that must be watched
+
+   @return
+   Returns 0 when success, any other value indicates failure.
+ */
 int amxo_connection_remove(amxo_parser_t* parser,
                            int fd);
 
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Gets the connection data for a file descriptor
+
+   Searches the connection data for the given fd. The connection data is stored
+   in the @ref amxo_connection_t structure.
+
+   @param parser the odl parser instance
+   @param fd the fd that must be watched
+
+   @return
+   returns pointer to the connection data or NULL if no data is found.
+ */
 amxo_connection_t* amxo_connection_get(amxo_parser_t* parser,
                                        int fd);
 
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Sets event-loop data.
+
+   This function is typicaly used by event-loop implementations to set
+   event-loop specific data for the connection
+
+   @param parser the odl parser instance
+   @param fd the fd that must be watched
+   @param el_data some event loop data
+
+   @return
+   Returns 0 when success, any other value indicates failure.
+ */
 int amxo_connection_set_el_data(amxo_parser_t* parser,
                                 int fd,
                                 void* el_data);
 
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Gets the first connection of the given type
+
+   @param parser the odl parser instance
+   @param type one of AMXO_BUS, AMXO_LISTEN, AMXO_CUSTOM
+
+   @return
+   returns pointer to the connection data or NULL if no data is found.
+ */
 amxo_connection_t* amxo_connection_get_first(amxo_parser_t* parser,
                                              amxo_con_type_t type);
 
+/**
+   @ingroup amxo_parser_connection
+   @brief
+   Gets the next connection data for a file descriptor
+
+   @param parser the odl parser instance
+   @param con starting point reference
+   @param fd the fd that must be watched
+
+   @return
+   returns pointer to the connection data or NULL if no data is found.
+ */
 amxo_connection_t* amxo_connection_get_next(amxo_parser_t* parser,
                                             amxo_connection_t* con,
                                             amxo_con_type_t type);

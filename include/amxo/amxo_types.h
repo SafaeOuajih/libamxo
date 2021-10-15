@@ -242,16 +242,19 @@ typedef struct _amxo_entry {
     amxo_entry_point_t entry_point;
 } amxo_entry_t;
 
-typedef void (* amxo_fd_read_t) (int fd, void* priv);
+typedef void (* amxo_fd_cb_t) (int fd, void* priv);
+
+#define amxo_fd_read_t amxo_fd_cb_t
 
 typedef struct _amxo_connection {
     amxc_llist_it_t it;
     char* uri;
     int fd;
-    amxo_fd_read_t reader;
+    amxo_fd_cb_t reader;
     void* el_data;
     void* priv;
     amxo_con_type_t type;
+    amxo_fd_cb_t can_write;
 } amxo_connection_t;
 
 /**

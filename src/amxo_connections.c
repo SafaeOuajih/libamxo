@@ -187,6 +187,33 @@ exit:
     return retval;
 }
 
+int amxo_connection_wait_write(amxo_parser_t* parser,
+                               int fd,
+                               amxo_fd_cb_t can_write_cb) {
+    int retval = -1;
+    amxo_connection_t* con = NULL;
+    amxc_var_t var_fd;
+    const char* signal = "connection-wait-write";
+
+    amxc_var_init(&var_fd);
+    when_null(parser, exit);
+    when_true(fd < 0, exit);
+    when_null(can_write_cb, exit);
+
+    con = amxo_connection_get_internal(parser->connections, fd);
+    when_null(con, exit);
+
+    amxc_var_set(fd_t, &var_fd, fd);
+    amxp_sigmngr_trigger_signal(NULL, signal, &var_fd);
+    con->can_write = can_write_cb;
+
+    retval = 0;
+
+exit:
+    amxc_var_clean(&var_fd);
+    return retval;
+}
+
 int amxo_connection_remove(amxo_parser_t* parser,
                            int fd) {
     int retval = -1;
