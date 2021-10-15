@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.4.0 - 2021-10-15(09:39:00 +0000)
+
+### New
+
+- Introduces function to add wait-for-write fd to event loop
+
 ## Release v1.3.10 - 2021-10-08(13:20:19 +0000)
 
 ### Changes

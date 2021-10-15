@@ -1,3 +1,9 @@
+libamxo (1.4.0) unstable; urgency=medium
+
+  * Introduces function to add wait-for-write fd to event loop
+
+ -- SAH bot <sahbot@softathome.com>  Fri, 15 Oct 2021 09:39:00 +0000
+
 libamxo (1.3.10) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml
