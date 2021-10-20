@@ -1,3 +1,9 @@
+libamxo (1.4.1) unstable; urgency=medium
+
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 20 Oct 2021 19:06:30 +0000
+
 libamxo (1.4.0) unstable; urgency=medium
 
   * Introduces function to add wait-for-write fd to event loop
