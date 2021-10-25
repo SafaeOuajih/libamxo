@@ -50,6 +50,7 @@ changelog:
 doc:
 	$(MAKE) -C doc doc
 
+
 test:
 	$(MAKE) -C test run
 	$(MAKE) -C test coverage
