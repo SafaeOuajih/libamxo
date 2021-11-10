@@ -113,10 +113,18 @@ typedef void (* amxo_fn_ptr_t)(void);
  */
 #define AMXO_FUNC(x) ((amxo_fn_ptr_t) x)
 
+typedef enum _amxo_fn_type {
+    amxo_function_action,
+    amxo_function_rpc,
+    amxo_function_event,
+    amxo_function_ep
+} amxo_fn_type_t;
+
 typedef void (* amxo_res_get_default_t) (amxo_parser_t* parser, void* priv);
 
 typedef amxo_fn_ptr_t (* amxo_res_resolve_fn_t) (amxo_parser_t* parser,
                                                  const char* fn_name,
+                                                 amxo_fn_type_t type,
                                                  const char* data,
                                                  void* priv);
 

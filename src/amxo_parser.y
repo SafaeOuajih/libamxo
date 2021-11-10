@@ -320,18 +320,19 @@ config_option
 
 requires
   : REQUIRES TEXT ';' {
-      $2.txt[$2.length] = 0;
-      amxc_var_t* requires = NULL;
+      amxc_var_t* req = NULL;
       amxc_string_t *name = NULL;
+
+      $2.txt[$2.length] = 0;
       amxc_string_new(&name, 0);
       amxc_string_append(name, "requires", strlen("requires") + 1);
       amxc_llist_append(&parser_ctx->global_config, &name->it);
 
-      requires = amxo_parser_claim_config(parser_ctx, "requires");
-      if (amxc_var_type_of(requires) != AMXC_VAR_ID_LIST) {
-          amxc_var_set_type(requires, AMXC_VAR_ID_LIST);
+      req = amxo_parser_claim_config(parser_ctx, "requires");
+      if (amxc_var_type_of(req) != AMXC_VAR_ID_LIST) {
+          amxc_var_set_type(req, AMXC_VAR_ID_LIST);
       }
-      amxc_var_add(cstring_t, requires, $2.txt);
+      amxc_var_add(cstring_t, req, $2.txt);
       $$ = 0;
     }
   ;
@@ -601,21 +602,21 @@ action_header
 action_function
   : CALL name {
       $2.txt[$2.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_action, "auto");
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
   | CALL name RESOLVER {
       $2.txt[$2.length] = 0;
       $3.txt[$3.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, $3.txt);
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_action, $3.txt);
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
 
 param_constraint
     : MIN DIGIT { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_minimum", "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, "check_minimum", amxo_function_action, "auto");
       YY_CHECK(retval < 0, "check_minimum");
       YY_WARNING(retval > 0, "check_minimum");
       amxc_var_new(&parser_ctx->data);
@@ -625,7 +626,7 @@ param_constraint
       YY_WARNING(retval > 0, "check_minimum");
     }
   | MAX DIGIT { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_maximum", "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, "check_maximum", amxo_function_action, "auto");
       YY_CHECK(retval < 0, "check_maximum");
       YY_WARNING(retval > 0, "check_maximum");
       amxc_var_new(&parser_ctx->data);
@@ -635,7 +636,7 @@ param_constraint
       YY_WARNING(retval > 0, "check_maximum");
     }
   | RANGE '[' DIGIT ',' DIGIT ']' { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_range", "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, "check_range", amxo_function_action, "auto");
       YY_CHECK(retval < 0, "check_range");
       YY_WARNING(retval > 0, "check_range");
       amxc_var_new(&parser_ctx->data);
@@ -647,7 +648,7 @@ param_constraint
       YY_WARNING(retval > 0, "check_range");
     }
   | ENUM '[' values ']' { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_enum", "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, "check_enum", amxo_function_action, "auto");
       YY_CHECK(retval < 0, "check_enum");
       YY_WARNING(retval > 0, "check_enum");
       retval = amxo_parser_set_action(parser_ctx, action_validate);
@@ -656,7 +657,7 @@ param_constraint
     }
   | CUSTOM name { // deprecated - must be removed at 01/01/2022
       $2.txt[$2.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_action, "auto");
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
@@ -667,7 +668,7 @@ param_constraint
       $2.txt[$2.length] = 0;
       $4.txt[$4.length] = 0;
       char *resolver = amxo_parser_build_import_resolver_data($2.txt, $4.txt);
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, resolver);
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_action, resolver);
       YY_CHECK_ACTION(retval < 0, $2.txt, free(resolver));
       YY_WARNING(retval > 0, $2.txt);
       retval = amxo_parser_set_action(parser_ctx, action_validate);
@@ -680,7 +681,7 @@ param_constraint
 dep_action
   : deprecated_action WITH name ';' { // deprecated - must be removed at 01/01/2022
       $3.txt[$3.length] = 0; 
-      int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, amxo_function_action, "auto");
       YY_CHECK(retval < 0, $3.txt);
       YY_WARNING(retval > 0, $3.txt);
       if ($1 == action_write) {
@@ -695,7 +696,7 @@ dep_action
       $3.txt[$3.length] = 0;
       $5.txt[$5.length] = 0;
       char *resolver = amxo_parser_build_import_resolver_data($3.txt, $5.txt);
-      int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, resolver);
+      int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, amxo_function_action, resolver);
       YY_CHECK_ACTION(retval < 0, $3.txt, free(resolver));
       YY_WARNING(retval > 0, $3.txt);
       if ($1 == action_write) {
@@ -724,7 +725,7 @@ deprecated_action
 function_def
   : function_header func_args ';' {
       const char *func_name = amxd_function_get_name(parser_ctx->func);
-      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, amxo_function_rpc, "auto");
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
@@ -734,14 +735,14 @@ function_def
         $3.txt[$3.length] = 0;
       }
       const char *func_name = amxd_function_get_name(parser_ctx->func);
-      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $3.txt);
+      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, amxo_function_rpc, $3.txt);
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
     }
   | function_header func_args '{' func_body '}'  {
       const char *func_name = amxd_function_get_name(parser_ctx->func);
-      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, amxo_function_rpc, "auto");
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
@@ -751,7 +752,7 @@ function_def
         $3.txt[$3.length] = 0;
       }
       const char *func_name = amxd_function_get_name(parser_ctx->func);
-      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, $3.txt);
+      int retval = amxo_parser_resolve_internal(parser_ctx, func_name, amxo_function_rpc, $3.txt);
       YY_CHECK(retval < 0, func_name);
       YY_WARNING(retval > 0, func_name);
       amxo_parser_pop_func(parser_ctx); 
@@ -895,14 +896,14 @@ text_or_regexp
 event_func
   : CALL name {
       $2.txt[$2.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, "auto");
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_event, "auto");
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
   | CALL name RESOLVER {
       $2.txt[$2.length] = 0;
       $3.txt[$3.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, $3.txt);
+      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_event, $3.txt);
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }

@@ -347,6 +347,7 @@ exit:
 
 static amxo_fn_ptr_t amxo_resolver_import(amxo_parser_t* parser,
                                           const char* fn_name,
+                                          UNUSED amxo_fn_type_t type,
                                           const char* data,
                                           UNUSED void* priv) {
     amxc_htable_t* import_data = amxo_parser_get_resolver_data(parser, "import");

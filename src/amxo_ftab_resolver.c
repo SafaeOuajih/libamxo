@@ -120,6 +120,7 @@ static void amxo_resolver_ftab_defaults(amxo_parser_t* parser,
 
 static amxo_fn_ptr_t amxo_resolver_ftab(amxo_parser_t* parser,
                                         const char* fn_name,
+                                        UNUSED amxo_fn_type_t type,
                                         const char* data,
                                         UNUSED void* priv) {
     amxo_fn_ptr_t fn = NULL;

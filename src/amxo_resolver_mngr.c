@@ -85,6 +85,7 @@ static amxc_htable_t resolvers;
 int PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
                                 const char* resolver_name,
                                 const char* func_name,
+                                amxo_fn_type_t type,
                                 const char* data) {
     int retval = -1;
     amxo_resolver_t* resolver = NULL;
@@ -103,6 +104,7 @@ int PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
     resolver = amxc_htable_it_get_data(hit, amxo_resolver_t, hit);
     parser->resolved_fn = resolver->resolve(parser,
                                             func_name,
+                                            type,
                                             data,
                                             resolver->priv);
     if(parser->status == amxd_status_ok) {

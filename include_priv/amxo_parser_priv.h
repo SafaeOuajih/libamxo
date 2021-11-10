@@ -258,6 +258,7 @@ amxc_htable_t* PRIVATE amxo_parser_get_resolvers(void);
 
 int PRIVATE amxo_parser_resolve_internal(amxo_parser_t* parser,
                                          const char* fn_name,
+                                         amxo_fn_type_t type,
                                          const char* data);
 
 void PRIVATE amxo_resolver_import_clean(amxo_parser_t* parser,
@@ -266,6 +267,7 @@ void PRIVATE amxo_resolver_import_clean(amxo_parser_t* parser,
 int PRIVATE amxo_parser_resolve(amxo_parser_t* parser,
                                 const char* resolver_name,
                                 const char* func_name,
+                                amxo_fn_type_t type,
                                 const char* data);
 
 void PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser);

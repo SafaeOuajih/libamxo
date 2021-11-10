@@ -93,6 +93,7 @@ static void amxo_resolver_auto_defaults(amxo_parser_t* parser,
 
 static amxo_fn_ptr_t amxo_resolver_auto(amxo_parser_t* parser,
                                         const char* fn_name,
+                                        amxo_fn_type_t type,
                                         UNUSED const char* data,
                                         UNUSED void* priv) {
     int retval = -1;
@@ -110,7 +111,7 @@ static amxo_fn_ptr_t amxo_resolver_auto(amxo_parser_t* parser,
         if(name[0] == '*') {
             break;
         }
-        retval = amxo_parser_resolve(parser, name, fn_name, NULL);
+        retval = amxo_parser_resolve(parser, name, fn_name, type, NULL);
         when_true(retval == 0, exit);
         amxc_var_add_key(bool, &used_resolvers, name, true);
     }
@@ -122,7 +123,7 @@ static amxo_fn_ptr_t amxo_resolver_auto(amxo_parser_t* parser,
         if(amxc_var_get_key(&used_resolvers, name, AMXC_VAR_FLAG_DEFAULT)) {
             continue;
         }
-        retval = amxo_parser_resolve(parser, name, fn_name, NULL);
+        retval = amxo_parser_resolve(parser, name, fn_name, type, NULL);
         when_true(retval == 0, exit);
     }
 

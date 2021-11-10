@@ -96,6 +96,7 @@ static void test_resolver_get(amxo_parser_t* parser,
 
 static amxo_fn_ptr_t test_resolver_resolve(amxo_parser_t* parser,
                                            UNUSED const char* fn_name,
+                                           UNUSED amxo_fn_type_t type,
                                            UNUSED const char* data,
                                            void* priv) {
     amxc_var_t* config = amxo_parser_get_config(parser, "test-data");

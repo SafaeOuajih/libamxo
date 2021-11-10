@@ -151,6 +151,7 @@ int amxo_parser_set_config_internal(amxo_parser_t* parser,
 
 int amxo_parser_resolve_internal(amxo_parser_t* pctx,
                                  const char* fn_name,
+                                 amxo_fn_type_t type,
                                  const char* data) {
     int retval = -1;
     char* name = NULL;
@@ -176,7 +177,7 @@ int amxo_parser_resolve_internal(amxo_parser_t* pctx,
     }
 
     pctx->resolved_fn = NULL;
-    retval = amxo_parser_resolve(pctx, name, fn_name, res_data);
+    retval = amxo_parser_resolve(pctx, name, fn_name, type, res_data);
     if(retval == -1) {
         pctx->status = amxd_status_invalid_name;
         amxo_parser_msg(pctx, "No function resolver found with name \"%s\"", name);
@@ -204,7 +205,7 @@ int amxo_parser_call_entry_point(amxo_parser_t* pctx,
     when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
 
     pctx->resolved_fn = NULL;
-    retval = amxo_parser_resolve(pctx, "import", fn_name, amxc_string_get(&data, 0));
+    retval = amxo_parser_resolve(pctx, "import", fn_name, amxo_function_ep, amxc_string_get(&data, 0));
     if(retval == 1) {
         amxo_parser_msg(pctx,
                         "No entry point \"%s\" found using \"%s\"",
