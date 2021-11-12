@@ -1,0 +1,11 @@
+%define {
+    object TestObject {
+        string Text = "Hello World";
+        uint32 Number = 101;
+
+        void MyTestFunc(%mandatory %in string message, %in uint32 number = 1234) <!LUA:
+            function(object, args)
+                print("object name = " .. object:get_name()
+           end
+        !>;
+}

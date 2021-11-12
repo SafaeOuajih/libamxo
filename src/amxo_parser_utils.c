@@ -103,10 +103,13 @@ static char* amxo_parser_get_resolver_name(const char* data) {
     amxc_llist_clean(&parts, amxc_string_list_it_free);
     amxc_string_clean(&full_data);
 
+    when_null(it, exit);
+
     amxc_string_trim(amxc_string_from_llist_it(it), NULL);
     name = amxc_string_take_buffer(amxc_string_from_llist_it(it));
     amxc_llist_it_clean(it, amxc_string_list_it_free);
 
+exit:
     return name;
 }
 
