@@ -279,37 +279,39 @@ typedef struct _amxo_connection {
    Use the API functions to work with the amxo_parser_t instance.
  */
 struct _amxo_parser {
-    void* scanner;                /**< Flex scanner */
-    int fd;                       /**< The file descriptor, used to read from the odl file
-                                       @ref amxo_parser_parse_file or @ref amxo_parser_parse_fd
-                                   */
-    amxc_var_t config;            /** An variant containing a htable with configuration options
-                                      Can be used by resolvers or the parser itself.
-                                   */
-    amxc_llist_t global_config;   /**< List of global config settings, contains the names of the
-                                       global config options
-                                   */
-    amxc_rbuffer_t rbuffer;       /**< Ring buffer, used to parse text */
-    amxo_reader_t reader;         /**< Reader function */
-    amxd_status_t status;         /**< Parser status, @ref amxo_parser_get_status */
-    amxc_string_t msg;            /**< Parser message, @ref amxo_parser_get_message */
+    void* scanner;                   /**< Flex scanner */
+    int fd;                          /**< The file descriptor, used to read from the odl file
+                                          @ref amxo_parser_parse_file or @ref amxo_parser_parse_fd
+                                      */
+    amxc_var_t config;               /** An variant containing a htable with configuration options
+                                         Can be used by resolvers or the parser itself.
+                                      */
+    amxc_llist_t global_config;      /**< List of global config settings, contains the names of the
+                                          global config options
+                                      */
+    amxc_rbuffer_t rbuffer;          /**< Ring buffer, used to parse text */
+    amxo_reader_t reader;            /**< Reader function */
+    amxd_status_t status;            /**< Parser status, @ref amxo_parser_get_status */
+    amxc_string_t msg;               /**< Parser message, @ref amxo_parser_get_message */
 
-    amxc_astack_t object_stack;   /**< Data model object stack, internally used by odl parser */
-    amxd_object_t* object;        /**< Data model current object, internally used by odl parser */
-    amxd_param_t* param;          /**< Data model current parameter, internally used by odl parser */
-    amxd_function_t* func;        /**< Data model current function, internally used by odl parser */
-    amxc_var_t* data;             /**< Some data, internally used by odl parser */
+    amxc_astack_t object_stack;      /**< Data model object stack, internally used by odl parser */
+    amxd_object_t* object;           /**< Data model current object, internally used by odl parser */
+    amxd_param_t* param;             /**< Data model current parameter, internally used by odl parser */
+    amxd_function_t* func;           /**< Data model current function, internally used by odl parser */
+    amxc_var_t* data;                /**< Some data, internally used by odl parser */
 
-    amxo_fn_ptr_t resolved_fn;    /**< Filled with function pointer, internally used by function resolver */
-    amxc_htable_t* resolvers;     /**< Resolvers data, internally used by function resolver */
+    amxo_fn_ptr_t resolved_fn;       /**< Filled with function pointer, internally used by function resolver */
+    amxc_string_t* resolved_fn_name; /**< Current resolved function name, internally used by function resolver */
+    amxc_llist_t function_names;     /**< Resolved function names, internally used by function resolver */
+    amxc_htable_t* resolvers;        /**< Resolvers data, internally used by function resolver */
 
-    amxc_llist_t* connections;    /**< List of connections */
-    amxc_llist_t* listeners;      /**< List of listen sockets */
-    amxc_llist_t* entry_points;   /**< List of entry points that needs to be called */
-    amxc_llist_t* hooks;          /**< List of parser hooks */
-    amxc_var_t* post_includes;    /**< List of include files that needs to be loaded after entry-points are called*/
+    amxc_llist_t* connections;       /**< List of connections */
+    amxc_llist_t* listeners;         /**< List of listen sockets */
+    amxc_llist_t* entry_points;      /**< List of entry points that needs to be called */
+    amxc_llist_t* hooks;             /**< List of parser hooks */
+    amxc_var_t* post_includes;       /**< List of include files that needs to be loaded after entry-points are called*/
 
-    amxc_var_t* include_stack;    /**< Used for recursive include tracking */
+    amxc_var_t* include_stack;       /**< Used for recursive include tracking */
 
     const char* file;
     uint32_t line;

@@ -190,6 +190,9 @@ int amxo_parser_resolve_internal(amxo_parser_t* pctx,
                         "No function implemention found for \"%s\" using \"%s\"",
                         fn_name,
                         name);
+    } else if(retval == 0) {
+        amxc_string_new(&pctx->resolved_fn_name, 0);
+        amxc_string_set(pctx->resolved_fn_name, fn_name);
     }
 
 exit:
@@ -220,6 +223,7 @@ int amxo_parser_call_entry_point(amxo_parser_t* pctx,
     if(pctx->resolved_fn != NULL) {
         amxo_entry_point_t fn = (amxo_entry_point_t) pctx->resolved_fn;
         retval = amxo_parser_add_entry_point(pctx, fn);
+        amxc_string_delete(&pctx->resolved_fn_name);
     }
 
 exit:

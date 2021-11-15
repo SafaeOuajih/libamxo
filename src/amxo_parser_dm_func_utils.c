@@ -202,6 +202,7 @@ void amxo_parser_pop_func(amxo_parser_t* pctx) {
     amxo_hooks_end_func(pctx);
     amxd_object_fn_t fn = (amxd_object_fn_t) pctx->resolved_fn;
     amxd_function_set_impl(pctx->func, fn);
+    amxc_string_delete(&pctx->resolved_fn_name);
     pctx->func = NULL;
     pctx->resolved_fn = NULL;
 }

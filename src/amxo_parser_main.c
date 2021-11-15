@@ -203,6 +203,7 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->data = NULL;
     parser->post_includes = NULL;
     parser->parent = NULL;
+    parser->resolved_fn_name = NULL;
 
     amxc_rbuffer_init(&parser->rbuffer, 0);
     amxc_string_init(&parser->msg, 0);
@@ -211,6 +212,7 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     amxc_var_init(&parser->config);
     amxc_llist_init(&parser->global_config);
     amxc_htable_init(&parser->mibs, 5);
+    amxc_llist_init(&parser->function_names);
 
     parser->file = "<unknown>";
 
@@ -264,6 +266,7 @@ void amxo_parser_clean(amxo_parser_t* parser) {
     amxc_llist_delete(&parser->entry_points, amxo_parser_entry_point_free);
     amxc_llist_delete(&parser->connections, amxo_parser_connection_free);
     amxc_llist_delete(&parser->listeners, amxo_parser_connection_free);
+    amxc_llist_clean(&parser->function_names, amxc_string_list_it_free);
     amxc_htable_clean(&parser->mibs, amxo_parser_del_mib_info);
     amxc_var_delete(&parser->post_includes);
 

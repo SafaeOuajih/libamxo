@@ -99,8 +99,11 @@ static amxc_var_t events;
 
 static void _print_event(const char* const sig_name,
                          const amxc_var_t* const data,
-                         UNUSED void* const priv) {
+                         void* const priv) {
 
+    amxc_string_t* fn_name = (amxc_string_t*) priv;
+    assert_non_null(priv);
+    assert_string_equal(amxc_string_get(fn_name, 0), "print_event");
     printf("Event received %s\n", sig_name);
     amxc_var_dump(data, STDOUT_FILENO);
     event_counter++;

@@ -295,13 +295,13 @@ static int amxo_parser_connect(amxo_parser_t* pctx,
                                             signal_name,
                                             expression,
                                             fn,
-                                            NULL);
+                                            pctx->resolved_fn_name);
     } else {
         retval = amxp_slot_connect(sig_mngr,
                                    signal_name,
                                    expression,
                                    fn,
-                                   NULL);
+                                   pctx->resolved_fn_name);
     }
     if(retval != 0) {
         retval = -1;
@@ -311,7 +311,13 @@ static int amxo_parser_connect(amxo_parser_t* pctx,
         } else {
             amxo_parser_msg(pctx, "Subscribe failed : %s", signal_name);
         }
+        amxc_string_delete(&pctx->resolved_fn_name);
+    } else {
+        amxc_llist_append(&pctx->function_names, &pctx->resolved_fn_name->it);
+        pctx->resolved_fn_name = NULL;
     }
+
+    pctx->resolved_fn_name = NULL;
     return retval;
 }
 
@@ -675,13 +681,19 @@ bool amxo_parser_subscribe_item(amxo_parser_t* pctx) {
                                event_pattern,
                                amxc_string_get(&expression, 0),
                                fn,
-                               NULL);
+                               pctx->resolved_fn_name);
+
+    amxc_llist_append(&pctx->function_names, &pctx->resolved_fn_name->it);
+    pctx->resolved_fn_name = NULL;
 
     free(regexp_path);
     amxc_string_clean(&expression);
     retval = true;
 
 exit:
+    if(pctx->resolved_fn_name != NULL) {
+        amxc_string_delete(&pctx->resolved_fn_name);
+    }
     return retval;
 }
 
@@ -728,6 +740,7 @@ int amxo_parser_set_action(amxo_parser_t* pctx,
     }
 
 exit:
+    amxc_string_delete(&pctx->resolved_fn_name);
     if(retval != 0) {
         amxc_var_delete(&pctx->data);
     } else {

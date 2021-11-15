@@ -107,6 +107,7 @@ static void amxo_parser_pop(amxo_parser_t* parent,
     parent->entry_points = child->entry_points;
     parent->post_includes = child->post_includes;
     amxc_llist_move(&parent->event_list, &child->event_list);
+    amxc_llist_move(&parent->function_names, &child->function_names);
     child->include_stack = NULL;
     child->hooks = NULL;
     child->resolvers = NULL;
