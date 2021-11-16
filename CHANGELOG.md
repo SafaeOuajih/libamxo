@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.4.5 - 2021-11-16(17:49:50 +0000)
+
+### Fixes
+
+- Missing brackets in function resolver data causes segmentation fault
+
+### Changes
+
+- The function name must be passed as private data to subscriptions taken from an odl file
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.4.4 - 2021-11-10(15:10:07 +0000)
 
 ### Changes

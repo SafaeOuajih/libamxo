@@ -1,3 +1,11 @@
+libamxo (1.4.5) unstable; urgency=medium
+
+  * Missing brackets in function resolver data causes segmentation fault
+  * The function name must be passed as private data to subscriptions taken from an odl file
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Tue, 16 Nov 2021 17:49:51 +0000
+
 libamxo (1.4.4) unstable; urgency=medium
 
   * ODL parser should pass function type to resolvers
