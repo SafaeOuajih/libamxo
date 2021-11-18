@@ -145,6 +145,30 @@ void test_can_add_action_on_object(UNUSED void** state) {
     amxd_dm_clean(&dm);
 }
 
+void test_can_add_any_action_on_object(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odl =
+        "%define {\n"
+        "    object MyObject {"
+        "        on action any call myvalidator;"
+        "    }"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxo_resolver_ftab_add(&parser, "myvalidator", AMXO_FUNC(success_action));
+
+    called = false;
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_true(called);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
 void test_can_proivide_data_to_object_action(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;

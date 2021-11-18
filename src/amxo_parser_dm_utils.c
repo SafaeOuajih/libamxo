@@ -92,6 +92,7 @@
 #include "amxo_parser_hooks_priv.h"
 
 static amxd_action_t object_actions[] = {
+    action_any,
     action_object_read,      // action_read,
     action_object_write,     // action_write
     action_object_validate,  // action_validate
@@ -103,6 +104,7 @@ static amxd_action_t object_actions[] = {
 };
 
 static amxd_action_t param_actions[] = {
+    action_any,
     action_param_read,      // action_read,
     action_param_write,     // action_write
     action_param_validate,  // action_validate

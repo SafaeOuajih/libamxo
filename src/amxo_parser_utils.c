@@ -262,6 +262,7 @@ exit:
 amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
                                         const char* action_name) {
     static const char* names[] = {
+        "any",
         "read",
         "write",
         "validate",

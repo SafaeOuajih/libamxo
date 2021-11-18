@@ -68,6 +68,7 @@
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_can_add_action_on_object),
+        cmocka_unit_test(test_can_add_any_action_on_object),
         cmocka_unit_test(test_failing_object_validation_makes_parser_fail),
         cmocka_unit_test(test_can_proivide_data_to_object_action),
     };

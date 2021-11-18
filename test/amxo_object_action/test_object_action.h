@@ -62,6 +62,7 @@
 #define __TEST_OBJECT_ACTION_H__
 
 void test_can_add_action_on_object(void** state);
+void test_can_add_any_action_on_object(void** state);
 void test_failing_object_validation_makes_parser_fail(void** state);
 void test_can_proivide_data_to_object_action(void** state);
 
