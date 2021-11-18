@@ -1,3 +1,9 @@
+libamxo (1.4.6) unstable; urgency=medium
+
+  * Make it possible to set an action callback for all actions
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 18 Nov 2021 11:11:24 +0000
+
 libamxo (1.4.5) unstable; urgency=medium
 
   * Missing brackets in function resolver data causes segmentation fault

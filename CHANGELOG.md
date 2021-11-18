@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.4.6 - 2021-11-18(11:11:24 +0000)
+
+### Changes
+
+- Make it possible to set an action callback for all actions
+
 ## Release v1.4.5 - 2021-11-16(17:49:50 +0000)
 
 ### Fixes
