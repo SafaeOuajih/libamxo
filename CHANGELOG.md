@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.4.7 - 2021-11-18(13:02:17 +0000)
+
+### Fixes
+
+- Fixes regression due to adding any action
+
 ## Release v1.4.6 - 2021-11-18(11:11:24 +0000)
 
 ### Changes

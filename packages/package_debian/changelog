@@ -1,3 +1,9 @@
+libamxo (1.4.7) unstable; urgency=medium
+
+  * Fixes regression due to adding any action
+
+ -- SAH bot <sahbot@softathome.com>  Thu, 18 Nov 2021 13:02:17 +0000
+
 libamxo (1.4.6) unstable; urgency=medium
 
   * Make it possible to set an action callback for all actions
