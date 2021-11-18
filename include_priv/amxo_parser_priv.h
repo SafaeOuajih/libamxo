@@ -105,7 +105,8 @@ typedef enum _amxo_parser_attr {
 
 typedef enum _amxo_action {
     amxo_action_invalid = -1,
-    action_read = 0,
+    action_all = 0,
+    action_read,
     action_write,
     action_validate,
     action_list,
