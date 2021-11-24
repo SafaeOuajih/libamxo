@@ -304,3 +304,17 @@ char* amxo_parser_build_import_resolver_data(const char* function,
 
     return data;
 }
+
+void amxo_parser_print(amxo_parser_t* pctx, const char* text) {
+    amxc_string_t print_txt;
+
+    amxc_string_init(&print_txt, 0);
+
+    if(amxc_string_set_resolved(&print_txt, text, &pctx->config) > 0) {
+        text = amxc_string_get(&print_txt, 0);
+    }
+
+    printf("%s (%s@%d)\n", text, pctx->file, pctx->line);
+
+    amxc_string_clean(&print_txt);
+}

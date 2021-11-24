@@ -291,6 +291,8 @@ amxo_action_t PRIVATE amxo_parser_get_action_id(amxo_parser_t* pctx,
 char* PRIVATE amxo_parser_build_import_resolver_data(const char* function,
                                                      const char* library);
 
+void PRIVATE amxo_parser_print(amxo_parser_t* pctx, const char* text);
+
 bool PRIVATE amxo_parser_add_mib(amxo_parser_t* pctx,
                                  const char* mib_name);
 
@@ -301,6 +303,7 @@ bool PRIVATE amxo_parser_no_resolve(amxo_parser_t* parser);
 bool PRIVATE amxo_parser_check_config(amxo_parser_t* pctx,
                                       const char* path,
                                       const char* check);
+
 #ifdef __cplusplus
 }
 #endif

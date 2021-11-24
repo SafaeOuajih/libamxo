@@ -135,6 +135,7 @@
 %token <bitmap>  UNSET_ATTRIBUTE
 %token <integer> REGEXP
 %token <integer> FLAGS
+%token <integer> PRINT
 
 %token <integer> CONSTRAINT
 %token <integer> MIN
@@ -144,7 +145,7 @@
 %token <integer> CUSTOM
 
 %type <integer> stream sections section config_options config_option
-%type <integer> requires include import ldflags entry_point
+%type <integer> requires include import ldflags entry_point print
 %type <integer> defines populates populate object_populate event_populate
 %type <integer> define object_def object_def_header multi object_body object_content
 %type <integer> parameter_def counted event_def
@@ -265,6 +266,7 @@ section
   : include
   | import
   | requires
+  | print
   | CONFIG '{' '}' {
       amxo_hooks_end_section(parser_ctx, 0);
     }
@@ -336,6 +338,13 @@ requires
       $$ = 0;
     }
   ;
+
+print
+  : PRINT TEXT ';' {
+    $2.txt[$2.length] = 0;
+    amxo_parser_print(parser_ctx, $2.txt);
+    $$ = 0;
+  }
 
 include
   : INCLUDE TEXT ';' {

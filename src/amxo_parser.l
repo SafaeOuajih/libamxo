@@ -482,6 +482,9 @@ regexp                    { yylval->integer = token_keyword;
 userflags                 { yylval->integer = token_keyword;
                             return FLAGS;
                           }
+print                     { yylval->integer = token_keyword;
+                            return PRINT;
+                          }
 
 [[:digit:]]+              { char *endptr = NULL;
                             yylval->integer = strtoll(yytext, &endptr, 0);; 
