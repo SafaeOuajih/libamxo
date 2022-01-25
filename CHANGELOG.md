@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v1.4.13 - 2022-01-25(06:47:54 +0000)
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v1.4.12 - 2021-12-14(12:22:59 +0000)
 
 ### Changes
