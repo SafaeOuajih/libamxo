@@ -201,12 +201,12 @@ exit:
 }
 
 int amxo_parser_call_entry_point(amxo_parser_t* pctx,
-                                 const char* lib_name,
+                                 const char* libname,
                                  const char* fn_name) {
     int retval = -1;
     amxc_string_t data;
     amxc_string_init(&data, 0);
-    amxc_string_setf(&data, "%s", lib_name);
+    amxc_string_setf(&data, "%s", libname);
 
     when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
 

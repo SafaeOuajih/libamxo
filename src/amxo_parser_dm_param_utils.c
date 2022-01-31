@@ -263,9 +263,15 @@ static amxd_param_t* amxo_parser_check_param(amxo_parser_t* pctx,
     amxd_param_t* param = NULL;
     if(amxo_parser_check_config(pctx, "populate-behavior.unknown-parameter", "add")) {
         uint32_t type = amxc_var_is_null(value) ? AMXC_VAR_ID_CSTRING : amxc_var_type_of(value);
-        param = amxo_parser_new_param(pctx, name,
-                                      SET_BIT(amxd_pattr_persistent),
-                                      type);
+        int64_t pattrs = SET_BIT(amxd_pattr_persistent);
+        if(amxd_object_get_type(pctx->object) == amxd_object_instance) {
+            pattrs |= SET_BIT(amxd_pattr_instance);
+        }
+        if(amxd_object_get_type(pctx->object) == amxd_object_template) {
+            pattrs |= SET_BIT(amxd_pattr_instance);
+            pattrs |= SET_BIT(amxd_pattr_template);
+        }
+        param = amxo_parser_new_param(pctx, name, pattrs, type);
     } else if(amxo_parser_check_config(pctx,
                                        "populate-behavior.unknown-parameter",
                                        "warning")) {

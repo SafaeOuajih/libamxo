@@ -124,6 +124,49 @@ void test_none_existing_param_can_add(UNUSED void** state) {
     assert_ptr_not_equal(param, NULL);
     assert_int_equal(amxd_param_get_type(param), AMXC_VAR_ID_INT64);
 
+    assert_int_equal(amxd_object_get_value(int64_t, object, "OtherParam", NULL), 10);
+
+    amxd_dm_clean(&dm);
+    amxo_parser_clean(&parser);
+}
+
+void test_none_existing_instance_param_can_add(UNUSED void** state) {
+    amxd_object_t* object = NULL;
+    amxd_param_t* param1 = NULL;
+    amxd_param_t* param2 = NULL;
+    int64_t val1 = 0;
+    int64_t val2 = 0;
+    amxd_status_t s1;
+    amxd_status_t s2;
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* main_odl =
+        "%config { populate-behavior = { unknown-parameter = \"add\" }; }\n"
+        "%define { object MyObject[] { int64 DefParam; } }\n"
+        "%populate { object MyObject { instance add(6,'key1') { parameter DefParam = 66; parameter OtherParam = 10; } } }\n";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, main_odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    object = amxd_dm_findf(&dm, "MyObject.key1");
+    param1 = amxd_object_get_param_def(object, "DefParam");
+    param2 = amxd_object_get_param_def(object, "OtherParam");
+    assert_ptr_not_equal(param1, NULL);
+    assert_ptr_not_equal(param2, NULL);
+    assert_int_equal(amxd_param_get_type(param1), AMXC_VAR_ID_INT64);
+    assert_int_equal(amxd_param_get_type(param2), AMXC_VAR_ID_INT64);
+
+    val1 = amxd_object_get_value(int64_t, object, "DefParam", &s1);
+    assert_int_equal(s1, amxd_status_ok);
+    assert_int_equal(val1, 66);
+
+    val2 = amxd_object_get_value(int64_t, object, "OtherParam", &s2);
+    assert_int_equal(s2, amxd_status_ok);
+    assert_int_equal(val2, 10);
+
     amxd_dm_clean(&dm);
     amxo_parser_clean(&parser);
 }

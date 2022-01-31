@@ -275,7 +275,7 @@ void PRIVATE amxo_parser_clean_resolvers(amxo_parser_t* parser);
 void PRIVATE amxo_parser_init_resolvers(amxo_parser_t* parser);
 
 int PRIVATE amxo_parser_call_entry_point(amxo_parser_t* pctx,
-                                         const char* lib_name,
+                                         const char* libname,
                                          const char* fn_name);
 
 bool PRIVATE amxo_parser_set_data_option(amxo_parser_t* pctx,

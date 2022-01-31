@@ -69,6 +69,7 @@ int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_none_existing_param_default_behavior),
         cmocka_unit_test(test_none_existing_param_can_add),
+        cmocka_unit_test(test_none_existing_instance_param_can_add),
         cmocka_unit_test(test_none_existing_param_warning),
         cmocka_unit_test(test_duplicate_instance_default_behavior),
         cmocka_unit_test(test_duplicate_instance_can_update),

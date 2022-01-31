@@ -260,14 +260,14 @@ static void check_mib_extions_work(amxd_dm_t* dm) {
 
 void test_can_parse_odl_file(UNUSED void** state) {
     amxd_dm_t dm;
-    amxc_var_t* lib_dirs = NULL;
+    amxc_var_t* libdirs = NULL;
     amxo_parser_t parser;
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    lib_dirs = amxo_parser_get_config(&parser, "import-dirs");
-    amxc_var_add(cstring_t, lib_dirs, "../test_plugin/");
+    libdirs = amxo_parser_get_config(&parser, "import-dirs");
+    amxc_var_add(cstring_t, libdirs, "../test_plugin/");
     amxc_var_dump(&parser.config, STDOUT_FILENO);
 
     assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
@@ -302,14 +302,14 @@ void test_can_parse_empty_file(UNUSED void** state) {
 void test_can_parse_fd(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    amxc_var_t* lib_dirs = NULL;
+    amxc_var_t* libdirs = NULL;
     int fd = open("test_valid.odl", O_RDONLY);
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    lib_dirs = amxo_parser_get_config(&parser, "import-dirs");
-    amxc_var_add(cstring_t, lib_dirs, "../test_plugin/");
+    libdirs = amxo_parser_get_config(&parser, "import-dirs");
+    amxc_var_add(cstring_t, libdirs, "../test_plugin/");
     amxc_var_dump(&parser.config, STDOUT_FILENO);
 
     assert_int_equal(amxo_parser_parse_fd(&parser, fd, amxd_dm_get_root(&dm)), 0);
