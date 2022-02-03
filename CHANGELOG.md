@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.0 - 2022-02-03(17:03:58 +0000)
+
+### Breaking
+
+- [prplOS][ambiorix] Several component failing to start on NEC mips xrx500 target
+
+### Fixes
+
+- Cannot load unknown instance parameter with "populate-behavior.unknown-parameter=add"
+
 ## Release v1.4.13 - 2022-01-25(06:47:54 +0000)
 
 ### Changes
