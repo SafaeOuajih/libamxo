@@ -69,10 +69,7 @@ int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_event_subscription),
         cmocka_unit_test(test_event_subscription_filter),
-        cmocka_unit_test(test_deprecated_event_subscription_write_with_object),
-        cmocka_unit_test(test_deprecated_event_subscription_write_with_param),
         cmocka_unit_test(test_subscription_warns_if_function_not_resolved),
-        cmocka_unit_test(test_deprecated_subscription_warns_if_function_not_resolved),
         cmocka_unit_test(test_populate_section_generates_events),
         cmocka_unit_test(test_events_are_in_correct_order),
     };

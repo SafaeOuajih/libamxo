@@ -63,10 +63,7 @@
 
 void test_event_subscription(void** state);
 void test_event_subscription_filter(void** state);
-void test_deprecated_event_subscription_write_with_object(void** state);
-void test_deprecated_event_subscription_write_with_param(void** state);
 void test_subscription_warns_if_function_not_resolved(void** state);
-void test_deprecated_subscription_warns_if_function_not_resolved(void** state);
 void test_populate_section_generates_events(void** state);
 void test_events_are_in_correct_order(void** state);
 

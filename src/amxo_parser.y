@@ -123,9 +123,7 @@
 %token <integer> OF
 %token <integer> GLOBAL
 %token <integer> CALL
-%token <action>  ACTION
 %token <integer> ACTION_KW
-%token <action>  DEP_ACTION
 %token <cptr>    STRING
 %token <cptr>    MULTILINECOMMENT
 %token <cptr>    TEXT
@@ -151,8 +149,8 @@
 %type <integer> parameter_def counted event_def
 %type <integer> function_def arguments argument_def add_mib
 %type <integer> object_pop_header object_pop_body object_pop_content param_pop_head parameter
-%type <action> action_header deprecated_action
-%type <integer> action dep_action
+%type <action> action_header
+%type <integer> action
 %type <bitmap>  attributes unset_attributes
 %type <value>   value
 %type <cptr>    name path filter instance_id
@@ -500,7 +498,6 @@ object_content
   | function_def
   | counted
   | action
-  | dep_action
   | add_mib
   | event_def
   ;
@@ -564,7 +561,6 @@ param_body
 
 param_content
   : action
-  | dep_action
   | CONSTRAINT param_constraint ';'
   | DEFAULT value ';' {
       int retval = amxo_parser_set_param(parser_ctx, NULL, &$2);
@@ -598,9 +594,6 @@ action_header
       }
       $$ = amxo_parser_get_action_id(parser_ctx, $3.txt);
       YY_CHECK($$ < 0 , $3.txt);
-    }
-  | ON ACTION_KW ACTION {
-      $$ = $3;
     }
   | ON ACTION_KW TYPE {
       YY_CHECK($3 != AMXC_VAR_ID_LIST , "Invalid action");
@@ -684,50 +677,6 @@ param_constraint
       YY_CHECK_ACTION(retval < 0, $2.txt, free(resolver));
       YY_WARNING(retval > 0, $2.txt);
       free(resolver);
-    }
-  ;
-
-dep_action
-  : deprecated_action WITH name ';' { // deprecated - must be removed at 01/01/2022
-      $3.txt[$3.length] = 0; 
-      int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, amxo_function_action, "auto");
-      YY_CHECK(retval < 0, $3.txt);
-      YY_WARNING(retval > 0, $3.txt);
-      if ($1 == action_write) {
-        YY_WARNING(!amxo_parser_subscribe_item(parser_ctx), $3.txt);
-      } else {
-        retval = amxo_parser_set_action(parser_ctx, $1);
-        YY_CHECK(retval < 0, $3.txt);
-        YY_WARNING(retval > 0, $3.txt);
-      }
-    }
-  | deprecated_action WITH name IMPORT name ';' { // deprecated - must be removed at 01/01/2022
-      $3.txt[$3.length] = 0;
-      $5.txt[$5.length] = 0;
-      char *resolver = amxo_parser_build_import_resolver_data($3.txt, $5.txt);
-      int retval = amxo_parser_resolve_internal(parser_ctx, $3.txt, amxo_function_action, resolver);
-      YY_CHECK_ACTION(retval < 0, $3.txt, free(resolver));
-      YY_WARNING(retval > 0, $3.txt);
-      if ($1 == action_write) {
-        YY_WARNING(!amxo_parser_subscribe_item(parser_ctx), $3.txt);
-      } else {
-        retval = amxo_parser_set_action(parser_ctx, $1);
-        YY_CHECK_ACTION(retval < 0, $3.txt, free(resolver));
-        YY_WARNING(retval > 0, $3.txt);
-      }
-      free(resolver);
-    }
-  ;
-
-deprecated_action
-  : DEP_ACTION { // deprecated - must be removed at 01/01/2022
-      $$ = $1;
-    }
-  | ACTION { // deprecated - must be removed at 01/01/2022
-      $$ = $1;
-    }
-  | OF { // deprecated - must be removed at 01/01/2022
-      $$ = action_add_inst;
     }
   ;
 

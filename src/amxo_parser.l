@@ -464,18 +464,6 @@ enum                      { yylval->integer = token_keyword;
 custom                    { yylval->integer = token_keyword;
                             return CUSTOM;
                           }
-read                      { yylval->integer = action_read;
-                            return ACTION;
-                          }
-prewrite                  { yylval->integer = action_write;
-                            return DEP_ACTION;
-                          }
-delete                    { yylval->integer = action_del_inst;
-                            return DEP_ACTION;
-                          }
-write                     { yylval->integer = action_write;
-                            return ACTION;
-                          }
 regexp                    { yylval->integer = token_keyword;
                             return REGEXP;
                           }

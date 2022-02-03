@@ -198,7 +198,7 @@ import "test_plugin.so" as test_plugin;
             int32 TestParam {
                 constraint range [ -10, 10 ];
                 constraint custom test_dummy_action using "test_plugin";
-                read with test_dummy_action;
+                on action read call test_dummy_action;
             }
         }
     }
