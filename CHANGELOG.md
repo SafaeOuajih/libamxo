@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.2 - 2022-02-07(13:14:53 +0000)
+
+### Fixes
+
+- Copybara replaces too many lib occurences
+
 ## Release v2.0.1 - 2022-02-04(15:54:37 +0000)
 
 ### Changes
