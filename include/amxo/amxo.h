@@ -106,7 +106,7 @@ extern "C"
    @return
    a zero terminated string
  */
-const char* amxo_libversion(void);
+const char* amxo_lib_version(void);
 
 /**
    @ingroup amxo_parser

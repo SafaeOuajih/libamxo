@@ -66,6 +66,6 @@
 
 #include "amxo_version.h"
 
-const char* amxo_libversion(void) {
+const char* amxo_lib_version(void) {
     return AMXO_VERSION;
 }
