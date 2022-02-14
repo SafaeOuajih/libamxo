@@ -557,7 +557,7 @@ Besides these events, it is possible to define your own events in the data model
 Entry points can only be defined in `%define` section body.
 
 When using the import resolver (see [Import](#import)), entry points can be defined.
-Entry points are functions in your plug-in implementation that can be called for multiple reasons. The Ambiorix runtime calls the entry points with reason 0 (START) after the odl files are loaded and with reason 1 (STOP) when the application is stopping.
+Entry points are functions in your plug-in implementation that can be called for multiple reasons. The Ambiorix runtime calls the entry points with reason 0 (AMXO_START) after the odl files are loaded and with reason 1 (AMXO_STOP) when the application is stopping. It calls the entry points with reason 2 (AMXO_ODL_LOADED) after the post include files are loaded. Note that these entry points will never be called if there are no post includes.
 
 This gives the implementor of the plug-in the ability to provide a function that can do initialization and clean-up. Other applications that are using the odl parser library can invoke the entry points for other different reasons.
 
@@ -1000,7 +1000,7 @@ Mandatory includes are specified with `include` or `&include`, optional includes
 
 The conditional include `?include` takes two include files separated with a `:`. When the first include file is not found, the second file will be loaded. If none of the files exists, parsing stops with an error. If the first file is found, but is not a valid odl file, parsing stops with an error.
 
-A post include file (`&include`) is parsed after the `entry-points` are invoked. If the file is not found the parser will fail when encountering the `&include`, when the file exists, parsing continues without reading the file. When the `entry-points` are called and all successful, all post include files are loaded. This is mainly used when some initialization needs to be done before loading the default values. Typically a post include only contains a `&populate` section.
+A post include file (`&include`) is parsed after the `entry-points` with reason 0 (AMXO_START) are invoked. If the file is not found the parser will fail when encountering the `&include`, when the file exists, parsing continues without reading the file. When the `entry-points` are called and all successful, all post include files are loaded. This is mainly used when some initialization needs to be done before loading the default values. Typically a post include only contains a `&populate` section.
 
 Includes can be done anywhere outside a section (`%config`, `%define`, `%populate`).
 
