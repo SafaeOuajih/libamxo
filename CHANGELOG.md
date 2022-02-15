@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.5 - 2022-02-15(16:56:08 +0000)
+
+### Fixes
+
+- Run tests with sah-ci image
+
 ## Release v2.0.4 - 2022-02-15(15:01:29 +0000)
 
 ### Fixes
