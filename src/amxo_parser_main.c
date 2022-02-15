@@ -406,14 +406,19 @@ exit:
 }
 
 amxc_var_t* amxo_parser_claim_config(amxo_parser_t* parser,
-                                     const char* name) {
+                                     const char* path) {
     amxc_var_t* retval = NULL;
     when_null(parser, exit);
-    when_str_empty(name, exit);
+    when_str_empty(path, exit);
 
-    retval = amxo_parser_get_config(parser, name);
+    retval = amxo_parser_get_config(parser, path);
     if(retval == NULL) {
-        retval = amxc_var_add_new_key(&parser->config, name);
+        // add a NULL variant
+        amxc_var_t dummy;
+        amxc_var_init(&dummy);
+        amxo_parser_set_config(parser, path, &dummy);
+        retval = amxo_parser_get_config(parser, path);
+        amxc_var_clean(&dummy);
     }
 
 exit:
@@ -421,29 +426,29 @@ exit:
 }
 
 amxc_var_t* amxo_parser_get_config(amxo_parser_t* parser,
-                                   const char* name) {
+                                   const char* path) {
     amxc_var_t* retval = NULL;
     when_null(parser, exit);
-    when_str_empty(name, exit);
+    when_str_empty(path, exit);
 
-    retval = amxc_var_get_key(&parser->config, name, AMXC_VAR_FLAG_DEFAULT);
+    retval = amxc_var_get_path(&parser->config, path, AMXC_VAR_FLAG_DEFAULT);
 
 exit:
     return retval;
 }
 
 int amxo_parser_set_config(amxo_parser_t* parser,
-                           const char* name,
+                           const char* path,
                            amxc_var_t* value) {
     int retval = 0;
     when_null(parser, exit);
     when_null(value, exit);
-    when_str_empty(name, exit);
+    when_str_empty(path, exit);
 
-    retval = amxc_var_set_key(&parser->config,
-                              name,
-                              value,
-                              AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY);
+    retval = amxc_var_set_path(&parser->config,
+                               path,
+                               value,
+                               AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY | AMXC_VAR_FLAG_AUTO_ADD);
 
 exit:
     return retval;

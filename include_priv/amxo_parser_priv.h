@@ -172,10 +172,6 @@ void PRIVATE amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) \
 int PRIVATE amxo_parser_printf(amxo_parser_t* parser, const char* format, ...) \
     __attribute__ ((format(printf, 2, 3)));
 
-int PRIVATE amxo_parser_set_config_internal(amxo_parser_t* parser,
-                                            const char* name,
-                                            amxc_var_t* value);
-
 bool PRIVATE amxo_parser_find(amxo_parser_t* parser,
                               const amxc_llist_t* dirs,
                               const char* file_path,

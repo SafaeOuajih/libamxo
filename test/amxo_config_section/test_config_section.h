@@ -64,5 +64,7 @@
 void test_parsing_array(void** state);
 void test_parsing_key_value_pairs(void** state);
 void test_global_setting_are_made_available_in_main_odl(void** state);
+void test_can_set_configuration_using_path(void** state);
+void test_can_set_configuration_data_using_path(void** state);
 
 #endif // __TEST_CONFIG_SECTION_H__

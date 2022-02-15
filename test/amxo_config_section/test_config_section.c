@@ -223,3 +223,75 @@ void test_global_setting_are_made_available_in_main_odl(UNUSED void** state) {
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
+
+void test_can_set_configuration_using_path(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxc_var_t* setting = NULL;
+    const char* odls[] = {
+        "%config { MyOption.SubOption.Test = \"Hallo\"; MyOption.SubOption.Value = 1; }",
+        NULL
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odls[0], amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+
+    setting = amxo_parser_get_config(&parser, "MyOption");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_HTABLE);
+
+    setting = amxo_parser_get_config(&parser, "MyOption.SubOption");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_HTABLE);
+
+    setting = amxo_parser_get_config(&parser, "MyOption.SubOption.Test");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_CSTRING);
+
+    setting = amxo_parser_get_config(&parser, "MyOption.SubOption.Value");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_INT64);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_can_set_configuration_data_using_path(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxc_var_t* setting = NULL;
+    const char* odls[] = {
+        "%config { MyOption = { SubOption.Test = \"Hallo\", SubOption.Value = 1 }; }",
+        NULL
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odls[0], amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+
+    setting = amxo_parser_get_config(&parser, "MyOption");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_HTABLE);
+
+    setting = amxo_parser_get_config(&parser, "MyOption.SubOption");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_HTABLE);
+
+    setting = amxo_parser_get_config(&parser, "MyOption.SubOption.Test");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_CSTRING);
+
+    setting = amxo_parser_get_config(&parser, "MyOption.SubOption.Value");
+    assert_non_null(setting);
+    assert_int_equal(amxc_var_type_of(setting), AMXC_VAR_ID_INT64);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}

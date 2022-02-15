@@ -143,15 +143,6 @@ int amxo_parser_printf(amxo_parser_t* parser, const char* format, ...) {
     return 0;
 }
 
-int amxo_parser_set_config_internal(amxo_parser_t* parser,
-                                    const char* name,
-                                    amxc_var_t* value) {
-    return amxc_var_set_key(&parser->config,
-                            name,
-                            value,
-                            AMXC_VAR_FLAG_UPDATE);
-}
-
 int amxo_parser_resolve_internal(amxo_parser_t* pctx,
                                  const char* fn_name,
                                  amxo_fn_type_t type,
@@ -246,14 +237,14 @@ bool amxo_parser_set_data_option(amxo_parser_t* pctx,
     if(key == NULL) {
         when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_LIST, exit);
         data = amxc_var_add_new(pctx->data);
+        when_null(data, exit);
+        amxc_var_copy(data, value);
+        retval = true;
     } else {
-        when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_HTABLE, exit);
-        data = amxc_var_add_new_key(pctx->data, key);
+        int rv = amxc_var_set_path(pctx->data, key, value,
+                                   AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY | AMXC_VAR_FLAG_AUTO_ADD);
+        retval = (rv == 0);
     }
-    when_null(data, exit);
-    amxc_var_copy(data, value);
-
-    retval = true;
 
 exit:
     return retval;

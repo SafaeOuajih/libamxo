@@ -292,19 +292,21 @@ config_options
   ;
 
 config_option
-  : STRING '=' data ';' {
+  : path '=' data ';' {
       $1.txt[$1.length] = 0;
-      YY_CHECK_ACTION(amxo_parser_set_config_internal(parser_ctx, $1.txt, parser_ctx->data) != 0,
+      YY_CHECK_ACTION(amxo_parser_set_config(parser_ctx, $1.txt, parser_ctx->data) != 0,
                        $1.txt,
                        amxc_var_delete(&parser_ctx->data);
                       );
+      amxc_var_delete(&parser_ctx->data);
+      parser_ctx->data = amxc_var_get_path(&parser_ctx->config, $1.txt, AMXC_VAR_FLAG_DEFAULT);
       amxo_hooks_set_config(parser_ctx, $1.txt, parser_ctx->data);
       parser_ctx->data = NULL;
       $$ = 0;
     }
-  | GLOBAL STRING '=' data ';' {
+  | GLOBAL path '=' data ';' {
       $2.txt[$2.length] = 0;
-      YY_CHECK_ACTION(amxo_parser_set_config_internal(parser_ctx, $2.txt, parser_ctx->data) != 0,
+      YY_CHECK_ACTION(amxo_parser_set_config(parser_ctx, $2.txt, parser_ctx->data) != 0,
                        $2.txt,
                        amxc_var_delete(&parser_ctx->data);
                       );
@@ -312,6 +314,8 @@ config_option
       amxc_string_new(&name, 0);
       amxc_string_append(name, $2.txt, $2.length);
       amxc_llist_append(&parser_ctx->global_config, &name->it);
+      amxc_var_delete(&parser_ctx->data);
+      parser_ctx->data = amxc_var_get_path(&parser_ctx->config, $2.txt, AMXC_VAR_FLAG_DEFAULT);
       amxo_hooks_set_config(parser_ctx, $2.txt, parser_ctx->data);
       parser_ctx->data = NULL;
       $$ = 0;
@@ -1089,7 +1093,7 @@ data_options
   ;
 
 data_option
-  : name '=' value {
+  : path '=' value {
       $1.txt[$1.length] = 0;
       YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $1.txt, &$3),
                        $1.txt,

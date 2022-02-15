@@ -629,14 +629,14 @@ int amxo_parser_rinvoke_entry_points(amxo_parser_t* parser,
    application itself
 
    @param parser the odl parser instance
-   @param name the name of the option
+   @param path the path of the configuration option
 
    @return
    Returns the config option as a variant or NULL when no option found with
    the name given
  */
 amxc_var_t* amxo_parser_get_config(amxo_parser_t* parser,
-                                   const char* name);
+                                   const char* path);
 
 /**
    @ingroup amxo_parser_config
@@ -653,13 +653,13 @@ amxc_var_t* amxo_parser_get_config(amxo_parser_t* parser,
    a "null" variant.
 
    @param parser the odl parser instance
-   @param name the name of the option
+   @param path the path of the configuration option
 
    @return
    Returns the config option as a variant.
  */
 amxc_var_t* amxo_parser_claim_config(amxo_parser_t* parser,
-                                     const char* name);
+                                     const char* path);
 
 /**
    @ingroup amxo_parser_config
@@ -673,17 +673,17 @@ amxc_var_t* amxo_parser_claim_config(amxo_parser_t* parser,
    application.
 
    If the configuration option does not exists, it is added. If it exists it's
-   value is changed
+   value is changed.
 
    @param parser the odl parser instance
-   @param name the name of the option
+   @param path the path of the configuration option
    @param value the value of the configuration option as a variant
 
    @return
    Returns 0 when success, any other value indicates failure.
  */
 int amxo_parser_set_config(amxo_parser_t* parser,
-                           const char* name,
+                           const char* path,
                            amxc_var_t* value);
 
 /**

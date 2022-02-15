@@ -70,6 +70,8 @@ int main(void) {
         cmocka_unit_test(test_parsing_array),
         cmocka_unit_test(test_parsing_key_value_pairs),
         cmocka_unit_test(test_global_setting_are_made_available_in_main_odl),
+        cmocka_unit_test(test_can_set_configuration_using_path),
+        cmocka_unit_test(test_can_set_configuration_data_using_path),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
