@@ -4,10 +4,7 @@ variables:
   DOC_GEN_CMD: "make doc"
   BUILD_TARGET: libamxo
   BUILD_DEPS: libamxc=1.5.0 libamxd=3.5.0 libamxp=0.9.15 flex bison
+  SAH_NTE_IMAGE: $SAH_CI_IMAGE
 
 include:
   - remote: 'https://gitlab.com/soft.at.home/ci/gitlab-ci/raw/main/ambiorix-default-pipeline.yml'
-
-run-tests-coverage:
-  image: $SAH_CI_IMAGE
-  extends: .run-test-coverage-template
