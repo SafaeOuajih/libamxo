@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.4 - 2022-02-15(15:01:29 +0000)
+
+### Fixes
+
+- Update implementation of amxo_parser_get_config, amxo_parser_set_config, amxo_parser_claim_config
+
+### Other
+
+- Update documentation on AMXO_ODL_LOADED
+- Issue: ambiorix/libraries/libamxo#72 Update documentation on AMXO_ODL_LOADED
+
 ## Release v2.0.3 - 2022-02-14(12:15:51 +0000)
 
 ### Changes
