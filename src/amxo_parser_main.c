@@ -84,7 +84,7 @@
 #include "amxo_parser.tab.h"
 
 static ssize_t amxo_parser_string_reader(amxo_parser_t* parser,
-                                         void* buf,
+                                         char* buf,
                                          size_t max_size) {
     ssize_t result = 0;
     result = amxc_rbuffer_read(&parser->rbuffer, (char*) buf, max_size);
@@ -122,16 +122,35 @@ static void amxo_parser_entry_point_free(amxc_llist_it_t* it) {
 }
 
 ssize_t PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
-                                      void* buf,
+                                      char* buf,
                                       size_t max_size) {
     ssize_t result = 0;
-    errno = 0;
-    result = read(parser->fd, buf, max_size);
-    if((result == -1) && (errno != EAGAIN)) {
-        printf("Read failed %d\n", errno);
-    }
+
     errno = 0;
 
+    if(parser->buffer_len > 0) {
+        memcpy(buf, parser->buffer, parser->buffer_len);
+    }
+
+    result = read(parser->fd, buf + parser->buffer_len, max_size - parser->buffer_len);
+    if((result == -1) && (errno != EAGAIN)) {
+        printf("Read failed %d\n", errno);
+        goto exit;
+    }
+    errno = 0;
+    result += parser->buffer_len;
+    parser->buffer_len = 0;
+    if(result >= (ssize_t) max_size) {
+        while(buf[result - 1] != '\n' && result > 0) {
+            result--;
+        }
+        if(max_size - result > 0) {
+            memcpy(parser->buffer, buf + result, max_size - result);
+            parser->buffer_len = max_size - result;
+        }
+    }
+
+exit:
     return result;
 }
 
@@ -204,7 +223,9 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->post_includes = NULL;
     parser->parent = NULL;
     parser->resolved_fn_name = NULL;
+    parser->buffer_len = 0;
 
+    memset(parser->buffer, 0, 128);
     amxc_rbuffer_init(&parser->rbuffer, 0);
     amxc_string_init(&parser->msg, 0);
     amxc_astack_init(&parser->object_stack);

@@ -132,14 +132,14 @@ static int amxo_parser_write(int fd, const char* buf, size_t bytes) {
 }
 
 static int amxo_parser_flush_buffer(int fd, amxc_string_t* buffer) {
-    static const char* spaces = "                                        ";
+    static const char* spaces = "\t\t\t\t\t\t\t\t\t\t";
     int retval = 0;
     const char* buf = amxc_string_get(buffer, 0);
     size_t length = amxc_string_text_length(buffer);
 
     if(indentation > 0) {
-        for(int i = indentation; i > 0; i -= 40) {
-            int size = (i > 40) ? 40 : i;
+        for(int i = indentation; i > 0; i -= 10) {
+            int size = (i > 10) ? 10 : i;
             retval = amxo_parser_write(fd, spaces, size);
             when_failed(retval, exit);
         }
@@ -326,7 +326,7 @@ static int amxo_parser_save_config_options(int fd,
     amxo_parser_writef(buffer, "%%config {\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
-    indentation += 4;
+    indentation++;
 
     amxc_htable_for_each(it, hconfig) {
         amxc_var_t* option = amxc_var_from_htable_it(it);
@@ -349,7 +349,7 @@ static int amxo_parser_save_config_options(int fd,
         when_true(retval < 0, exit);
     }
 
-    indentation -= 4;
+    indentation--;
     amxo_parser_writef(buffer, "}\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
 
@@ -452,7 +452,7 @@ static int amxo_parser_open_parent_tree(int fd,
                            amxd_object_get_name(object, AMXD_OBJECT_NAMED));
     }
     retval = amxo_parser_flush_buffer(fd, buffer);
-    indentation += 4;
+    indentation++;
 
 exit:
     return retval;
@@ -484,7 +484,7 @@ static int amxo_parser_save_param_flags(int fd,
     amxo_parser_writef(buffer, " {\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
-    indentation += 4;
+    indentation++;
     amxo_parser_writef(buffer, "userflags ");
     amxc_llist_iterate(it, flags) {
         amxc_var_t* var_flag = amxc_var_from_llist_it(it);
@@ -495,7 +495,7 @@ static int amxo_parser_save_param_flags(int fd,
     amxo_parser_writef(buffer, ";\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
-    indentation -= 4;
+    indentation--;
     amxo_parser_writef(buffer, "}\n");
 
 exit:
@@ -587,10 +587,10 @@ static int amxo_parser_save_leave(int fd,
     }
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
-    indentation += 4;
+    indentation++;
     retval = amxo_parser_save_object_tree(fd, obj, depth, buffer);
     when_true(retval < 0, exit);
-    indentation -= 4;
+    indentation--;
     amxo_parser_writef(buffer, "}\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
@@ -641,7 +641,7 @@ static int amxo_parser_close_parent_tree(int fd,
         goto exit;
     }
 
-    indentation -= 4;
+    indentation--;
     amxo_parser_writef(buffer, "}\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
@@ -662,7 +662,7 @@ static int amxo_parser_save_tree(int fd,
     amxo_parser_writef(buffer, "%%populate {\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
     when_true(retval < 0, exit);
-    indentation += 4;
+    indentation++;
 
     retval = amxo_parser_open_parent_tree(fd, object, buffer);
     when_failed(retval, exit);
@@ -671,7 +671,7 @@ static int amxo_parser_save_tree(int fd,
     retval = amxo_parser_close_parent_tree(fd, object, buffer);
     when_failed(retval, exit);
 
-    indentation -= 4;
+    indentation--;
     amxo_parser_writef(buffer, "}\n");
     retval = amxo_parser_flush_buffer(fd, buffer);
 

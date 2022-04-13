@@ -38,7 +38,7 @@ libamxo (2.0.3) unstable; urgency=medium
 
 libamxo (2.0.2) unstable; urgency=medium
 
-  * Copybara replaces too many lib occurences
+  * Copybara replaces too many lib_ occurences
 
  -- Peter DEHERDT <peter.deherdt@softathome.com>  Mon, 07 Feb 2022 13:14:53 +0000
 

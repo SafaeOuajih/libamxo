@@ -100,7 +100,7 @@ extern "C"
 
 typedef struct _amxo_parser amxo_parser_t;
 
-typedef ssize_t (* amxo_reader_t) (amxo_parser_t* parser, void* buf, size_t max_size);
+typedef ssize_t (* amxo_reader_t) (amxo_parser_t* parser, char* buf, size_t max_size);
 
 typedef void (* amxo_fn_ptr_t)(void);
 
@@ -320,6 +320,9 @@ struct _amxo_parser {
     amxc_lstack_t event_list;    /**< */
 
     amxo_parser_t* parent;
+
+    char buffer[128];
+    size_t buffer_len;
 };
 
 #ifdef __cplusplus

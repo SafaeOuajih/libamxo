@@ -154,7 +154,7 @@ void PRIVATE amxo_parser_del_mib_info(const char* key,
                                       amxc_htable_it_t* it);
 
 ssize_t PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
-                                      void* buf,
+                                      char* buf,
                                       size_t max_size);
 
 int PRIVATE amxo_parser_parse_file_impl(amxo_parser_t* parser,

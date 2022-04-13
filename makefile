@@ -5,13 +5,6 @@ NOW = $(shell date +"%Y-%m-%d(%H:%M:%S %z)")
 # Extra destination directories
 PKGDIR = ./output/$(MACHINE)/pkg/
 
-# helper functions - used in multiple targets
-define install_to
-	$(INSTALL) -d -m 0755 $(1)/$(INCLUDEDIR)/amxo
-	$(INSTALL) -D -p -m 0644 include/amxo/*.h $(1)$(INCLUDEDIR)/amxo/
-	$(INSTALL) -D -p -m 0644 output/$(MACHINE)/$(COMPONENT).so.$(VERSION) $(1)$(LIBDIR)/$(COMPONENT).so.$(VERSION)
-endef
-
 define create_changelog
 	@$(ECHO) "Update changelog"
 	mv CHANGELOG.md CHANGELOG.md.bak
@@ -34,12 +27,16 @@ clean:
 	$(MAKE) -C test clean
 
 install: all
-	$(call install_to,$(DEST))
+	$(INSTALL) -d -m 0755 $(DEST)/$(INCLUDEDIR)/amxo
+	$(INSTALL) -D -p -m 0644 include/amxo/*.h $(DEST)$(INCLUDEDIR)/amxo/
+	$(INSTALL) -D -p -m 0644 output/$(MACHINE)/$(COMPONENT).so.$(VERSION) $(DEST)$(LIBDIR)/$(COMPONENT).so.$(VERSION)
 	ln -sfr $(DEST)$(LIBDIR)/$(COMPONENT).so.$(VERSION) $(DEST)$(LIBDIR)/$(COMPONENT).so.$(VMAJOR)
 	ln -sfr $(DEST)$(LIBDIR)/$(COMPONENT).so.$(VERSION) $(DEST)$(LIBDIR)/$(COMPONENT).so
 
 package: all
-	$(call install_to,$(PKGDIR))
+	$(INSTALL) -d -m 0755 $(PKGDIR)/$(INCLUDEDIR)/amxo
+	$(INSTALL) -D -p -m 0644 include/amxo/*.h $(PKGDIR)$(INCLUDEDIR)/amxo/
+	$(INSTALL) -D -p -m 0644 output/$(MACHINE)/$(COMPONENT).so.$(VERSION) $(PKGDIR)$(LIBDIR)/$(COMPONENT).so.$(VERSION)
 	cd $(PKGDIR) && $(TAR) -czvf ../$(COMPONENT)-$(VERSION).tar.gz .
 	cp $(PKGDIR)../$(COMPONENT)-$(VERSION).tar.gz .
 	make -C packages
