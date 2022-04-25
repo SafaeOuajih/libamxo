@@ -231,13 +231,13 @@ static void check_functions_exist(amxd_dm_t* dm) {
     };
 
     object = amxd_object_findf(root, "TestObjectRoot.TestObjectFunctions");
-    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 24);
+    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 25);
     for(int i = 0; obj_funcs[i] != NULL; i++) {
         assert_ptr_not_equal(amxd_object_get_function(object, obj_funcs[i]), NULL);
     }
 
     object = amxd_object_findf(root, "TestObjectRoot.TestSingletonFuncAttr");
-    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 10);
+    assert_int_equal(amxd_object_get_function_count(object, amxd_dm_access_private), 11);
     func = amxd_object_get_function(object, "TestFunc1");
     assert_true(amxd_function_is_attr_set(func, amxd_fattr_template));
     assert_true(amxd_function_is_attr_set(func, amxd_fattr_instance));
