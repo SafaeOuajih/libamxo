@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.9 - 2022-04-25(08:47:57 +0000)
+
+### Fixes
+
+- ODL parser sometimes gets confused
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.8 - 2022-04-06(10:51:54 +0000)
 
 ### Changes
