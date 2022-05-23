@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.13 - 2022-05-23(11:45:57 +0000)
+
+### Fixes
+
+- [Gitlab CI][Unit tests][valgrind] Pipeline doesn't stop when memory leaks are detected
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.12 - 2022-05-12(11:21:21 +0000)
 
 ### Changes
