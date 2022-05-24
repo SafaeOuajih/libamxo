@@ -141,7 +141,7 @@ ssize_t PRIVATE amxo_parser_fd_reader(amxo_parser_t* parser,
     result += parser->buffer_len;
     parser->buffer_len = 0;
     if(result >= (ssize_t) max_size) {
-        while(buf[result - 1] != '\n' && result > 0) {
+        while(buf[result - 1] != '\n' && result > 0 && max_size - result <= 128) {
             result--;
         }
         if(max_size - result > 0) {
