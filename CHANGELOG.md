@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.14 - 2022-05-25(03:55:13 +0000)
+
+### Fixes
+
+- [amxo-cg] segfault when parsing long comments
+
 ## Release v2.0.13 - 2022-05-23(11:45:57 +0000)
 
 ### Fixes

@@ -1,3 +1,9 @@
+libamxo (2.0.14) unstable; urgency=medium
+
+  * [amxo-cg] segfault when parsing long comments
+
+ -- SAH bot <sahbot@softathome.com>  Wed, 25 May 2022 03:55:13 +0000
+
 libamxo (2.0.13) unstable; urgency=medium
 
   * [Gitlab CI][Unit tests][valgrind] Pipeline doesn't stop when memory leaks are detected
