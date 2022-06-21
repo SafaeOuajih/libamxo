@@ -120,6 +120,9 @@ static int64_t amxo_attr_2_param_attr(int64_t attributes) {
     if(SET_BIT(attr_unique) & attributes) {
         param_attrs |= SET_BIT(amxd_pattr_unique);
     }
+    if(SET_BIT(attr_mutable) & attributes) {
+        param_attrs |= SET_BIT(amxd_pattr_mutable);
+    }
     return param_attrs;
 }
 

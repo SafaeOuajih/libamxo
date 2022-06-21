@@ -204,6 +204,14 @@ static void check_parameters_exist(amxd_dm_t* dm) {
     assert_int_equal(amxd_object_get_param_count(object, amxd_dm_access_private), 1);
     param = amxd_object_get_param_def(object, "Param1");
     assert_ptr_not_equal(param, NULL);
+
+    object = amxd_object_findf(root, "TestObjectRoot.TestObjectTemplateWithKeys.1.");
+    param = amxd_object_get_param_def(object, "KeyPart1");
+    assert_true(amxd_param_is_attr_set(param, amxd_pattr_key));
+    assert_false(amxd_param_is_attr_set(param, amxd_pattr_mutable));
+    param = amxd_object_get_param_def(object, "KeyPart2");
+    assert_true(amxd_param_is_attr_set(param, amxd_pattr_key));
+    assert_true(amxd_param_is_attr_set(param, amxd_pattr_mutable));
 }
 
 static void check_functions_exist(amxd_dm_t* dm) {

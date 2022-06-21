@@ -100,7 +100,8 @@ typedef enum _amxo_parser_attr {
     attr_strict,
     attr_key,
     attr_unique,
-    attr_protected
+    attr_protected,
+    attr_mutable,
 } amxo_parser_attr_t;
 
 typedef enum _amxo_action {
@@ -244,8 +245,6 @@ int PRIVATE amxo_parser_subscribe(amxo_parser_t* pctx,
                                   const char* event,
                                   bool event_is_regexp,
                                   const char* full_expr);
-
-bool PRIVATE amxo_parser_subscribe_item(amxo_parser_t* pctx);
 
 int PRIVATE amxo_parser_add_post_include(amxo_parser_t* pctx,
                                          const char* file_path);

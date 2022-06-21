@@ -180,7 +180,7 @@ import "test_plugin.so" as test_plugin;
 
         object TestObjectTemplateWithKeys[] {
             %key string KeyPart1;
-            %key uint32 KeyPart2;
+            %mutable %key uint32 KeyPart2;
             %key string KeyPart3;
 
             string Param1;

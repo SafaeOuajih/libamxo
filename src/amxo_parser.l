@@ -318,6 +318,9 @@ mandatory                 { yylval->integer = 1 << attr_mandatory;
 %unique                   { yylval->integer = 1 << attr_unique; 
                             return SET_ATTRIBUTE; 
                           }
+%mutable                  { yylval->integer = 1 << attr_mutable; 
+                            return SET_ATTRIBUTE; 
+                          }
 %global                   { yylval->integer = token_keyword;
                             return GLOBAL;
                           }

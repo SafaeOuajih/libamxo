@@ -232,7 +232,8 @@
                                     (1 << attr_readonly) |
                                     (1 << attr_key) |
                                     (1 << attr_unique) | 
-                                    (1 << attr_protected));
+                                    (1 << attr_protected) |
+                                    (1 << attr_mutable));
 
     const uint64_t amxo_func_attrs = ((1 << attr_private) | 
                                     (1 << attr_template) | 

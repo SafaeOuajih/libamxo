@@ -648,57 +648,6 @@ exit:
     return retval;
 }
 
-bool amxo_parser_subscribe_item(amxo_parser_t* pctx) {
-    bool retval = false;
-    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
-    amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
-    char* regexp_path = NULL;
-    amxc_string_t expression;
-    const char* event_pattern = NULL;
-
-    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = true);
-    when_null(dm, exit);
-
-    if(pctx->resolved_fn == NULL) {
-        amxo_parser_msg(pctx,
-                        "No event subscription created - no function was resolved");
-        goto exit;
-    }
-
-    regexp_path = amxd_object_get_path(pctx->object,
-                                       AMXD_OBJECT_NAMED | AMXD_OBJECT_REGEXP);
-    amxc_string_init(&expression, 0);
-    amxc_string_appendf(&expression, "object matches \"%s\"", regexp_path);
-
-    if(pctx->param != NULL) {
-        amxc_string_appendf(&expression,
-                            " && parameters.%s.to matches \".*\"",
-                            amxd_param_get_name(pctx->param));
-        event_pattern = "dm:object-changed";
-    } else {
-        event_pattern = "dm:.*";
-    }
-
-    amxp_slot_connect_filtered(&dm->sigmngr,
-                               event_pattern,
-                               amxc_string_get(&expression, 0),
-                               fn,
-                               pctx->resolved_fn_name);
-
-    amxc_llist_append(&pctx->function_names, &pctx->resolved_fn_name->it);
-    pctx->resolved_fn_name = NULL;
-
-    free(regexp_path);
-    amxc_string_clean(&expression);
-    retval = true;
-
-exit:
-    if(pctx->resolved_fn_name != NULL) {
-        amxc_string_delete(&pctx->resolved_fn_name);
-    }
-    return retval;
-}
-
 int amxo_parser_set_action(amxo_parser_t* pctx,
                            amxo_action_t action) {
 
