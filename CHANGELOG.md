@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.18 - 2022-06-21(11:59:15 +0000)
+
+### Changes
+
+- Add support for mutable keys
+
 ## Release v2.0.17 - 2022-06-09(11:47:07 +0000)
 
 ### Changes

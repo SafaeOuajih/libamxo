@@ -1,3 +1,9 @@
+libamxo (2.0.18) unstable; urgency=medium
+
+  * Add support for mutable keys
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Tue, 21 Jun 2022 11:59:15 +0000
+
 libamxo (2.0.17) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml
