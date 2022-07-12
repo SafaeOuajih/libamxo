@@ -520,7 +520,12 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     bool retval = false;
     amxd_object_type_t type = amxd_object_get_type(pctx->object);
     const char* type_name = (type == amxd_object_mib) ? "mib" : "object";
+    amxc_var_t args;
+
     pctx->status = amxd_object_validate(pctx->object, 0);
+
+    amxc_var_init(&args);
+    amxc_var_set_type(&args, AMXC_VAR_ID_HTABLE);
 
     if(pctx->status != amxd_status_ok) {
         amxo_parser_msg(pctx, "%s %s validation failed",
@@ -528,6 +533,8 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
                         amxd_object_get_name(pctx->object, AMXD_OBJECT_NAMED));
         goto exit;
     }
+
+    amxd_dm_invoke_action(pctx->object, NULL, action_object_write, &args, NULL);
     amxo_hooks_end_object(pctx);
 
     pctx->object = (amxd_object_t*) amxc_astack_pop(&pctx->object_stack);
@@ -535,6 +542,7 @@ bool amxo_parser_pop_object(amxo_parser_t* pctx) {
     retval = true;
 
 exit:
+    amxc_var_clean(&args);
     return retval;
 }
 
