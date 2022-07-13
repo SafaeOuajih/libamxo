@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.20 - 2022-07-13(12:13:43 +0000)
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
+### Other
+
+- Issue: ambiorix/libraries/libamxo#76 The object write  action is not called during parsing of odl files
+
 ## Release v2.0.19 - 2022-06-28(10:35:47 +0000)
 
 ### Changes
