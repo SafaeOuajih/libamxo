@@ -77,6 +77,7 @@ int main(void) {
         cmocka_unit_test(test_post_include),
         cmocka_unit_test(test_can_include_directory),
         cmocka_unit_test(test_empty_directory),
+        cmocka_unit_test(test_composite_config_options_are_extended),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

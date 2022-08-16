@@ -120,7 +120,7 @@ static void amxo_parser_pop(amxo_parser_t* parent,
         amxc_var_t* option = amxc_var_get_path(&child->config,
                                                name,
                                                AMXC_VAR_FLAG_DEFAULT);
-        amxc_var_set_key(&parent->config, name, option, AMXC_VAR_FLAG_UPDATE);
+        amxc_var_set_path(&parent->config, name, option, AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_AUTO_ADD);
         amxc_llist_append(&parent->global_config, &str_name->it);
     }
 }

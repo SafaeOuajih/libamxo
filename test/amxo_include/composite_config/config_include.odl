@@ -1,0 +1,3 @@
+%config {
+    %global "ubus.register-on-start-event" = true;
+}

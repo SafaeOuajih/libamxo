@@ -1,0 +1,7 @@
+%config {
+    ubus = {
+        watch-ubus-events = true
+    };
+}
+
+include "./config_include.odl";

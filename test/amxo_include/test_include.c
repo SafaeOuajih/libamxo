@@ -264,3 +264,20 @@ void test_empty_directory(UNUSED void** state) {
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
+
+void test_composite_config_options_are_extended(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odl = "./composite_config/config_main.odl";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, odl, amxd_dm_get_root(&dm)), 0);
+
+    assert_non_null(GETP_ARG(&parser.config, "ubus.watch-ubus-events"));
+    assert_non_null(GETP_ARG(&parser.config, "ubus.register-on-start-event"));
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
