@@ -3,7 +3,7 @@ variables:
   UTEST_TEST_COV_CMD: "make coverage"
   DOC_GEN_CMD: "make doc"
   BUILD_TARGET: libamxo
-  BUILD_DEPS: libamxc=1.7.0 libamxd=3.6.13 libamxp=0.10.2 flex bison
+  BUILD_DEPS: libamxc=1.7.1 libamxd=3.6.14 libamxp=0.10.3 flex bison
   TEST_DEPS: valgrind
   SAH_NTE_IMAGE: $SAH_CI_IMAGE
 
