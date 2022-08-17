@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.23 - 2022-08-17(09:53:02 +0000)
+
+### Fixes
+
+- It must be possible to extend composite config options
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.22 - 2022-08-05(09:37:41 +0000)
 
 ### Other

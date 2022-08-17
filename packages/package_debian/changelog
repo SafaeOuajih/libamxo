@@ -1,3 +1,10 @@
+libamxo (2.0.23) unstable; urgency=medium
+
+  * It must be possible to extend composite config options
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 17 Aug 2022 09:53:03 +0000
+
 libamxo (2.0.22) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml
