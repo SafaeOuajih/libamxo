@@ -1,3 +1,10 @@
+libamxo (2.0.24) unstable; urgency=medium
+
+  * [GL-B1300] Various components failing to open Service in firewall due to high load and multiple interface toggling
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 18 Aug 2022 13:33:15 +0000
+
 libamxo (2.0.23) unstable; urgency=medium
 
   * It must be possible to extend composite config options

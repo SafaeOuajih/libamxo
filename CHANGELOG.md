@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.24 - 2022-08-18(13:33:15 +0000)
+
+### Changes
+
+- [GL-B1300] Various components failing to open Service in firewall due to high load and multiple interface toggling
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.23 - 2022-08-17(09:53:02 +0000)
 
 ### Fixes
