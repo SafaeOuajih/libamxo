@@ -107,7 +107,7 @@
                       "value",                                    \
                       AMXC_VAR_FLAG_DEFAULT)
 
-
+static size_t buffer_size = 16348;
 static int indentation = 0;
 
 static int amxo_parser_save_object_tree(int fd,
@@ -131,28 +131,27 @@ static int amxo_parser_write(int fd, const char* buf, size_t bytes) {
     return retval;
 }
 
-static int amxo_parser_flush_buffer(int fd, amxc_string_t* buffer) {
+static void amxo_parser_indent(amxc_string_t* buffer) {
     static const char* spaces = "\t\t\t\t\t\t\t\t\t\t";
+
+    if(indentation > 0) {
+        amxc_string_append(buffer, spaces, indentation > 10 ? 10 : indentation);
+    }
+}
+
+static int amxo_parser_flush_buffer(int fd, amxc_string_t* buffer) {
     int retval = 0;
     const char* buf = amxc_string_get(buffer, 0);
     size_t length = amxc_string_text_length(buffer);
 
-    if(indentation > 0) {
-        for(int i = indentation; i > 0; i -= 10) {
-            int size = (i > 10) ? 10 : i;
-            retval = amxo_parser_write(fd, spaces, size);
-            when_failed(retval, exit);
-        }
-    }
-
     retval = amxo_parser_write(fd, buf, length);
 
-exit:
     amxc_string_reset(buffer);
     return retval;
 }
 
-static void amxo_parser_writef(amxc_string_t* buffer,
+static void amxo_parser_writef(int fd,
+                               amxc_string_t* buffer,
                                const char* fmt,
                                ...) {
     va_list args;
@@ -160,6 +159,10 @@ static void amxo_parser_writef(amxc_string_t* buffer,
     va_start(args, fmt);
     amxc_string_vappendf(buffer, fmt, args);
     va_end(args);
+
+    if(amxc_string_text_length(buffer) > buffer_size) {
+        amxo_parser_flush_buffer(fd, buffer);
+    }
 }
 
 static char* amxo_parser_build_filename(amxo_parser_t* pctx,
@@ -234,7 +237,8 @@ exit:
     return fd;
 }
 
-static int amxo_parser_save_value(amxc_var_t* value,
+static int amxo_parser_save_value(int fd,
+                                  amxc_var_t* value,
                                   amxc_string_t* buffer) {
     int type = amxc_var_type_of(value);
     int retval = 0;
@@ -251,19 +255,19 @@ static int amxo_parser_save_value(amxc_var_t* value,
     case AMXC_VAR_ID_UINT64:
     case AMXC_VAR_ID_BOOL:
         txt = amxc_var_dyncast(cstring_t, value);
-        amxo_parser_writef(buffer, "%s", txt);
+        amxo_parser_writef(fd, buffer, "%s", txt);
         free(txt);
         break;
     case AMXC_VAR_ID_TIMESTAMP:
         txt = amxc_var_dyncast(cstring_t, value);
-        amxo_parser_writef(buffer, "\"%s\"", txt);
+        amxo_parser_writef(fd, buffer, "\"%s\"", txt);
         free(txt);
         break;
     case AMXC_VAR_ID_CSTRING:
     case AMXC_VAR_ID_SSV_STRING:
     case AMXC_VAR_ID_CSV_STRING:
         const_txt = amxc_var_constcast(cstring_t, value);
-        amxo_parser_writef(buffer, "\"%s\"", const_txt);
+        amxo_parser_writef(fd, buffer, "\"%s\"", const_txt);
         break;
     default:
         retval = -1;
@@ -273,45 +277,50 @@ static int amxo_parser_save_value(amxc_var_t* value,
     return retval;
 }
 
-static int amxo_parser_save_table_config(const char* name,
+static int amxo_parser_save_table_config(int fd,
+                                         const char* name,
                                          amxc_var_t* value,
                                          amxc_string_t* buffer) {
     int retval = -1;
     const amxc_htable_t* hvalue = amxc_var_constcast(amxc_htable_t, value);
     const char* sep = "";
-    amxo_parser_writef(buffer, "%s = {", name);
+
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "%s = {", name);
     amxc_htable_for_each(it, hvalue) {
         amxc_var_t* val = amxc_var_from_htable_it(it);
         const char* key = amxc_htable_it_get_key(it);
         when_true(!amxd_name_is_valid(key), exit);
 
-        amxo_parser_writef(buffer, "%s%s = ", sep, key);
-        retval = amxo_parser_save_value(val, buffer);
+        amxo_parser_writef(fd, buffer, "%s%s = ", sep, key);
+        retval = amxo_parser_save_value(fd, val, buffer);
         when_true(retval < 0, exit);
         sep = ",";
     }
-    amxo_parser_writef(buffer, "};\n");
+    amxo_parser_writef(fd, buffer, "};\n");
     retval = 0;
 
 exit:
     return retval;
 }
 
-static int amxo_parser_save_list_config(const char* name,
+static int amxo_parser_save_list_config(int fd,
+                                        const char* name,
                                         amxc_var_t* value,
                                         amxc_string_t* buffer) {
     int retval = -1;
     const amxc_llist_t* lvalue = amxc_var_constcast(amxc_llist_t, value);
     const char* sep = "";
-    amxo_parser_writef(buffer, "%s = [", name);
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "%s = [", name);
     amxc_llist_for_each(it, lvalue) {
         amxc_var_t* val = amxc_var_from_llist_it(it);
-        amxo_parser_writef(buffer, "%s", sep);
-        retval = amxo_parser_save_value(val, buffer);
+        amxo_parser_writef(fd, buffer, "%s", sep);
+        retval = amxo_parser_save_value(fd, val, buffer);
         when_true(retval < 0, exit);
         sep = ", ";
     }
-    amxo_parser_writef(buffer, "];\n");
+    amxo_parser_writef(fd, buffer, "];\n");
     retval = 0;
 
 exit:
@@ -323,9 +332,7 @@ static int amxo_parser_save_config_options(int fd,
                                            amxc_string_t* buffer) {
     int retval = 0;
     const amxc_htable_t* hconfig = amxc_var_constcast(amxc_htable_t, config);
-    amxo_parser_writef(buffer, "%%config {\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
+    amxo_parser_writef(fd, buffer, "%%config {\n");
     indentation++;
 
     amxc_htable_for_each(it, hconfig) {
@@ -335,23 +342,21 @@ static int amxo_parser_save_config_options(int fd,
         when_true(!amxd_name_is_valid(key), exit);
 
         if(amxc_var_type_of(option) == AMXC_VAR_ID_HTABLE) {
-            retval = amxo_parser_save_table_config(key, option, buffer);
+            retval = amxo_parser_save_table_config(fd, key, option, buffer);
             when_true(retval < 0, exit);
         } else if(amxc_var_type_of(option) == AMXC_VAR_ID_LIST) {
-            retval = amxo_parser_save_list_config(key, option, buffer);
+            retval = amxo_parser_save_list_config(fd, key, option, buffer);
             when_true(retval < 0, exit);
         } else {
-            amxo_parser_writef(buffer, "%s = ", key);
-            amxo_parser_save_value(option, buffer);
-            amxo_parser_writef(buffer, ";\n", key);
+            amxo_parser_indent(buffer);
+            amxo_parser_writef(fd, buffer, "%s = ", key);
+            retval = amxo_parser_save_value(fd, option, buffer);
+            amxo_parser_writef(fd, buffer, ";\n", key);
         }
-        retval = amxo_parser_flush_buffer(fd, buffer);
-        when_true(retval < 0, exit);
     }
 
     indentation--;
-    amxo_parser_writef(buffer, "}\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
+    amxo_parser_writef(fd, buffer, "}\n");
 
 exit:
     return retval;
@@ -392,16 +397,18 @@ static bool amxo_parser_has_key_params(const amxc_htable_t* params) {
     return retval;
 }
 
-static int amxo_parser_instance_header(amxd_object_t* object,
+static int amxo_parser_instance_header(int fd,
+                                       amxd_object_t* object,
                                        amxc_string_t* buffer) {
     int retval = 0;
     const amxc_htable_t* ht_params = NULL;
     amxc_var_t params;
     const char* inst_name = amxd_object_get_name(object, AMXD_OBJECT_NAMED);
 
-    amxo_parser_writef(buffer, "instance add(%d", amxd_object_get_index(object));
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "instance add(%d", amxd_object_get_index(object));
     if(amxd_name_is_valid(inst_name)) {
-        amxo_parser_writef(buffer, ", '%s'", inst_name);
+        amxo_parser_writef(fd, buffer, ", '%s'", inst_name);
     }
 
     amxc_var_init(&params);
@@ -417,12 +424,12 @@ static int amxo_parser_instance_header(amxd_object_t* object,
             if(!is_key_param && !is_creation_param) {
                 continue;
             }
-            amxo_parser_writef(buffer, ", '%s' = ", name);
-            retval = amxo_parser_save_value(value, buffer);
+            amxo_parser_writef(fd, buffer, ", '%s' = ", name);
+            retval = amxo_parser_save_value(fd, value, buffer);
             when_true(retval < 0, exit);
         }
     }
-    amxo_parser_writef(buffer, ") {\n");
+    amxo_parser_writef(fd, buffer, ") {\n");
 
 exit:
     amxc_var_clean(&params);
@@ -445,13 +452,13 @@ static int amxo_parser_open_parent_tree(int fd,
     }
 
     if(amxd_object_get_type(object) == amxd_object_instance) {
-        amxo_parser_instance_header(object, buffer);
+        amxo_parser_instance_header(fd, object, buffer);
     } else {
-        amxo_parser_writef(buffer,
+        amxo_parser_indent(buffer);
+        amxo_parser_writef(fd, buffer,
                            "object '%s' {\n",
                            amxd_object_get_name(object, AMXD_OBJECT_NAMED));
     }
-    retval = amxo_parser_flush_buffer(fd, buffer);
     indentation++;
 
 exit:
@@ -465,13 +472,11 @@ static int amxo_parser_save_mibs(int fd,
     amxc_array_it_t* it = amxc_array_get_first(&object->mib_names);
     while(it) {
         const char* name = (const char*) amxc_array_it_get_data(it);
-        amxo_parser_writef(buffer, "extend using mib '%s';\n", name);
-        retval = amxo_parser_flush_buffer(fd, buffer);
-        when_true(retval < 0, exit);
+        amxo_parser_indent(buffer);
+        amxo_parser_writef(fd, buffer, "extend using mib '%s';\n", name);
         it = amxc_array_it_get_next(it);
     }
 
-exit:
     return retval;
 }
 
@@ -481,24 +486,21 @@ static int amxo_parser_save_param_flags(int fd,
     int retval = 0;
     const amxc_llist_t* flags = PARAM_FLAGS(param);
     const char* sep = "";
-    amxo_parser_writef(buffer, " {\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
+    amxo_parser_writef(fd, buffer, " {\n");
     indentation++;
-    amxo_parser_writef(buffer, "userflags ");
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "userflags ");
     amxc_llist_iterate(it, flags) {
         amxc_var_t* var_flag = amxc_var_from_llist_it(it);
         const char* flag = amxc_var_constcast(cstring_t, var_flag);
-        amxo_parser_writef(buffer, "%s %%%s", sep, flag);
+        amxo_parser_writef(fd, buffer, "%s %%%s", sep, flag);
         sep = ",";
     }
-    amxo_parser_writef(buffer, ";\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
+    amxo_parser_writef(fd, buffer, ";\n");
     indentation--;
-    amxo_parser_writef(buffer, "}\n");
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "}\n");
 
-exit:
     return retval;
 }
 
@@ -550,16 +552,15 @@ static int amxo_parser_save_params(int fd,
             continue;
         }
 
-        amxo_parser_writef(buffer, "parameter '%s' = ", name);
-        retval = amxo_parser_save_value(value, buffer);
+        amxo_parser_indent(buffer);
+        amxo_parser_writef(fd, buffer, "parameter '%s' = ", name);
+        retval = amxo_parser_save_value(fd, value, buffer);
         when_true(retval < 0, exit);
         if(!amxc_llist_is_empty(flags)) {
             amxo_parser_save_param_flags(fd, param, buffer);
         } else {
-            amxo_parser_writef(buffer, ";\n");
+            amxo_parser_writef(fd, buffer, ";\n");
         }
-        retval = amxo_parser_flush_buffer(fd, buffer);
-        when_true(retval < 0, exit);
     }
 
 exit:
@@ -578,22 +579,20 @@ static int amxo_parser_save_leave(int fd,
         goto exit;
     }
     if(amxd_object_get_type(obj) == amxd_object_instance) {
-        amxo_parser_instance_header(obj, buffer);
+        amxo_parser_instance_header(fd, obj, buffer);
     } else {
-        amxo_parser_writef(buffer,
+        amxo_parser_indent(buffer);
+        amxo_parser_writef(fd, buffer,
                            "object '%s' {\n",
                            amxd_object_get_name(obj, AMXD_OBJECT_NAMED));
 
     }
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
     indentation++;
     retval = amxo_parser_save_object_tree(fd, obj, depth, buffer);
     when_true(retval < 0, exit);
     indentation--;
-    amxo_parser_writef(buffer, "}\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "}\n");
 
 exit:
     return retval;
@@ -642,9 +641,8 @@ static int amxo_parser_close_parent_tree(int fd,
     }
 
     indentation--;
-    amxo_parser_writef(buffer, "}\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
+    amxo_parser_indent(buffer);
+    amxo_parser_writef(fd, buffer, "}\n");
 
     retval = amxo_parser_close_parent_tree(fd,
                                            amxd_object_get_parent(object),
@@ -659,9 +657,7 @@ static int amxo_parser_save_tree(int fd,
                                  uint32_t depth,
                                  amxc_string_t* buffer) {
     int retval = 0;
-    amxo_parser_writef(buffer, "%%populate {\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
-    when_true(retval < 0, exit);
+    amxo_parser_writef(fd, buffer, "%%populate {\n");
     indentation++;
 
     retval = amxo_parser_open_parent_tree(fd, object, buffer);
@@ -672,8 +668,7 @@ static int amxo_parser_save_tree(int fd,
     when_failed(retval, exit);
 
     indentation--;
-    amxo_parser_writef(buffer, "}\n");
-    retval = amxo_parser_flush_buffer(fd, buffer);
+    amxo_parser_writef(fd, buffer, "}\n");
 
 exit:
     return retval;
@@ -718,7 +713,11 @@ int amxo_parser_save(amxo_parser_t* pctx,
     int retval = -1;
     int fd = -1;
     amxc_string_t buffer;
-    amxc_string_init(&buffer, 128);
+
+    if(GETP_ARG(&pctx->config, "odl.buffer-size") != NULL) {
+        buffer_size = GETP_INT32(&pctx->config, "odl.buffer-size");
+    }
+    amxc_string_init(&buffer, buffer_size + 1024);
 
     when_null(pctx, exit);
     when_str_empty(filename, exit);
@@ -736,6 +735,8 @@ int amxo_parser_save(amxo_parser_t* pctx,
         retval = amxo_parser_save_tree(fd, object, depth, &buffer);
         when_true(retval < 0, exit);
     }
+
+    amxo_parser_flush_buffer(fd, &buffer);
 
 exit:
     if(fd >= 0) {
