@@ -1,3 +1,10 @@
+libamxo (2.0.25) unstable; urgency=medium
+
+  * [amx] custom param read handler called more often than expected
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 24 Aug 2022 09:41:34 +0000
+
 libamxo (2.0.24) unstable; urgency=medium
 
   * [GL-B1300] Various components failing to open Service in firewall due to high load and multiple interface toggling
