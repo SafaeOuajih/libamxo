@@ -386,7 +386,7 @@ bool amxo_parser_pop_param(amxo_parser_t* pctx) {
     amxc_var_init(&value);
 
     if(pctx->param != NULL) {
-        amxd_param_get_value(pctx->param, &value);
+        amxc_var_copy(&value, &pctx->param->value);
         pctx->status = amxd_param_validate(pctx->param, &value);
         if(pctx->status != amxd_status_ok) {
             amxo_parser_msg(pctx, "Parameter %s validation failed",

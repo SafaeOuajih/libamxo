@@ -159,10 +159,12 @@ static void amxo_parser_pop_event(event_t* e, amxd_dm_t* dm) {
 
     when_null(object, exit);
 
-    if(e->id == event_instance_add) {
-        amxd_object_send_add_inst(object, false);
-    } else if(e->id == event_object_change) {
-        amxd_object_send_changed(object, &e->data, false);
+    if(dm->sigmngr.enabled) {
+        if(e->id == event_instance_add) {
+            amxd_object_send_add_inst(object, false);
+        } else if(e->id == event_object_change) {
+            amxd_object_send_changed(object, &e->data, false);
+        }
     }
 
 exit:
