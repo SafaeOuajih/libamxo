@@ -4,4 +4,6 @@
     };
 }
 
+requires "Test1";
+
 include "./config_include.odl";

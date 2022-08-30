@@ -281,3 +281,34 @@ void test_composite_config_options_are_extended(UNUSED void** state) {
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }
+
+void test_global_nested_include(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odl = "./composite_config/config_main.odl";
+    amxc_var_t* requires = NULL;
+    const amxc_llist_t* rl = NULL;
+    int index = 0;
+    const char* expected[] = { "Test1", "Test2", "Test3" };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, odl, amxd_dm_get_root(&dm)), 0);
+
+    requires = GETP_ARG(&parser.config, "requires");
+    assert_non_null(requires);
+    assert_int_equal(amxc_var_type_of(requires), AMXC_VAR_ID_LIST);
+
+    rl = amxc_var_constcast(amxc_llist_t, requires);
+    assert_int_equal(amxc_llist_size(rl), 3);
+
+    amxc_var_for_each(r, requires) {
+        assert_string_equal(expected[index], GET_CHAR(r, NULL));
+        index++;
+    }
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
