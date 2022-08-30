@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.27 - 2022-08-30(10:36:23 +0000)
+
+### Fixes
+
+- amx gmap-client modules do not wait for "requires"
+
 ## Release v2.0.26 - 2022-08-29(08:07:17 +0000)
 
 ### Changes
