@@ -68,8 +68,6 @@ extern "C"
 
 #include <amxc/amxc_macros.h>
 
-#define when_true_status(x, l, c) if(x) { c; goto l; }
-
 enum amxo_parser_tokens_t
 {
     token_include,
