@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.28 - 2022-09-12(13:17:37 +0000)
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
+### Other
+
+- libamxo build failed because when_true_status() macro is redefined.
+
 ## Release v2.0.27 - 2022-08-30(10:36:23 +0000)
 
 ### Fixes
