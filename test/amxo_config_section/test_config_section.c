@@ -92,6 +92,7 @@ void test_parsing_array(UNUSED void** state) {
         "%config { MyOption = [ \"1\", \"2\", \"3\" ]; }",
         "%config { MyOption = [ word1, word2, word3 ]; }",
         "%config { MyOption = [ true, false, true ]; }",
+        "%config { MyOption = [  ]; }",
         NULL
     };
 
@@ -108,9 +109,9 @@ void test_parsing_array(UNUSED void** state) {
         assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_LIST);
         list = amxc_var_constcast(amxc_llist_t, option);
         assert_ptr_not_equal(list, NULL);
-        assert_int_equal(amxc_llist_size(list), 3);
         switch(i) {
         case 0:
+            assert_int_equal(amxc_llist_size(list), 3);
             amxc_llist_for_each(it, list) {
                 amxc_var_t* item = amxc_var_from_llist_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_INT64);
@@ -118,16 +119,21 @@ void test_parsing_array(UNUSED void** state) {
             break;
         case 1:
         case 2:
+            assert_int_equal(amxc_llist_size(list), 3);
             amxc_llist_for_each(it, list) {
                 amxc_var_t* item = amxc_var_from_llist_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_CSTRING);
             }
             break;
         case 3:
+            assert_int_equal(amxc_llist_size(list), 3);
             amxc_llist_for_each(it, list) {
                 amxc_var_t* item = amxc_var_from_llist_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_BOOL);
             }
+            break;
+        case 4:
+            assert_true(amxc_llist_is_empty(list));
             break;
         }
     }
@@ -144,6 +150,7 @@ void test_parsing_key_value_pairs(UNUSED void** state) {
         "%config { MyOption = { Key1 = \"1\", Key2 = \"2\", Key3 = \"3\" }; }",
         "%config { MyOption = { Key1 = word1, Key2 = word2, Key3 = word3 }; }",
         "%config { MyOption = { Key1 = true, Key2 = false, Key3 = true }; }",
+        "%config { MyOption = {  }; }",
         NULL
     };
 
@@ -160,9 +167,9 @@ void test_parsing_key_value_pairs(UNUSED void** state) {
         assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_HTABLE);
         table = amxc_var_constcast(amxc_htable_t, option);
         assert_ptr_not_equal(table, NULL);
-        assert_int_equal(amxc_htable_size(table), 3);
         switch(i) {
         case 0:
+            assert_int_equal(amxc_htable_size(table), 3);
             amxc_htable_for_each(it, table) {
                 amxc_var_t* item = amxc_var_from_htable_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_INT64);
@@ -170,16 +177,21 @@ void test_parsing_key_value_pairs(UNUSED void** state) {
             break;
         case 1:
         case 2:
+            assert_int_equal(amxc_htable_size(table), 3);
             amxc_htable_for_each(it, table) {
                 amxc_var_t* item = amxc_var_from_htable_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_CSTRING);
             }
             break;
         case 3:
+            assert_int_equal(amxc_htable_size(table), 3);
             amxc_htable_for_each(it, table) {
                 amxc_var_t* item = amxc_var_from_htable_it(it);
                 assert_int_equal(amxc_var_type_of(item), AMXC_VAR_ID_BOOL);
             }
+            break;
+        case 4:
+            assert_true(amxc_htable_is_empty(table));
             break;
         }
     }
