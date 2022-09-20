@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.29 - 2022-09-20(15:15:02 +0000)
+
+### Fixes
+
+- It mustbe possible to define empty object or empty array in config section
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.28 - 2022-09-12(13:17:37 +0000)
 
 ### Changes
