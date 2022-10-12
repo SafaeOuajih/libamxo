@@ -201,6 +201,12 @@ import "test_plugin.so" as test_plugin;
                 on action read call test_dummy_action;
             }
         }
+
+        object TestObjectEvent {
+            string Text;
+
+            event 'MyEvent!';
+        }
     }
 }
 

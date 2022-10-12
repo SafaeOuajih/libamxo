@@ -809,6 +809,7 @@ event_def
       amxd_dm_t *dm = amxd_object_get_dm(parser_ctx->object);
       YY_CHECK(dm == NULL, "Can't add event");
       amxp_sigmngr_add_signal(&dm->sigmngr, $2.txt);
+      amxd_object_add_event(parser_ctx->object, $2.txt);
       $$ = 0;
     }
   ;

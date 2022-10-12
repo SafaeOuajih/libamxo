@@ -78,6 +78,7 @@
 #include <amxp/amxp_signal.h>
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
+#include <amxd/amxd_object_event.h>
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
 
@@ -361,6 +362,34 @@ void test_duplicate_func_name(UNUSED void** state) {
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
 
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_object_has_event(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxd_object_t* obj = NULL;
+    amxc_var_t events;
+    amxc_var_t* lib_dirs = NULL;
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+    amxc_var_init(&events);
+
+    lib_dirs = amxo_parser_get_config(&parser, "import-dirs");
+    amxc_var_add(cstring_t, lib_dirs, "../test_plugin/");
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    obj = amxd_dm_findf(&dm, "TestObjectRoot.TestObjectEvent.");
+    assert_non_null(obj);
+    assert_int_equal(amxd_object_describe_events(obj, &events, amxd_dm_access_protected), 0);
+    assert_non_null(GETP_ARG(&events, "0"));
+
+    amxc_var_clean(&events);
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
 }

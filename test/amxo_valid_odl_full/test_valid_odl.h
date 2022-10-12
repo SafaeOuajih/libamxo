@@ -66,5 +66,6 @@ void test_can_parse_empty_file(void** state);
 void test_can_parse_fd(void** state);
 void test_can_parse_string(void** state);
 void test_duplicate_func_name(void** state);
+void test_object_has_event(void** state);
 
 #endif // __TEST_SIGINFO_VARIANT_H__

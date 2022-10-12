@@ -72,6 +72,7 @@ int main(void) {
         cmocka_unit_test(test_can_parse_fd),
         cmocka_unit_test(test_can_parse_string),
         cmocka_unit_test(test_duplicate_func_name),
+        cmocka_unit_test(test_object_has_event),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
