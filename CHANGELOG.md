@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.32 - 2022-10-12(12:41:49 +0000)
+
+### Fixes
+
+- [USP][CDROUTER] GetSupportedDM on Device.LocalAgent. using a single object, first_level_only true, all options presents no event
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.31 - 2022-10-06(19:13:09 +0000)
 
 ### Changes
