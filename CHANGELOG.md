@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.33 - 2022-10-20(14:56:33 +0000)
+
+### Changes
+
+- It must be possible for a function resolver to known for which action an action callback function is needed
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.32 - 2022-10-12(12:41:49 +0000)
 
 ### Fixes

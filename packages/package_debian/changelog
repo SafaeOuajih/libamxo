@@ -1,3 +1,10 @@
+libamxo (2.0.33) unstable; urgency=medium
+
+  * It must be possible for a function resolver to known for which action an action callback function is needed
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Thu, 20 Oct 2022 14:56:33 +0000
+
 libamxo (2.0.32) unstable; urgency=medium
 
   * [USP][CDROUTER] GetSupportedDM on Device.LocalAgent. using a single object, first_level_only true, all options presents no event
