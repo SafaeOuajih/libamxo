@@ -660,6 +660,7 @@ int amxo_parser_set_action(amxo_parser_t* pctx,
                            amxo_action_t action) {
 
     int retval = -1;
+    amxc_var_t* ca = GET_ARG(&pctx->config, "_current_action");
     pctx->status = amxd_status_ok;
 
     if(amxo_parser_no_resolve(pctx)) {
@@ -699,6 +700,7 @@ int amxo_parser_set_action(amxo_parser_t* pctx,
     }
 
 exit:
+    amxc_var_delete(&ca);
     amxc_string_delete(&pctx->resolved_fn_name);
     if(retval != 0) {
         amxc_var_delete(&pctx->data);

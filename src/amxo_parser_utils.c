@@ -264,6 +264,7 @@ amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
         "destroy"
     };
     amxo_action_t action_id = amxo_action_invalid;
+    amxc_var_t* ca = GET_ARG(&pctx->config, "_current_action");
 
     for(int i = 0; i <= action_max; i++) {
         if(strcmp(action_name, names[i]) == 0) {
@@ -277,6 +278,12 @@ amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
         amxo_parser_msg(pctx,
                         "Invalid action name \"%s\"",
                         action_name);
+    }
+
+    if(ca == NULL) {
+        amxc_var_add_key(uint32_t, &pctx->config, "_current_action", action_id);
+    } else {
+        amxc_var_set(uint32_t, ca, action_id);
     }
 
     return action_id;

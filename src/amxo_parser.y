@@ -1081,15 +1081,18 @@ name
 
 data
   : value { 
+      YY_CHECK(parser_ctx->data != NULL, "Invalid data"); 
       amxc_var_new(&parser_ctx->data); 
       amxc_var_copy(parser_ctx->data, &$1);
       amxc_var_clean(&$1);
     }
   | '{' '}' {
+      YY_CHECK(parser_ctx->data != NULL, "Invalid data"); 
       amxc_var_new(&parser_ctx->data);
       amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_HTABLE); 
     }
   | '[' ']' {
+      YY_CHECK(parser_ctx->data != NULL, "Invalid data"); 
       amxc_var_new(&parser_ctx->data);
       amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_LIST); 
     }
