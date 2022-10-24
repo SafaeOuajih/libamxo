@@ -1,3 +1,9 @@
+libamxo (2.0.34) unstable; urgency=medium
+
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Mon, 24 Oct 2022 11:10:29 +0000
+
 libamxo (2.0.33) unstable; urgency=medium
 
   * It must be possible for a function resolver to known for which action an action callback function is needed
