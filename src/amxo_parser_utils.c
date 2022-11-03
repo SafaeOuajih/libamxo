@@ -75,6 +75,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <ctype.h>
+#include <syslog.h>
 
 #include <amxc/amxc.h>
 #include <amxp/amxp.h>
@@ -130,6 +131,9 @@ void amxo_parser_msg(amxo_parser_t* parser, const char* format, ...) {
     va_start(args, format);
     amxc_string_vsetf(&parser->msg, format, args);
     va_end(args);
+    va_start(args, format);
+    vsyslog(LOG_PID | LOG_USER, format, args);
+    va_end(args);
 }
 
 int amxo_parser_printf(amxo_parser_t* parser, const char* format, ...) {
@@ -139,6 +143,9 @@ int amxo_parser_printf(amxo_parser_t* parser, const char* format, ...) {
     if(!silent) {
         vfprintf(stderr, format, args);
     }
+    va_end(args);
+    va_start(args, format);
+    vsyslog(LOG_PID | LOG_USER, format, args);
     va_end(args);
     return 0;
 }
