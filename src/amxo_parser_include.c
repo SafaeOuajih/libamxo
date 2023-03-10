@@ -272,8 +272,7 @@ static int amxo_parser_include_dir(amxo_parser_t* pctx,
 
     if(count == 0) {
         pctx->status = amxd_status_ok;
-        amxo_parser_msg(pctx, "Empty directory \"%s\"", full_path);
-        retval = 2;
+        retval = 0;
     }
     free(namelist);
 

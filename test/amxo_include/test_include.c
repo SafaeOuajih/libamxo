@@ -259,7 +259,7 @@ void test_empty_directory(UNUSED void** state) {
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

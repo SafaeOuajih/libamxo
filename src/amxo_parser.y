@@ -358,8 +358,7 @@ include
       } else {
           retval = amxo_parser_add_post_include(parser_ctx, $2.txt);
       }
-      YY_CHECK(retval != 0 && !(retval == 2 && $1 == token_optional_include),
-                $2.txt);
+      YY_CHECK(retval != 0 && !(retval == 2 && $1 == token_optional_include), $2.txt);
       parser_ctx->status = amxd_status_ok;
     }
   | INCLUDE TEXT ':' TEXT ';' {
