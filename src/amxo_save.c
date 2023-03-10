@@ -286,13 +286,13 @@ static int amxo_parser_save_table_config(int fd,
     const char* sep = "";
 
     amxo_parser_indent(buffer);
-    amxo_parser_writef(fd, buffer, "%s = {", name);
+    amxo_parser_writef(fd, buffer, "'%s' = {", name);
     amxc_htable_for_each(it, hvalue) {
         amxc_var_t* val = amxc_var_from_htable_it(it);
         const char* key = amxc_htable_it_get_key(it);
         when_true(!amxd_name_is_valid(key), exit);
 
-        amxo_parser_writef(fd, buffer, "%s%s = ", sep, key);
+        amxo_parser_writef(fd, buffer, "%s\"%s\" = ", sep, key);
         retval = amxo_parser_save_value(fd, val, buffer);
         when_true(retval < 0, exit);
         sep = ",";
@@ -312,7 +312,7 @@ static int amxo_parser_save_list_config(int fd,
     const amxc_llist_t* lvalue = amxc_var_constcast(amxc_llist_t, value);
     const char* sep = "";
     amxo_parser_indent(buffer);
-    amxo_parser_writef(fd, buffer, "%s = [", name);
+    amxo_parser_writef(fd, buffer, "'%s' = [", name);
     amxc_llist_for_each(it, lvalue) {
         amxc_var_t* val = amxc_var_from_llist_it(it);
         amxo_parser_writef(fd, buffer, "%s", sep);
@@ -349,7 +349,7 @@ static int amxo_parser_save_config_options(int fd,
             when_true(retval < 0, exit);
         } else {
             amxo_parser_indent(buffer);
-            amxo_parser_writef(fd, buffer, "%s = ", key);
+            amxo_parser_writef(fd, buffer, "'%s' = ", key);
             retval = amxo_parser_save_value(fd, option, buffer);
             amxo_parser_writef(fd, buffer, ";\n", key);
         }

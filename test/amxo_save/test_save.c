@@ -226,6 +226,7 @@ void test_save_config_values(UNUSED void** state) {
     amxc_var_add_key(bool, &config_options, "enable_auto_detect", true);
     amxc_var_add_key(uint32_t, &config_options, "iteratations", 10);
     amxc_var_add_key(amxc_ts_t, &config_options, "time", &now);
+    amxc_var_add_key(amxc_llist_t, &config_options, "requires", NULL);
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
