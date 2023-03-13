@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.52 - 2023-03-13(08:08:05 +0000)
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
+### Other
+
+- [amxo] Saving and restoring the odl (config) section gives errors.
+- When odl includes an empty directory no error should be printed
+
 ## Release v2.0.51 - 2023-03-02(09:10:22 +0000)
 
 ### Changes

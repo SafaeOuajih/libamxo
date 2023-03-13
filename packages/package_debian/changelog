@@ -1,3 +1,11 @@
+libamxo (2.0.52) unstable; urgency=medium
+
+  * Update dependencies in .gitlab-ci.yml
+  * [amxo] Saving and restoring the odl (config) section gives errors.
+  * When odl includes an empty directory no error should be printed
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Mon, 13 Mar 2023 08:08:05 +0000
+
 libamxo (2.0.51) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml
