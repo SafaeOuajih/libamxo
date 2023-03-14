@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.0.53 - 2023-03-14(12:00:08 +0000)
+
+### Other
+
+- [odl] Regression conditional include does not take second if first is an empty directory
+
 ## Release v2.0.52 - 2023-03-13(08:08:05 +0000)
 
 ### Changes
