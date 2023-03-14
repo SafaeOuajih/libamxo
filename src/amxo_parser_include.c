@@ -272,7 +272,7 @@ static int amxo_parser_include_dir(amxo_parser_t* pctx,
 
     if(count == 0) {
         pctx->status = amxd_status_ok;
-        retval = 0;
+        retval = 4;
     }
     free(namelist);
 

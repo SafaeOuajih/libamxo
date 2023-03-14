@@ -265,6 +265,25 @@ void test_empty_directory(UNUSED void** state) {
     amxd_dm_clean(&dm);
 }
 
+void test_conditional_include_with_empty_directory_takes_second(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odl = "include \"./empty_dir/\":\"./main.odl\";";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_non_null(amxd_dm_findf(&dm, "MainObject.InstanceObject.default"));
+    assert_non_null(amxd_dm_findf(&dm, "MainObject.InstanceObject.1"));
+    assert_non_null(amxd_dm_findf(&dm, "MainObject.InstanceObject.2"));
+    assert_non_null(amxd_dm_findf(&dm, "MainObject.InstanceObject.3"));
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
 void test_composite_config_options_are_extended(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;

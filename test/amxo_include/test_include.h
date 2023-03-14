@@ -71,6 +71,7 @@ void test_include_absolute_path(void** state);
 void test_post_include(void** state);
 void test_can_include_directory(void** state);
 void test_empty_directory(void** state);
+void test_conditional_include_with_empty_directory_takes_second(void** state);
 void test_composite_config_options_are_extended(void** state);
 void test_global_nested_include(void** state);
 

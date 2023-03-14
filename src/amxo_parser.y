@@ -355,6 +355,10 @@ include
       int retval = 0;
       if ($1 != token_post_include) {
           retval = amxo_parser_include(parser_ctx, $2.txt);
+          if (retval == 4) {
+            // is an empty directory - not an error
+            retval = 0;
+          }
       } else {
           retval = amxo_parser_add_post_include(parser_ctx, $2.txt);
       }
@@ -365,9 +369,13 @@ include
       $2.txt[$2.length] = 0;
       $4.txt[$4.length] = 0;
       int retval = amxo_parser_include(parser_ctx, $2.txt);
-      if (retval == 2) {
+      if (retval == 2 || retval == 4) {
+          // 2 = file/dir not found, 4 = empty directory
           parser_ctx->status = amxd_status_ok;
           retval = amxo_parser_include(parser_ctx, $4.txt);
+          if (retval == 4) {
+            retval = 0;
+          }
       }
       YY_CHECK(retval != 0, $2.txt); 
     }
