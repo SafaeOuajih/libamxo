@@ -144,7 +144,7 @@
 
 %type <integer> stream sections section config_options config_option
 %type <integer> requires include import ldflags entry_point print
-%type <integer> defines populates populate object_populate event_populate
+%type <integer> defines populates populate object_populate event_populate event_subscribe
 %type <integer> define object_def object_def_header multi object_body object_content
 %type <integer> parameter_def counted event_def
 %type <integer> function_def arguments argument_def add_mib
@@ -512,6 +512,7 @@ object_content
   | action
   | add_mib
   | event_def
+  | event_subscribe
   ;
 
 parameter_def
@@ -818,6 +819,24 @@ event_def
       amxp_sigmngr_add_signal(&dm->sigmngr, $2.txt);
       amxd_object_add_event(parser_ctx->object, $2.txt);
       $$ = 0;
+    }
+  ;
+
+event_subscribe
+  : ON EVENT text_or_regexp event_func ';' {
+      int retval = amxo_parser_subscribe_object(parser_ctx,
+                                                $3.txt, $3.is_regexp,
+                                                NULL);
+      YY_CHECK(retval < 0, $3.txt);
+      YY_WARNING(retval > 0, $3.txt);
+    }
+  | ON EVENT text_or_regexp event_func filter ';' {
+      $5.txt[$5.length] = 0;
+      int retval = amxo_parser_subscribe_object(parser_ctx,
+                                                $3.txt, $3.is_regexp,
+                                                $5.txt);
+      YY_CHECK(retval < 0, $3.txt);
+      YY_WARNING(retval > 0, $3.txt);
     }
   ;
 

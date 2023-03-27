@@ -188,6 +188,62 @@ void test_event_subscription(UNUSED void** state) {
     amxd_dm_clean(&dm);
 }
 
+void test_event_subscription_in_object_def(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxd_trans_t transaction;
+
+    const char* odl =
+        "%define {"
+        "    object Root {"
+        "        object Test[] { "
+        "            on event '*' call print_event;"
+        "            string text = \"Hallo\";"
+        "        }"
+        "    }"
+        "}";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxo_resolver_ftab_add(&parser, "print_event", AMXO_FUNC(_print_event));
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    event_counter = 0;
+    while(amxp_signal_read() == 0) {
+    }
+    assert_int_equal(event_counter, 1);
+
+    amxd_trans_init(&transaction);
+    amxd_trans_select_pathf(&transaction, "Root.Test");
+    amxd_trans_add_inst(&transaction, 0, NULL);
+    amxd_trans_select_pathf(&transaction, ".^");
+    amxd_trans_add_inst(&transaction, 0, NULL);
+    assert_int_equal(amxd_trans_apply(&transaction, &dm), 0);
+    amxd_trans_clean(&transaction);
+
+    event_counter = 0;
+    while(amxp_signal_read() == 0) {
+    }
+    assert_int_equal(event_counter, 2);
+
+    amxd_trans_init(&transaction);
+    amxd_trans_select_pathf(&transaction, "Root.Test.1.");
+    amxd_trans_set_value(cstring_t, &transaction, "text", "Testing");
+    assert_int_equal(amxd_trans_apply(&transaction, &dm), 0);
+    amxd_trans_clean(&transaction);
+
+    event_counter = 0;
+    while(amxp_signal_read() == 0) {
+    }
+    assert_int_equal(event_counter, 1);
+
+    amxp_slot_disconnect_all(_print_event);
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
 void test_event_subscription_filter(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;

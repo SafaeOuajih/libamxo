@@ -62,6 +62,7 @@
 #define __TEST_EVENTS_H__
 
 void test_event_subscription(void** state);
+void test_event_subscription_in_object_def(void** state);
 void test_event_subscription_filter(void** state);
 void test_subscription_warns_if_function_not_resolved(void** state);
 void test_populate_section_generates_events(void** state);

@@ -355,6 +355,50 @@ static amxd_object_t* amxd_parser_add_instance_msg(amxo_parser_t* pctx,
     return object;
 }
 
+static void amxo_parser_build_path_expr(amxd_object_t* object, amxc_string_t* expr) {
+    bool regexp = false;
+
+    if(amxd_object_get_type(object) == amxd_object_template) {
+        regexp = true;
+        amxc_string_prependf(expr,
+                             "%s\\.[0-9]*.{0,1}",
+                             amxd_object_get_name(object, AMXD_OBJECT_NAMED));
+    } else {
+        amxc_string_prependf(expr,
+                             "%s\\.",
+                             amxd_object_get_name(object, AMXD_OBJECT_NAMED));
+    }
+    object = amxd_object_get_parent(object);
+
+    while(object != NULL && amxd_object_get_parent(object) != NULL) {
+        switch(amxd_object_get_type(object)) {
+        case amxd_object_template:
+            regexp = true;
+            amxc_string_prependf(expr,
+                                 "%s\\.[0-9]+\\.",
+                                 amxd_object_get_name(object, AMXD_OBJECT_NAMED));
+            break;
+        case amxd_object_singleton:
+            amxc_string_prependf(expr,
+                                 "%s\\.",
+                                 amxd_object_get_name(object, AMXD_OBJECT_NAMED));
+            break;
+        default:
+            break;
+        }
+        object = amxd_object_get_parent(object);
+    }
+
+    if(regexp) {
+        amxc_string_prepend(expr, "(path matches '^", 16);
+        amxc_string_append(expr, "$')", 3);
+    } else {
+        amxc_string_replace(expr, "\\", "", UINT32_MAX);
+        amxc_string_prepend(expr, "(path == '", 10);
+        amxc_string_append(expr, "')", 2);
+    }
+}
+
 bool amxo_parser_check_config(amxo_parser_t* pctx,
                               const char* path,
                               const char* check) {
@@ -653,6 +697,48 @@ int amxo_parser_subscribe(amxo_parser_t* pctx,
     }
 
 exit:
+    return retval;
+}
+
+int amxo_parser_subscribe_object(amxo_parser_t* pctx,
+                                 const char* event,
+                                 bool event_is_regexp,
+                                 const char* full_expr) {
+    int retval = 1;
+    amxd_dm_t* dm = amxd_object_get_dm(pctx->object);
+    amxp_slot_fn_t fn = (amxp_slot_fn_t) pctx->resolved_fn;
+    amxc_string_t path_expr;
+
+    amxc_string_init(&path_expr, 0);
+
+    when_true_status(amxo_parser_no_resolve(pctx), exit, retval = 0);
+    when_null(dm, exit);
+
+    if(pctx->resolved_fn == NULL) {
+        amxo_parser_msg(pctx,
+                        "No event subscription created - no function was resolved");
+        pctx->status = amxd_status_ok;
+        amxc_var_delete(&pctx->data);
+        goto exit;
+    }
+
+    amxo_parser_build_path_expr(pctx->object, &path_expr);
+    if((full_expr != NULL) && (*full_expr != 0)) {
+        if(amxc_string_is_empty(&path_expr)) {
+            amxc_string_set(&path_expr, full_expr);
+        } else {
+            amxc_string_appendf(&path_expr, " && (%s)", full_expr);
+        }
+    }
+    retval = amxo_parser_connect(pctx,
+                                 &dm->sigmngr,
+                                 event,
+                                 event_is_regexp,
+                                 amxc_string_get(&path_expr, 0),
+                                 fn);
+
+exit:
+    amxc_string_clean(&path_expr);
     return retval;
 }
 

@@ -68,6 +68,7 @@
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_event_subscription),
+        cmocka_unit_test(test_event_subscription_in_object_def),
         cmocka_unit_test(test_event_subscription_filter),
         cmocka_unit_test(test_subscription_warns_if_function_not_resolved),
         cmocka_unit_test(test_populate_section_generates_events),

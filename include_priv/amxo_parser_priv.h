@@ -244,6 +244,11 @@ int PRIVATE amxo_parser_subscribe(amxo_parser_t* pctx,
                                   bool event_is_regexp,
                                   const char* full_expr);
 
+int amxo_parser_subscribe_object(amxo_parser_t* pctx,
+                                 const char* event,
+                                 bool event_is_regexp,
+                                 const char* full_expr);
+
 int PRIVATE amxo_parser_add_post_include(amxo_parser_t* pctx,
                                          const char* file_path);
 int PRIVATE amxo_parser_include(amxo_parser_t* pctx, const char* file_path);
