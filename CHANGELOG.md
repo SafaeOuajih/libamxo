@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v2.1.0 - 2023-03-28(06:12:08 +0000)
+
+### New
+
+- AMX : make it possible to to define event handlers directly under object
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.0.55 - 2023-03-27(08:45:18 +0000)
 
 ### Changes
