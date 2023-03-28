@@ -1,3 +1,9 @@
+libamxo (2.1.1) unstable; urgency=medium
+
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Tue, 28 Mar 2023 07:42:10 +0000
+
 libamxo (2.1.0) unstable; urgency=medium
 
   * AMX : make it possible to to define event handlers directly under object
