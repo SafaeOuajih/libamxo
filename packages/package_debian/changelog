@@ -1,3 +1,11 @@
+libamxo (3.0.0) unstable; urgency=medium
+
+  * Remove deprecated odl syntax and pcb compatibility syntax
+  * ODL syntax documentation must be updated
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Fri, 21 Apr 2023 17:17:12 +0000
+
 libamxo (2.1.2) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml

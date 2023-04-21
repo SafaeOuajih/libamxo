@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v3.0.0 - 2023-04-21(17:17:12 +0000)
+
+### Breaking
+
+- Remove deprecated odl syntax and pcb compatibility syntax
+
+### Fixes
+
+- ODL syntax documentation must be updated
+
+### Changes
+
+- Update dependencies in .gitlab-ci.yml
+
 ## Release v2.1.2 - 2023-04-08(18:07:46 +0000)
 
 ### Changes
