@@ -110,8 +110,8 @@ void test_none_existing_param_can_add(UNUSED void** state) {
     amxo_parser_t parser;
     const char* main_odl =
         "%config { populate-behavior = { unknown-parameter = \"add\" }; }\n"
-        "%define { object MyObject { string Text; } }\n"
-        "%populate { object MyObject { parameter OtherParam = 10; } }\n";
+        "%define { object MyObject { string Text; object Multi[] { string Text; } } }\n"
+        "%populate { object MyObject { parameter OtherParam = 10; object Multi { parameter Other = 10; } } }\n";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);

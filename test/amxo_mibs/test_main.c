@@ -80,6 +80,7 @@ int main(void) {
         cmocka_unit_test(test_can_apply_mibs_to_object),
         cmocka_unit_test(test_can_add_mibs_to_object),
         cmocka_unit_test(test_can_remove_mibs_from_object),
+        cmocka_unit_test(test_can_add_mibs_from_include),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -91,5 +91,6 @@ void test_add_mib_with_duplicates(void** state);
 void test_invalid_regexp_in_filter(void** state);
 void test_invalid_key_params(void** state);
 void test_empty_file_name(void** state);
+void test_parse_non_existing_file(void** state);
 
 #endif // __TEST_INVALID_ODL_H__

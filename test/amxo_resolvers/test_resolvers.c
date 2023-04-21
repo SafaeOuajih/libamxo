@@ -194,6 +194,7 @@ void test_auto_resolver_order_no_any(UNUSED void** state) {
     const char* odls[] = {
         "%define { object Test { void Func(); } }",
         "%define { object Test { void Func()<!test:data!>; } }",
+        "%config { resolver = 'test'; } %define { object Test { void Func()<!${resolver}:data!>; } }",
         NULL
     };
 

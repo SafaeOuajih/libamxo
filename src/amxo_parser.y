@@ -65,6 +65,10 @@
 %lex-param {void *ctx}
 
 %{
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -92,7 +96,7 @@
   int64_t bitmap;
 	amxo_txt_t cptr;
   bool boolean;
-  amxc_var_t value;
+  amxc_var_t* var;
   amxo_txt_regexp_t cregexp;
   amxo_action_t action;
 }
@@ -100,6 +104,7 @@
 %token <integer> REQUIRES
 %token <integer> INCLUDE
 %token <integer> IMPORT
+%token <integer> USING
 %token <integer> AS
 %token <integer> INSTANCE
 %token <integer> PARAMETER
@@ -135,13 +140,6 @@
 %token <integer> FLAGS
 %token <integer> PRINT
 
-%token <integer> CONSTRAINT
-%token <integer> MIN
-%token <integer> MAX
-%token <integer> RANGE
-%token <integer> ENUM
-%token <integer> CUSTOM
-
 %type <integer> stream sections section config_options config_option
 %type <integer> requires include import ldflags entry_point print
 %type <integer> defines populates populate object_populate event_populate event_subscribe
@@ -149,12 +147,12 @@
 %type <integer> parameter_def counted event_def
 %type <integer> function_def arguments argument_def add_mib
 %type <integer> object_pop_header object_pop_body object_pop_content param_pop_head parameter
-%type <action> action_header
-%type <integer> action
+%type <action>  action_header
+%type <integer> action instance_id
 %type <bitmap>  attributes unset_attributes
-%type <value>   value
-%type <cptr>    name path filter instance_id
+%type <cptr>    name path filter 
 %type <cregexp> text_or_regexp
+%type <var>     flags flag value values data_option data_options data
 
 %{
     int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void * yyscanner);
@@ -294,31 +292,31 @@ config_options
 
 config_option
   : path '=' data ';' {
+      amxc_var_t* data = NULL;
       $1.txt[$1.length] = 0;
-      YY_CHECK_ACTION(amxo_parser_set_config(parser_ctx, $1.txt, parser_ctx->data) != 0,
+      YY_CHECK_ACTION(amxo_parser_set_config(parser_ctx, $1.txt, $3) != 0,
                        $1.txt,
-                       amxc_var_delete(&parser_ctx->data);
+                       amxc_var_delete(&$3);
                       );
-      amxc_var_delete(&parser_ctx->data);
-      parser_ctx->data = amxc_var_get_path(&parser_ctx->config, $1.txt, AMXC_VAR_FLAG_DEFAULT);
-      amxo_hooks_set_config(parser_ctx, $1.txt, parser_ctx->data);
-      parser_ctx->data = NULL;
+      data = amxc_var_get_path(&parser_ctx->config, $1.txt, AMXC_VAR_FLAG_DEFAULT);
+      amxo_hooks_set_config(parser_ctx, $1.txt, data);
+      amxc_var_delete(&$3);
       $$ = 0;
     }
   | GLOBAL path '=' data ';' {
+      amxc_var_t* data = NULL;
       $2.txt[$2.length] = 0;
-      YY_CHECK_ACTION(amxo_parser_set_config(parser_ctx, $2.txt, parser_ctx->data) != 0,
+      YY_CHECK_ACTION(amxo_parser_set_config(parser_ctx, $2.txt, $4) != 0,
                        $2.txt,
-                       amxc_var_delete(&parser_ctx->data);
+                       amxc_var_delete(&$4);
                       );
       amxc_string_t *name;
       amxc_string_new(&name, 0);
       amxc_string_append(name, $2.txt, $2.length);
       amxc_llist_append(&parser_ctx->global_config, &name->it);
-      amxc_var_delete(&parser_ctx->data);
-      parser_ctx->data = amxc_var_get_path(&parser_ctx->config, $2.txt, AMXC_VAR_FLAG_DEFAULT);
-      amxo_hooks_set_config(parser_ctx, $2.txt, parser_ctx->data);
-      parser_ctx->data = NULL;
+      data = amxc_var_get_path(&parser_ctx->config, $2.txt, AMXC_VAR_FLAG_DEFAULT);
+      amxo_hooks_set_config(parser_ctx, $2.txt, data);
+      amxc_var_delete(&$4);
       $$ = 0;
     }
   ;
@@ -542,10 +540,10 @@ param_header
       $2.txt[$2.length] = 0;
       YY_CHECK_ACTION(!amxo_parser_push_param(parser_ctx, $2.txt, 0, $1),
                        $2.txt,
-                       amxc_var_clean(&$4));
-      retval = amxo_parser_set_param(parser_ctx, $2.txt, &$4);
-      YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_clean(&$4));
-      amxc_var_clean(&$4);
+                       amxc_var_delete(&$4));
+      retval = amxo_parser_set_param(parser_ctx, $2.txt, $4);
+      YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_delete(&$4));
+      amxc_var_delete(&$4);
     }
   | attributes TYPE name '=' value {
       bool key_attr_is_set = ($1 & (1 << attr_key));
@@ -553,17 +551,17 @@ param_header
       $3.txt[$3.length] = 0;
       YY_CHECK_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_param_attrs),
                        $3.txt,
-                       amxc_var_clean(&$5));
+                       amxc_var_delete(&$5));
       YY_CHECK_ACTION(key_attr_is_set,
                        "Key parameters can not have a default value",
                        parser_ctx->status = amxd_status_invalid_value;
-                       amxc_var_clean(&$5));
+                       amxc_var_delete(&$5));
       YY_CHECK_ACTION(!amxo_parser_push_param(parser_ctx, $3.txt, $1, $2),
                        $3.txt,
-                       amxc_var_clean(&$5));
-      retval = amxo_parser_set_param(parser_ctx, $3.txt, &$5);
-      YY_CHECK_ACTION(retval < 0, $3.txt, amxc_var_clean(&$5));
-      amxc_var_clean(&$5);
+                       amxc_var_delete(&$5));
+      retval = amxo_parser_set_param(parser_ctx, $3.txt, $5);
+      YY_CHECK_ACTION(retval < 0, $3.txt, amxc_var_delete(&$5));
+      amxc_var_delete(&$5);
     }
   ;
 
@@ -574,27 +572,26 @@ param_body
 
 param_content
   : action
-  | CONSTRAINT param_constraint ';'
   | DEFAULT value ';' {
-      int retval = amxo_parser_set_param(parser_ctx, NULL, &$2);
+      int retval = amxo_parser_set_param(parser_ctx, NULL, $2);
       YY_CHECK_ACTION(retval < 0,
                        amxd_param_get_name(parser_ctx->param),
-                       amxc_var_clean(&$2));
-      amxc_var_clean(&$2);
+                       amxc_var_delete(&$2));
+      amxc_var_delete(&$2);
     }
   | FLAGS flags ';' {
-      YY_CHECK(!amxo_parser_set_param_flags(parser_ctx), "Parameter flags");
+      YY_CHECK(!amxo_parser_set_param_flags(parser_ctx, $2), "Parameter flags");
     }
   ;
 
 action
   : action_header action_function ';' {
-      int retval = amxo_parser_set_action(parser_ctx, $1);
+      int retval = amxo_parser_set_action(parser_ctx, $1, NULL);
       YY_CHECK(retval < 0, "Action");
       YY_WARNING(retval > 0, "Action");
     }
   | action_header action_function data ';' {
-      int retval = amxo_parser_set_action(parser_ctx, $1);
+      int retval = amxo_parser_set_action(parser_ctx, $1, $3);
       YY_CHECK(retval < 0, "Action");
       YY_WARNING(retval > 0, "Action");
     }
@@ -628,70 +625,6 @@ action_function
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }
-
-param_constraint
-    : MIN DIGIT { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_minimum", amxo_function_action, "auto");
-      YY_CHECK(retval < 0, "check_minimum");
-      YY_WARNING(retval > 0, "check_minimum");
-      amxc_var_new(&parser_ctx->data);
-      amxc_var_set(int64_t, parser_ctx->data, $2);
-      retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_CHECK(retval < 0, "check_minimum");
-      YY_WARNING(retval > 0, "check_minimum");
-    }
-  | MAX DIGIT { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_maximum", amxo_function_action, "auto");
-      YY_CHECK(retval < 0, "check_maximum");
-      YY_WARNING(retval > 0, "check_maximum");
-      amxc_var_new(&parser_ctx->data);
-      amxc_var_set(int64_t, parser_ctx->data, $2);
-      retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_CHECK(retval < 0, "check_maximum");
-      YY_WARNING(retval > 0, "check_maximum");
-    }
-  | RANGE '[' DIGIT ',' DIGIT ']' { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_range", amxo_function_action, "auto");
-      YY_CHECK(retval < 0, "check_range");
-      YY_WARNING(retval > 0, "check_range");
-      amxc_var_new(&parser_ctx->data);
-      amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_HTABLE);
-      amxc_var_add_key(int64_t, parser_ctx->data, "min", $3);
-      amxc_var_add_key(int64_t, parser_ctx->data, "max", $5);
-      retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_CHECK(retval < 0, "check_range");
-      YY_WARNING(retval > 0, "check_range");
-    }
-  | ENUM '[' values ']' { // deprecated - must be removed at 01/01/2022
-      int retval = amxo_parser_resolve_internal(parser_ctx, "check_enum", amxo_function_action, "auto");
-      YY_CHECK(retval < 0, "check_enum");
-      YY_WARNING(retval > 0, "check_enum");
-      retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_CHECK(retval < 0, "check_enum");
-      YY_WARNING(retval > 0, "check_enum");
-    }
-  | CUSTOM name { // deprecated - must be removed at 01/01/2022
-      $2.txt[$2.length] = 0;
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_action, "auto");
-      YY_CHECK(retval < 0, $2.txt);
-      YY_WARNING(retval > 0, $2.txt);
-      retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_CHECK(retval < 0, $2.txt);
-      YY_WARNING(retval > 0, $2.txt);
-    }
-  | CUSTOM name IMPORT name { // deprecated - must be removed at 01/01/2022
-      $2.txt[$2.length] = 0;
-      $4.txt[$4.length] = 0;
-      char *resolver = amxo_parser_build_import_resolver_data($2.txt, $4.txt);
-      int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_action, resolver);
-      YY_CHECK_ACTION(retval < 0, $2.txt, free(resolver));
-      YY_WARNING(retval > 0, $2.txt);
-      retval = amxo_parser_set_action(parser_ctx, action_validate);
-      YY_CHECK_ACTION(retval < 0, $2.txt, free(resolver));
-      YY_WARNING(retval > 0, $2.txt);
-      free(resolver);
-    }
-  ;
 
 function_def
   : function_header func_args ';' {
@@ -758,7 +691,7 @@ arguments
 
 func_body
   : FLAGS flags ';' {
-      YY_CHECK(!amxo_parser_set_function_flags(parser_ctx), "Function flags");
+      YY_CHECK(!amxo_parser_set_function_flags(parser_ctx, $2), "Function flags");
     }
   ;
 
@@ -774,20 +707,20 @@ argument_def
     }
   | TYPE name '=' value {
       $2.txt[$2.length] = 0;
-      YY_CHECK_ACTION(!amxo_parser_add_arg(parser_ctx, $2.txt, 0, $1, &$4),
+      YY_CHECK_ACTION(!amxo_parser_add_arg(parser_ctx, $2.txt, 0, $1, $4),
                        $2.txt,
-                       amxc_var_clean(&$4));
-      amxc_var_clean(&$4);
+                       amxc_var_delete(&$4));
+      amxc_var_delete(&$4);
     }
   | attributes TYPE name '=' value {
       $3.txt[$3.length] = 0;
       YY_CHECK_ACTION(!amxo_parser_check_attr(parser_ctx, $1, amxo_arg_attrs),
                        $3.txt,
-                       amxc_var_clean(&$5));
-      YY_CHECK_ACTION(!amxo_parser_add_arg(parser_ctx, $3.txt, $1, $2, &$5),
+                       amxc_var_delete(&$5));
+      YY_CHECK_ACTION(!amxo_parser_add_arg(parser_ctx, $3.txt, $1, $2, $5),
                        $3.txt,
-                       amxc_var_clean(&$5));
-      amxc_var_clean(&$5);
+                       amxc_var_delete(&$5));
+      amxc_var_delete(&$5);
     }
   ;
 
@@ -799,7 +732,7 @@ counted
   ;
 
 add_mib
-  : EXTEND IMPORT OBJECT name ';' {
+  : EXTEND USING OBJECT name ';' {
       $4.txt[$4.length] = 0;
       YY_CHECK($3 != token_mib, $4.txt);
       YY_CHECK(!amxo_parser_add_mib(parser_ctx, $4.txt), $4.txt);
@@ -951,43 +884,37 @@ object_pop_header
       YY_CHECK(!amxo_parser_set_object_attrs(parser_ctx, $1, true), $3.txt);
     }
   | INSTANCE OF '(' ')' {
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, 0, NULL), "");
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, NULL, NULL), "");
     }
-  | INSTANCE OF '(' DIGIT ')' {
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, $4, NULL), "");
-    }
-  | INSTANCE OF '(' instance_id ')' {
-      if ($4.txt != NULL) {
-          $4.txt[$4.length] = 0;
-      }
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, 0, $4.txt), "");
-    }
-  | INSTANCE OF '(' DIGIT ',' instance_id ')' {
-      if ($6.txt != NULL) {
-          $6.txt[$6.length] = 0;
-      }
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, NULL, $4, $6.txt), "");
-    }
-  | INSTANCE OF name '(' DIGIT ',' instance_id ')' {
-      $3.txt[$3.length] = 0;
-      if ($7.txt != NULL) {
-          $7.txt[$7.length] = 0;
-      }
-      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $3.txt, $5, $7.txt), "");
-    }
+  | INSTANCE OF '(' instance_id ')'
   ;
 
 instance_id
-  : name {
-      $$ = $1;
+  : DIGIT {
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $1, NULL, NULL), "");
     }
-  | name ',' data_options {
-      $$ = $1;
+  | name {
+      $1.txt[$1.length] = 0;
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, $1.txt, NULL), "");
+    }
+  | DIGIT ',' name {
+      $3.txt[$3.length] = 0;
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $1, $3.txt, NULL), "");
     }
   | data_options {
-      $$.txt = NULL;
-      $$.length = 0;
-  }
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, NULL, $1), "");
+    }
+  | DIGIT ',' data_options {
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $1, NULL, $3), "");
+    }
+  | name ',' data_options {
+      $1.txt[$1.length] = 0;
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, 0, $1.txt, $3), "");
+    }
+  | DIGIT ',' name ',' data_options {
+      $3.txt[$3.length] = 0;
+      YY_CHECK(!amxo_parser_add_instance(parser_ctx, $1, $3.txt, $5), "");
+    }
   ;
 
 object_pop_body
@@ -1056,10 +983,10 @@ param_pop_head
 parameter
   : PARAMETER name '=' value {
       $2.txt[$2.length] = 0;
-      int retval = amxo_parser_set_param(parser_ctx, $2.txt, &$4);
-      YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_clean(&$4));
+      int retval = amxo_parser_set_param(parser_ctx, $2.txt, $4);
+      YY_CHECK_ACTION(retval < 0, $2.txt, amxc_var_delete(&$4));
       YY_WARNING(retval > 0, $2.txt);
-      amxc_var_clean(&$4);
+      amxc_var_delete(&$4);
     }
   | PARAMETER name {
       $2.txt[$2.length] = 0;
@@ -1071,7 +998,7 @@ parameter
 
 param_pop_body
   : FLAGS flags ';' {
-      YY_CHECK(!amxo_parser_set_param_flags(parser_ctx), "Parameter flags");
+      YY_CHECK(!amxo_parser_set_param_flags(parser_ctx, $2), "Parameter flags");
     }
   ;
 
@@ -1107,52 +1034,57 @@ name
 
 data
   : value { 
-      YY_CHECK(parser_ctx->data != NULL, "Invalid data"); 
-      amxc_var_new(&parser_ctx->data); 
-      amxc_var_copy(parser_ctx->data, &$1);
-      amxc_var_clean(&$1);
+      $$ = $1;
     }
-  | '{' '}' {
-      YY_CHECK(parser_ctx->data != NULL, "Invalid data"); 
-      amxc_var_new(&parser_ctx->data);
-      amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_HTABLE); 
-    }
-  | '[' ']' {
-      YY_CHECK(parser_ctx->data != NULL, "Invalid data"); 
-      amxc_var_new(&parser_ctx->data);
-      amxc_var_set_type(parser_ctx->data, AMXC_VAR_ID_LIST); 
-    }
-  | '{' data_options '}' 
-  | '[' values ']'
   ;
 
 data_options
-  : data_option ',' data_options
-  | data_option
+  : data_option ',' data_options {
+        amxc_var_for_each(var, $1) {
+          amxc_var_set_path($3, amxc_var_key(var), var, AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY | AMXC_VAR_FLAG_AUTO_ADD);
+        }
+        amxc_var_delete(&$1);
+        $$ = $3;
+    }
+  | data_option {
+        $$ = $1;
+        amxc_var_for_each(var, $1) {
+          char* key = strdup(amxc_var_key(var));
+          amxc_var_take_it(var);
+          amxc_var_set_path($1, key, var, AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY | AMXC_VAR_FLAG_AUTO_ADD);
+          free(key);
+          amxc_var_delete(&var);
+        }
+
+    }
   ;
 
 data_option
   : path '=' value {
       $1.txt[$1.length] = 0;
-      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $1.txt, &$3),
-                       $1.txt,
-                       amxc_var_clean(&$3));
-      amxc_var_clean(&$3);
+      amxc_var_new(&$$);
+      amxc_var_set_type($$, AMXC_VAR_ID_HTABLE);
+      amxc_var_set_key($$, $1.txt, $3, AMXC_VAR_FLAG_DEFAULT);
     }
   ;
 
 values
   : values ',' value {
-      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, NULL, &$3),
-                       "array 1",
-                       amxc_var_clean(&$3));
-      amxc_var_clean(&$3);
+      if (amxc_var_type_of($1) != AMXC_VAR_ID_LIST) {
+        amxc_var_new(&$$);
+        amxc_var_set_type($$, AMXC_VAR_ID_LIST);
+        amxc_var_set_index($$, -1, $1, AMXC_VAR_FLAG_DEFAULT);
+      }
+      amxc_var_set_index($$, -1, $3, AMXC_VAR_FLAG_DEFAULT);
     }
   | value {
-      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, NULL, &$1),
-                       "array 2",
-                       amxc_var_clean(&$1));
-      amxc_var_clean(&$1);
+      if (amxc_var_type_of($1) != AMXC_VAR_ID_LIST) {
+        amxc_var_new(&$$);
+        amxc_var_set_type($$, AMXC_VAR_ID_LIST);
+        amxc_var_set_index($$, -1, $1, AMXC_VAR_FLAG_DEFAULT);
+      } else {
+        $$ = $1;
+      }
     }
   ;
 
@@ -1164,49 +1096,71 @@ value
       amxc_string_append(&txt, $1.txt, $1.length);
       amxc_string_trim(&txt, NULL);
       amxc_string_resolve(&txt, &parser_ctx->config);
-      amxc_var_init(&$$); 
-      amxc_var_push(cstring_t, &$$, amxc_string_take_buffer(&txt));
+      amxc_var_new(&$$); 
+      amxc_var_push(cstring_t, $$, amxc_string_take_buffer(&txt));
     }
   | STRING { 
       $1.txt[$1.length] = 0;
-      amxc_var_init(&$$);
-      amxc_var_set(cstring_t, &$$, $1.txt);
+      amxc_var_new(&$$);
+      amxc_var_set(cstring_t, $$, $1.txt);
     }
   | DIGIT { 
-      amxc_var_init(&$$);
-      amxc_var_set(int64_t, &$$, $1);
+      amxc_var_new(&$$);
+      amxc_var_set(int64_t, $$, $1);
     }
   | BOOL { 
-      amxc_var_init(&$$);
-      amxc_var_set(bool, &$$, $1);
+      amxc_var_new(&$$);
+      amxc_var_set(bool, $$, $1);
     }
+  | '{' '}' {
+      amxc_var_new(&$$);
+      amxc_var_set_type($$, AMXC_VAR_ID_HTABLE);
+    }
+  | '[' ']' {
+      amxc_var_new(&$$);
+      amxc_var_set_type($$, AMXC_VAR_ID_LIST);
+    }
+  | '{' data_options '}' {
+        $$ = $2;
+    }
+  | '[' values ']' {
+        $$ = $2;
+    }
+
   ;
 
 flags
-  : flags ',' flag
-  | flag
+  : flags ',' flag {
+      if (amxc_var_type_of($1) != AMXC_VAR_ID_HTABLE) {
+        amxc_var_new(&$$);
+        amxc_var_set_type($$, AMXC_VAR_ID_HTABLE);
+        amxc_var_set_key($$, $1->hit.key, $1, AMXC_VAR_FLAG_DEFAULT | AMXC_VAR_FLAG_UPDATE);
+      }
+      amxc_var_set_key($$, $3->hit.key, $3, AMXC_VAR_FLAG_DEFAULT | AMXC_VAR_FLAG_UPDATE);
+    }
+  | flag {
+      if (amxc_var_type_of($1) != AMXC_VAR_ID_HTABLE) {
+        amxc_var_new(&$$);
+        amxc_var_set_type($$, AMXC_VAR_ID_HTABLE);
+        amxc_var_set_key($$, $1->hit.key, $1, AMXC_VAR_FLAG_DEFAULT | AMXC_VAR_FLAG_UPDATE);
+      } else {
+        $$ = $1;
+      }
+    }
   ;
 
 flag
   : '%' STRING {
       $2.txt[$2.length] = 0;
-      amxc_var_t flag;
-      amxc_var_init(&flag);
-      amxc_var_set(bool, &flag, true);
-      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $2.txt, &flag),
-                       $2.txt,
-                       amxc_var_clean(&flag));
-      amxc_var_clean(&flag);
+      amxc_var_new(&$$);
+      amxc_var_set(bool, $$, true);
+      $$->hit.key = strdup($2.txt);
     }
   | '!' STRING {
       $2.txt[$2.length] = 0;
-      amxc_var_t flag;
-      amxc_var_init(&flag);
-      amxc_var_set(bool, &flag, false);
-      YY_CHECK_ACTION(!amxo_parser_set_data_option(parser_ctx, $2.txt, &flag),
-                       $2.txt,
-                       amxc_var_clean(&flag));
-      amxc_var_clean(&flag);
+      amxc_var_new(&$$);
+      amxc_var_set(bool, $$, false);
+      $$->hit.key = strdup($2.txt);
   }
   ;
 

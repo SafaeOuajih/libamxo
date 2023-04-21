@@ -151,6 +151,7 @@ void test_parsing_key_value_pairs(UNUSED void** state) {
         "%config { MyOption = { Key1 = word1, Key2 = word2, Key3 = word3 }; }",
         "%config { MyOption = { Key1 = true, Key2 = false, Key3 = true }; }",
         "%config { MyOption = {  }; }",
+        "%config { MyOption = { \"'Test.Key1.'\" = 1, \"'Test.Key2.'\" = 2, \"'Test.Key3.'\" = 3 }; }",
         NULL
     };
 
@@ -160,15 +161,18 @@ void test_parsing_key_value_pairs(UNUSED void** state) {
     for(int i = 0; odls[i] != NULL; i++) {
         amxc_var_t* option = NULL;
         const amxc_htable_t* table = NULL;
+        printf("Parsing string %s\n", odls[i]);
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
         assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
         option = amxo_parser_get_config(&parser, "MyOption");
         assert_ptr_not_equal(option, NULL);
+        amxc_var_dump(option, STDOUT_FILENO);
         assert_int_equal(amxc_var_type_of(option), AMXC_VAR_ID_HTABLE);
         table = amxc_var_constcast(amxc_htable_t, option);
         assert_ptr_not_equal(table, NULL);
         switch(i) {
         case 0:
+        case 5:
             assert_int_equal(amxc_htable_size(table), 3);
             amxc_htable_for_each(it, table) {
                 amxc_var_t* item = amxc_var_from_htable_it(it);

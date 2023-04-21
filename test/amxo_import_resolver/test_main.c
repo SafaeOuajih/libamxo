@@ -67,16 +67,18 @@
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_import_resolver_resolves_pcb_style),
         cmocka_unit_test(test_import_resolver_resolves),
         cmocka_unit_test(test_import_resolver_invalid_data),
         cmocka_unit_test(test_import_resolver_can_specify_flags),
         cmocka_unit_test(test_import_resolver_multiple_import),
+        cmocka_unit_test(test_import_resolver_import_dlopen_fails),
         cmocka_unit_test(test_can_call_entry_point),
         cmocka_unit_test(test_entry_point_invocation_continues_after_failing_entry_point),
+        cmocka_unit_test(test_entry_point_only_added_once),
         cmocka_unit_test(test_parsing_fails_when_entry_point_can_not_be_resolved),
         cmocka_unit_test(test_entry_point_invoke_does_not_crash_with_invalid_args),
         cmocka_unit_test(test_open_non_existing_file),
+        cmocka_unit_test(test_resolve_non_existing_function),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

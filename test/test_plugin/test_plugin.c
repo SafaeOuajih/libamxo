@@ -217,16 +217,3 @@ int _test_failing_entry_point(UNUSED int reason,
 
     return -1;
 }
-
-amxd_status_t _test_dummy_action(amxd_object_t* const object,
-                                 amxd_param_t* const param,
-                                 amxd_action_t reason,
-                                 const amxc_var_t* const args,
-                                 amxc_var_t* const retval,
-                                 void* priv) {
-    amxd_status_t status = amxd_status_ok;
-    if(reason == action_param_read) {
-        status = amxd_action_param_read(object, param, reason, args, retval, priv);
-    }
-    return status;
-}

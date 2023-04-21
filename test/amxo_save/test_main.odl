@@ -19,7 +19,9 @@
                 bool Enable;
 
                 %persistent object TemplateChild {
-                    %persistent string Text;
+                    %persistent string Text {
+                        userflags %upc;
+                    }
                     %persistent int32 Number;
                     bool Enable;
                 }

@@ -154,14 +154,19 @@ void test_can_scan_mib_dirs(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t dirs;
+    amxc_var_t* mib_dir = NULL;
 
     amxc_var_init(&dirs);
     amxc_var_set_type(&dirs, AMXC_VAR_ID_LIST);
     amxc_var_add(cstring_t, &dirs, "./mibs");
     amxc_var_add(cstring_t, &dirs, "./mibs/test_mib_valid");
+    amxc_var_add(cstring_t, &dirs, "./${mib-dir}/test_mib_valid");
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
+
+    mib_dir = amxo_parser_claim_config(&parser, "mib-dir");
+    amxc_var_set(cstring_t, mib_dir, "mibs");
 
     assert_int_equal(amxo_parser_scan_mib_dirs(&parser, &dirs), 0);
     assert_int_equal(amxc_htable_size(&parser.mibs), 5);
@@ -424,6 +429,34 @@ void test_can_remove_mibs_from_object(UNUSED void** state) {
     assert_null(amxd_object_get_param_def(object, "Mib6Text"));
     assert_false(amxd_object_has_mib(object, "test_mib3"));
     assert_false(amxd_object_has_mib(object, "test_mib6"));
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_can_add_mibs_from_include(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxd_object_t* object = NULL;
+
+    const char* odl = "%define { object Test { string MyParam = 'ADD'; } } "
+        "include \"add_mid.odl\";";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_equal(amxo_parser_scan_mib_dir(&parser, "./mibs"), 0);
+    assert_int_equal(amxo_parser_scan_mib_dir(&parser, "./mibs/test_mib_valid"), 0);
+    assert_int_equal(amxc_htable_size(&parser.mibs), 5);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    object = amxd_dm_get_object(&dm, "Test");
+    assert_non_null(object);
+
+    assert_true(amxd_object_has_mib(object, "test_mib1"));
+    assert_non_null(amxd_object_get_param_def(object, "Mib1Text"));
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

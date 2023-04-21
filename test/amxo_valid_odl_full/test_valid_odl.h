@@ -62,6 +62,7 @@
 #define __TEST_VALID_ODL_H__
 
 void test_can_parse_odl_file(void** state);
+void test_can_parse_odl_file_no_resolve(void** state);
 void test_can_parse_empty_file(void** state);
 void test_can_parse_fd(void** state);
 void test_can_parse_string(void** state);

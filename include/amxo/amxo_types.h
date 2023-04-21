@@ -298,8 +298,7 @@ struct _amxo_parser {
     amxd_object_t* object;           /**< Data model current object, internally used by odl parser */
     amxd_param_t* param;             /**< Data model current parameter, internally used by odl parser */
     amxd_function_t* func;           /**< Data model current function, internally used by odl parser */
-    amxc_var_t* data;                /**< Some data, internally used by odl parser */
-
+    amxc_var_t* data;                /**< Not used anymore, must be removed but will introduce binary incompatibility */
     amxo_fn_ptr_t resolved_fn;       /**< Filled with function pointer, internally used by function resolver */
     amxc_string_t* resolved_fn_name; /**< Current resolved function name, internally used by function resolver */
     amxc_llist_t function_names;     /**< Resolved function names, internally used by function resolver */

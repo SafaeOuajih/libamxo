@@ -229,34 +229,6 @@ exit:
     return retval;
 }
 
-bool amxo_parser_set_data_option(amxo_parser_t* pctx,
-                                 const char* key,
-                                 amxc_var_t* value) {
-    bool retval = false;
-    amxc_var_t* data = NULL;
-    if(pctx->data == NULL) {
-        when_failed(amxc_var_new(&pctx->data), exit);
-        when_failed(amxc_var_set_type(pctx->data,
-                                      key == NULL ? AMXC_VAR_ID_LIST : AMXC_VAR_ID_HTABLE),
-                    exit);
-    }
-
-    if(key == NULL) {
-        when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_LIST, exit);
-        data = amxc_var_add_new(pctx->data);
-        when_null(data, exit);
-        amxc_var_copy(data, value);
-        retval = true;
-    } else {
-        int rv = amxc_var_set_path(pctx->data, key, value,
-                                   AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY | AMXC_VAR_FLAG_AUTO_ADD);
-        retval = (rv == 0);
-    }
-
-exit:
-    return retval;
-}
-
 amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
                                         const char* action_name) {
     static const char* names[] = {
@@ -271,7 +243,6 @@ amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
         "destroy"
     };
     amxo_action_t action_id = amxo_action_invalid;
-    amxc_var_t* ca = GET_ARG(&pctx->config, "_current_action");
 
     for(int i = 0; i <= action_max; i++) {
         if(strcmp(action_name, names[i]) == 0) {
@@ -287,27 +258,7 @@ amxo_action_t amxo_parser_get_action_id(amxo_parser_t* pctx,
                         action_name);
     }
 
-    if(ca == NULL) {
-        amxc_var_add_key(uint32_t, &pctx->config, "_current_action", action_id);
-    } else {
-        amxc_var_set(uint32_t, ca, action_id);
-    }
-
     return action_id;
-}
-
-char* amxo_parser_build_import_resolver_data(const char* function,
-                                             const char* library) {
-    amxc_string_t data_txt;
-    char* data = NULL;
-    amxc_string_init(&data_txt, 0);
-
-    amxc_string_appendf(&data_txt, "import:%s:%s", library, function);
-
-    data = amxc_string_take_buffer(&data_txt);
-    amxc_string_clean(&data_txt);
-
-    return data;
 }
 
 void amxo_parser_print(amxo_parser_t* pctx, const char* text) {

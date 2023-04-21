@@ -229,6 +229,15 @@ static void test_hook_set_counter(UNUSED amxo_parser_t* parser,
     assert_string_equal(name, "NumberOfChildren");
 }
 
+static void test_hook_add_mib(UNUSED amxo_parser_t* parser,
+                              UNUSED amxd_object_t* object,
+                              UNUSED const char* mib) {
+    const char* check = amxc_aqueue_remove(&expected_order);
+    assert_ptr_not_equal(check, NULL);
+    printf("%s\n", check);
+    assert_string_equal(check, "add mib");
+}
+
 static amxo_hooks_t test_hooks = {
     .start = test_hook_start,
     .end = test_hook_end,
@@ -248,7 +257,8 @@ static amxo_hooks_t test_hooks = {
     .add_func = test_hook_add_func,
     .end_func = test_hook_end_func,
     .add_func_arg = test_hook_add_func_arg,
-    .set_counter = test_hook_set_counter
+    .set_counter = test_hook_set_counter,
+    .add_mib = test_hook_add_mib
 };
 
 static amxo_hooks_t test_empty_hooks = { };
@@ -272,6 +282,8 @@ void test_hooks_are_called(UNUSED void** state) {
     amxc_aqueue_add(&expected_order, "section end");
     amxc_aqueue_add(&expected_order, "include end");
     amxc_aqueue_add(&expected_order, "section start");
+    amxc_aqueue_add(&expected_order, "create object");  // mib test_mib
+    amxc_aqueue_add(&expected_order, "end object");
     amxc_aqueue_add(&expected_order, "create object");  // TestObjectRoot
     amxc_aqueue_add(&expected_order, "create object");  //    TestObjectSingelton
     amxc_aqueue_add(&expected_order, "end object");
@@ -312,6 +324,7 @@ void test_hooks_are_called(UNUSED void** state) {
     amxc_aqueue_add(&expected_order, "instance add");
     amxc_aqueue_add(&expected_order, "end object");
     amxc_aqueue_add(&expected_order, "instance add");
+    amxc_aqueue_add(&expected_order, "add mib");
     amxc_aqueue_add(&expected_order, "end object");
     amxc_aqueue_add(&expected_order, "end object");
     amxc_aqueue_add(&expected_order, "select object");

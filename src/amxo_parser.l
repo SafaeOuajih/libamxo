@@ -204,11 +204,6 @@ NEWLINE  \r?\n
                             amxo_hooks_start_section(yyextra, 2);
                             return POPULATE;
                           }
-datamodel                 { yylval->integer = token_populate; 
-                            amxo_hooks_start_section(yyextra, 2);
-                            return POPULATE;
-                          }
-
 object                    { yylval->integer = token_object;  
                             return OBJECT; 
                           }
@@ -240,7 +235,7 @@ import                    { yylval->integer = token_import;
                             return IMPORT;
                           }
 using                     { yylval->integer = token_import;
-                            return IMPORT;
+                            return USING;
                           }
 as                        { yylval->integer = token_keyword;
                             return AS;
@@ -261,13 +256,7 @@ extend                    {  yylval->integer = token_keyword;
 %read-only                { yylval->integer = 1 << attr_readonly; 
                             return SET_ATTRIBUTE; 
                           }
-read-only                 { yylval->integer = 1 << attr_readonly; 
-                            return SET_ATTRIBUTE; 
-                          }
 %persistent               { yylval->integer = 1 << attr_persistent; 
-                            return SET_ATTRIBUTE; 
-                          }
-persistent                { yylval->integer = 1 << attr_persistent; 
                             return SET_ATTRIBUTE; 
                           }
 %private                  { yylval->integer = 1 << attr_private; 
@@ -277,9 +266,6 @@ persistent                { yylval->integer = 1 << attr_persistent;
                             return SET_ATTRIBUTE; 
                           }
 %template                 { yylval->integer = 1 << attr_template; 
-                            return SET_ATTRIBUTE; 
-                          }
-template-only             { yylval->integer = 1 << attr_template; 
                             return SET_ATTRIBUTE; 
                           }
 %instance                 { yylval->integer = 1 << attr_instance; 
@@ -304,9 +290,6 @@ out                       { yylval->integer = 1 << attr_out;
                             return SET_ATTRIBUTE; 
                           }
 %mandatory                { yylval->integer = 1 << attr_mandatory; 
-                            return SET_ATTRIBUTE; 
-                          }
-mandatory                 { yylval->integer = 1 << attr_mandatory; 
                             return SET_ATTRIBUTE; 
                           }
 %strict                   { yylval->integer = 1 << attr_strict; 
@@ -447,26 +430,6 @@ filter                    { yylval->integer = token_keyword;
 call                      { yylval->integer = token_keyword;
                             return CALL;
                           }
-
-constraint                { yylval->integer = token_keyword;
-                            return CONSTRAINT;
-                          }
-
-minvalue                  { yylval->integer = token_keyword;
-                            return MIN;
-                          }
-maxvalue                  { yylval->integer = token_keyword;
-                            return MAX;
-                          }
-range                     { yylval->integer = token_keyword;
-                            return RANGE;
-                          }
-enum                      { yylval->integer = token_keyword;
-                            return ENUM;
-                          }
-custom                    { yylval->integer = token_keyword;
-                            return CUSTOM;
-                          }
 regexp                    { yylval->integer = token_keyword;
                             return REGEXP;
                           }
@@ -476,16 +439,18 @@ userflags                 { yylval->integer = token_keyword;
 print                     { yylval->integer = token_keyword;
                             return PRINT;
                           }
-
-[[:digit:]]+              { char *endptr = NULL;
-                            yylval->integer = strtoll(yytext, &endptr, 0);; 
+(-|\+){0,1}[[:digit:]]+   { char *endptr = NULL;
+                            yylval->integer = strtoll(yytext, &endptr, 0);
                             return DIGIT; 
                           }
--[[:digit:]]+             { char *endptr = NULL;
-                            yylval->integer = strtoll(yytext, &endptr, 0);; 
-                            return DIGIT; 
+(-|\+){0,1}0x[A-Fa-f0-9]+ { char *endptr = NULL;
+                            yylval->integer = strtoll(yytext, &endptr, 16);
+                            return DIGIT;
                           }
-
+(-|\+){0,1}0b[0-1]+       { char *endptr = NULL;
+                            yylval->integer = strtoll(yytext + 2, &endptr, 2);
+                            return DIGIT;
+                          }
 [a-zA-Z0-9\-_]+           { yylval->cptr.txt = yytext;
                             yylval->cptr.length = yyleng;
                             return STRING;

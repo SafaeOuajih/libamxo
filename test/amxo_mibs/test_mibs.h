@@ -74,5 +74,6 @@ void test_apply_fails_with_invalid_arguments(void** state);
 void test_can_apply_mibs_to_object(void** state);
 void test_can_add_mibs_to_object(void** state);
 void test_can_remove_mibs_from_object(void** state);
+void test_can_add_mibs_from_include(void** state);
 
 #endif // __TEST_MIBS_H__

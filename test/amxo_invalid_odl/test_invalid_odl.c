@@ -402,11 +402,16 @@ void test_invalid_param_value(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     const char* odl = "%define { object Test { bool P1;} } %populate { object Test { parameter P1 = \"text\"; } }";
+    const char* odl2 = "%define { object Test { string P1;} } %populate { object Test { parameter P1 = [ 1, 2, 3 ]; } }";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
+    amxd_dm_clean(&dm);
+
+    assert_int_not_equal(amxo_parser_parse_string(&parser, odl2, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
 
     amxo_parser_clean(&parser);
@@ -706,21 +711,25 @@ void test_invalid_key_params(UNUSED void** state) {
     amxo_parser_init(&parser);
 
     printf("%s\n", odl_1);
+    fflush(stdout);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_1, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_missing_key);
     amxd_dm_clean(&dm);
 
     printf("%s\n", odl_2);
+    fflush(stdout);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_2, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_missing_key);
     amxd_dm_clean(&dm);
 
     printf("%s\n", odl_3);
+    fflush(stdout);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_3, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_duplicate);
     amxd_dm_clean(&dm);
 
     printf("%s\n", odl_4);
+    fflush(stdout);
     assert_int_not_equal(amxo_parser_parse_string(&parser, odl_4, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_invalid_value);
     amxd_dm_clean(&dm);
@@ -739,4 +748,18 @@ void test_empty_file_name(UNUSED void** state) {
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
+}
+
+void test_parse_non_existing_file(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t* parser = NULL;
+
+    amxd_dm_init(&dm);
+    amxo_parser_new(&parser);
+
+    assert_int_not_equal(amxo_parser_parse_file(parser, "./non-existing.odl", amxd_dm_get_root(&dm)), 0);
+
+    amxo_parser_delete(&parser);
+    amxd_dm_clean(&dm);
+    amxo_resolver_import_close_all();
 }

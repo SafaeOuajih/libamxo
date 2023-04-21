@@ -177,33 +177,30 @@ static int amxo_parser_set_param_value(amxo_parser_t* pctx,
                                        amxc_var_t* value) {
     int retval = -1;
     if((value != NULL) && (param != NULL)) {
-        pctx->status = amxd_param_set_value(param, value);
+        if((amxc_var_type_of(value) == AMXC_VAR_ID_HTABLE) ||
+           (amxc_var_type_of(value) == AMXC_VAR_ID_LIST)) {
+            pctx->status = amxd_status_invalid_value;
+        } else {
+            pctx->status = amxd_param_set_value(param, value);
+        }
         if(pctx->status == amxd_status_invalid_value) {
             amxo_parser_msg(pctx,
                             "Invalid parameter value for parameter %s in object \"%s\"",
                             name,
                             parent_path);
-            goto exit;
-        }
-
-        if(pctx->status == amxd_status_ok) {
+        } else if(pctx->status == amxd_status_ok) {
             pctx->param = param;
             amxo_hooks_set_param(pctx, value);
             retval = 0;
-        } else {
-            retval = -1;
         }
     } else {
         pctx->param = param;
         if(param != NULL) {
             retval = 0;
             amxo_hooks_set_param(pctx, value);
-        } else {
-            retval = 1;
         }
     }
 
-exit:
     return retval;
 }
 
@@ -301,13 +298,13 @@ bool amxo_parser_set_param_attrs(amxo_parser_t* pctx, uint64_t attr, bool enable
     return true;
 }
 
-bool amxo_parser_set_param_flags(amxo_parser_t* pctx) {
+bool amxo_parser_set_param_flags(amxo_parser_t* pctx, amxc_var_t* flags) {
     const amxc_htable_t* ht_flags = NULL;
 
-    when_null(pctx->data, exit);
-    when_true(amxc_var_type_of(pctx->data) != AMXC_VAR_ID_HTABLE, exit);
+    when_null(flags, exit);
+    when_true(amxc_var_type_of(flags) != AMXC_VAR_ID_HTABLE, exit);
 
-    ht_flags = amxc_var_constcast(amxc_htable_t, pctx->data);
+    ht_flags = amxc_var_constcast(amxc_htable_t, flags);
     amxc_htable_for_each(it, ht_flags) {
         const char* flag_name = amxc_htable_it_get_key(it);
         amxc_var_t* flag = amxc_var_from_htable_it(it);
@@ -318,7 +315,7 @@ bool amxo_parser_set_param_flags(amxo_parser_t* pctx) {
         }
     }
 
-    amxc_var_delete(&pctx->data);
+    amxc_var_delete(&flags);
 
 exit:
     return true;

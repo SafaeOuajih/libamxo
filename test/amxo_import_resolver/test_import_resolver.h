@@ -61,15 +61,17 @@
 #ifndef __TEST_IMPORT_RESOLVER_H__
 #define __TEST_IMPORT_RESOLVER_H__
 
-void test_import_resolver_resolves_pcb_style(void** state);
 void test_import_resolver_resolves(void** state);
 void test_import_resolver_invalid_data(void** state);
 void test_import_resolver_can_specify_flags(void** state);
 void test_import_resolver_multiple_import(void** state);
+void test_import_resolver_import_dlopen_fails(void** state);
 void test_can_call_entry_point(void** state);
 void test_entry_point_invocation_continues_after_failing_entry_point(void** state);
+void test_entry_point_only_added_once(void** state);
 void test_parsing_fails_when_entry_point_can_not_be_resolved(void** state);
 void test_entry_point_invoke_does_not_crash_with_invalid_args(void** state);
 void test_open_non_existing_file(void** state);
+void test_resolve_non_existing_function(void** state);
 
 #endif // __TEST_IMPORT_RESOLVER_H__

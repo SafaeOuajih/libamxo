@@ -61,6 +61,7 @@
 #ifndef __TEST_ISSUE_48_H__
 #define __TEST_ISSUE_48_H__
 
+void test_lib_version(void** state);
 void test_populate_object_resolves_path(void** state);
 
 #endif // __TEST_ISSUE_48_H__

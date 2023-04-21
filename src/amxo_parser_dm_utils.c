@@ -134,12 +134,6 @@ static amxd_status_t amxo_cleanup_data(amxd_object_t* const object,
     amxd_status_t status = amxd_status_ok;
     amxc_var_t* data = (amxc_var_t*) priv;
 
-    if((reason != action_object_destroy) &&
-       ( reason != action_param_destroy)) {
-        status = amxd_status_function_not_implemented;
-        goto exit;
-    }
-
     // action private data must not be removed when the action is used
     // on derivced objects.
     // only remove action data when the action is owned by the object or
@@ -156,7 +150,6 @@ static amxd_status_t amxo_cleanup_data(amxd_object_t* const object,
         }
     }
 
-exit:
     return status;
 }
 
@@ -262,7 +255,8 @@ exit:
 
 static amxd_object_t* amxo_parser_can_update_instance(amxo_parser_t* pctx,
                                                       uint32_t index,
-                                                      const char* name) {
+                                                      const char* name,
+                                                      amxc_var_t* params) {
     amxd_object_t* object = NULL;
     if(!amxo_parser_check_config(pctx,
                                  "populate-behavior.duplicate-instance",
@@ -270,9 +264,9 @@ static amxd_object_t* amxo_parser_can_update_instance(amxo_parser_t* pctx,
         amxo_parser_msg(pctx, "Duplicate instance");
         goto exit;
     }
-    if(pctx->data != NULL) {
+    if(params != NULL) {
         amxp_expr_t* expr = NULL;
-        amxd_object_new_key_expr(pctx->object, &expr, pctx->data);
+        amxd_object_new_key_expr(pctx->object, &expr, params);
         object = amxd_object_find_instance(pctx->object, expr);
         amxp_expr_delete(&expr);
     }
@@ -326,7 +320,8 @@ static int amxo_parser_connect(amxo_parser_t* pctx,
 static amxd_object_t* amxd_parser_add_instance_msg(amxo_parser_t* pctx,
                                                    uint32_t index,
                                                    const char* name,
-                                                   amxd_object_t* object) {
+                                                   amxd_object_t* object,
+                                                   amxc_var_t* params) {
     switch(pctx->status) {
     case amxd_status_ok:
         break;
@@ -339,7 +334,7 @@ static amxd_object_t* amxd_parser_add_instance_msg(amxo_parser_t* pctx,
                         name);
         break;
     case amxd_status_duplicate:
-        object = amxo_parser_can_update_instance(pctx, index, name);
+        object = amxo_parser_can_update_instance(pctx, index, name, params);
         if(object != NULL) {
             pctx->status = amxd_status_ok;
         }
@@ -486,9 +481,9 @@ exit:
 }
 
 bool amxo_parser_add_instance(amxo_parser_t* pctx,
-                              const char* parent,
                               uint32_t index,
-                              const char* name) {
+                              const char* name,
+                              amxc_var_t* params) {
     amxd_object_t* object = NULL;
     amxd_object_t* parent_obj = pctx->object;
     bool retval = false;
@@ -499,16 +494,12 @@ bool amxo_parser_add_instance(amxo_parser_t* pctx,
         name = amxc_string_get(&res_name, 0);
     }
 
-    if(parent != NULL) {
-        parent_obj = amxd_object_findf(parent_obj, "%s", parent);
-        when_null(parent_obj, exit);
-    }
     pctx->status = amxd_object_add_instance(&object,
                                             parent_obj,
                                             name,
                                             index,
-                                            pctx->data);
-    object = amxd_parser_add_instance_msg(pctx, index, name, object);
+                                            params);
+    object = amxd_parser_add_instance_msg(pctx, index, name, object, params);
     when_null(object, exit);
     when_failed(pctx->status, exit);
     amxo_hooks_add_instance(pctx, amxd_object_get_index(object),
@@ -520,7 +511,7 @@ bool amxo_parser_add_instance(amxo_parser_t* pctx,
 
 exit:
     amxc_string_clean(&res_name);
-    amxc_var_delete(&pctx->data);
+    amxc_var_delete(&params);
     return retval;
 }
 
@@ -643,7 +634,6 @@ int amxo_parser_subscribe_path(amxo_parser_t* pctx,
         amxo_parser_msg(pctx,
                         "No event subscription created - no function was resolved");
         pctx->status = amxd_status_ok;
-        amxc_var_delete(&pctx->data);
         goto exit;
     }
 
@@ -651,9 +641,9 @@ int amxo_parser_subscribe_path(amxo_parser_t* pctx,
         path = amxc_string_get(&res_path, 0);
     }
     if(path_is_regexp) {
-        amxc_string_appendf(&expression, "object matches \"%s\"", path);
+        amxc_string_appendf(&expression, "object matches \"%s\" || path matches \"%s\"", path, path);
     } else {
-        amxc_string_appendf(&expression, "object starts with \"%s\"", path);
+        amxc_string_appendf(&expression, "object starts with \"%s\" || path starts with \"%s\"", path, path);
     }
     expr = amxc_string_get(&expression, 0);
     retval = amxo_parser_connect(pctx, &dm->sigmngr, event, event_is_regexp, expr, fn);
@@ -680,7 +670,6 @@ int amxo_parser_subscribe(amxo_parser_t* pctx,
         amxo_parser_msg(pctx,
                         "No event subscription created - no function was resolved");
         pctx->status = amxd_status_ok;
-        amxc_var_delete(&pctx->data);
         goto exit;
     }
 
@@ -718,7 +707,6 @@ int amxo_parser_subscribe_object(amxo_parser_t* pctx,
         amxo_parser_msg(pctx,
                         "No event subscription created - no function was resolved");
         pctx->status = amxd_status_ok;
-        amxc_var_delete(&pctx->data);
         goto exit;
     }
 
@@ -743,15 +731,15 @@ exit:
 }
 
 int amxo_parser_set_action(amxo_parser_t* pctx,
-                           amxo_action_t action) {
+                           amxo_action_t action,
+                           amxc_var_t* data) {
 
     int retval = -1;
-    amxc_var_t* ca = GET_ARG(&pctx->config, "_current_action");
     pctx->status = amxd_status_ok;
 
     if(amxo_parser_no_resolve(pctx)) {
         retval = 0;
-        amxc_var_delete(&pctx->data);
+        amxc_var_delete(&data);
         goto exit;
     }
 
@@ -771,12 +759,12 @@ int amxo_parser_set_action(amxo_parser_t* pctx,
         pctx->status = amxo_parser_set_param_action(pctx->param,
                                                     param_actions[action],
                                                     (amxd_action_fn_t) pctx->resolved_fn,
-                                                    pctx->data);
+                                                    data);
     } else {
         pctx->status = amxo_parser_set_object_action(pctx->object,
                                                      object_actions[action],
                                                      (amxd_action_fn_t) pctx->resolved_fn,
-                                                     pctx->data);
+                                                     data);
     }
 
     if(pctx->status != amxd_status_ok) {
@@ -786,12 +774,9 @@ int amxo_parser_set_action(amxo_parser_t* pctx,
     }
 
 exit:
-    amxc_var_delete(&ca);
     amxc_string_delete(&pctx->resolved_fn_name);
     if(retval != 0) {
-        amxc_var_delete(&pctx->data);
-    } else {
-        pctx->data = NULL;
+        amxc_var_delete(&data);
     }
     return retval;
 }

@@ -64,13 +64,17 @@
     counter_name = "TestNumberOfEntries";
     object_name = "TestSingeltonObjectAttr";
     instance_name = "Name2";
+    function_name = "func16";
+    the_unique_param = "UniqueParam";
 }
 
 import "test_plugin.so" as test_plugin;
 
+print "Hello";
+
+print "Resolve functions = ${odl-resolve}";
+
 %define {
-    entry-point test_plugin.test_entry_point;
-    entry-point test_plugin.test_entry_point;
     entry-point test_plugin.test_entry_point;
 
     mib TestMib {
@@ -139,7 +143,7 @@ import "test_plugin.so" as test_plugin;
             int8 func13();
             int16 func14();
             uint8 func15();
-            uint16 func16();
+            uint16 '${function_name}'();
         }
 
         %protected %read-only %persistent object "${object_name}" {
@@ -182,6 +186,7 @@ import "test_plugin.so" as test_plugin;
             %key string KeyPart1;
             %mutable %key uint32 KeyPart2;
             %key string KeyPart3;
+            %unique string '${the_unique_param}';
 
             string Param1;
             bool Param2;
@@ -196,8 +201,6 @@ import "test_plugin.so" as test_plugin;
             extend using mib TestMib;
 
             int32 TestParam {
-                constraint range [ -10, 10 ];
-                constraint custom test_dummy_action using "test_plugin";
                 on action read call test_dummy_action;
             }
         }
@@ -239,6 +242,7 @@ import "test_plugin.so" as test_plugin;
                      KeyPart3 = "Key1B") {
             parameter Param1= "Some Text";
             parameter Param2 = true;
+            parameter '${the_unique_param}' = "Key1";
         }
         instance add(0,"Test", 
                      KeyPart1 = "Key2A",
@@ -246,12 +250,14 @@ import "test_plugin.so" as test_plugin;
                      KeyPart3 = "Key2B") {
             parameter Param1= "Some Text";
             parameter Param2 = true;
+            parameter '${the_unique_param}' = "Key2";
         }
         instance add(KeyPart1 = "Key3A",
                      KeyPart2 = 1,
                      KeyPart3 = "Key3B") {
             parameter Param1= "Some Text";
             parameter Param2 = true;
+            parameter '${the_unique_param}' = "Key3";
         }
     }
 

@@ -121,7 +121,7 @@ void test_save_config_array(UNUSED void** state) {
     amxc_var_clean(&config_options);
 }
 
-void test_config_arrays_can_only_contain_primitives(UNUSED void** state) {
+void test_config_arrays_can_contain_tables(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -135,7 +135,12 @@ void test_config_arrays_can_only_contain_primitives(UNUSED void** state) {
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_not_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_config.odl", amxd_dm_get_root(&dm)), 0);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "MyArray"), NULL);
+
+    unlink("test_config.odl");
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -171,7 +176,7 @@ void test_save_config_key_value_pairs(UNUSED void** state) {
     amxc_var_clean(&config_options);
 }
 
-void test_config_tables_can_only_contain_primitives(UNUSED void** state) {
+void test_config_tables_can_be_composite(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -181,18 +186,24 @@ void test_config_tables_can_only_contain_primitives(UNUSED void** state) {
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
     the_table = amxc_var_add_key(amxc_htable_t, &config_options, "populate_behavior", NULL);
     amxc_var_add_key(amxc_htable_t, the_table, "some_key", NULL);
+    amxc_var_add_key(amxc_llist_t, the_table, "other_key", NULL);
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_not_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_config.odl", amxd_dm_get_root(&dm)), 0);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "populate_behavior"), NULL);
+
+    unlink("test_config.odl");
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
     amxc_var_clean(&config_options);
 }
 
-void test_config_tables_keys_must_be_conform_naming_convention(UNUSED void** state) {
+void test_config_tables_keys_can_contain_symbols(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -202,11 +213,19 @@ void test_config_tables_keys_must_be_conform_naming_convention(UNUSED void** sta
     amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
     the_table = amxc_var_add_key(amxc_htable_t, &config_options, "populate_behavior", NULL);
     amxc_var_add_key(cstring_t, the_table, "%some_key", "value");
+    amxc_var_add_key(cstring_t, the_table, "key.with.dots", "SomeValue");
+    the_table = amxc_var_add_key(amxc_htable_t, &config_options, "root.key.with.dots", NULL);
+    amxc_var_add_key(cstring_t, the_table, "$key", "value");
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_not_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_config.odl", amxd_dm_get_root(&dm)), 0);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "populate_behavior"), NULL);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "populate_behavior.'key.with.dots'"), NULL);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "'root.key.with.dots'.$key"), NULL);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -249,7 +268,7 @@ void test_save_config_values(UNUSED void** state) {
     amxd_dm_clean(&dm);
 }
 
-void test_save_config_fails_when_using_invalid_key_names(UNUSED void** state) {
+void test_save_config_succeeds_when_using_keys_with_symbols(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
     amxc_var_t config_options;
@@ -266,9 +285,33 @@ void test_save_config_fails_when_using_invalid_key_names(UNUSED void** state) {
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
 
-    assert_int_not_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_config.odl", amxd_dm_get_root(&dm)), 0);
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "%enable_auto_detect"), NULL);
+    assert_ptr_not_equal(amxo_parser_get_config(&parser, "Test=Value"), NULL);
 
     unlink("test_config.odl");
+
+    amxc_var_clean(&config_options);
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_save_config_fails_for_unsupported_data_types(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxc_var_t config_options;
+
+    amxc_var_init(&config_options);
+    amxc_var_set_type(&config_options, AMXC_VAR_ID_HTABLE);
+    amxc_var_add_key(double, &config_options, "1234AAQ", 10.3);
+    amxc_var_add_key(fd_t, &config_options, "Test=Value", 22);
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    assert_int_not_equal(amxo_parser_save_config(&parser, "test_config.odl", &config_options, false), 0);
 
     amxc_var_clean(&config_options);
     amxo_parser_clean(&parser);
@@ -344,6 +387,15 @@ void test_can_save_object(UNUSED void** state) {
     assert_int_equal(amxo_parser_parse_file(&parser, "test_main.odl", amxd_dm_get_root(&dm)), 0);
     object = amxd_dm_findf(&dm, "MyRootObject.ChildObject.TemplateObject.3");
     assert_ptr_not_equal(object, NULL);
+
+    object = amxd_dm_findf(&dm, "MyRootObject");
+    assert_int_equal(amxo_parser_save(&parser, "test_save.odl", object, 2, NULL, false), 0);
+    amxd_dm_clean(&dm);
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_main.odl", amxd_dm_get_root(&dm)), 0);
+    object = amxd_dm_findf(&dm, "MyRootObject.ChildObject");
+    assert_ptr_not_equal(object, NULL);
+    object = amxd_dm_findf(&dm, "MyRootObject.ChildObject.TemplateObject.3");
+    assert_ptr_equal(object, NULL);
 
     unlink("test_save.odl");
     amxc_var_clean(&values);
@@ -459,6 +511,29 @@ void test_save_takes_rw_data_path_into_account(UNUSED void** state) {
     amxc_var_set(cstring_t, rw_data_path, "/tmp");
     assert_int_equal(amxo_parser_parse_file(&parser, "test_main.odl", amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_save_object(&parser, "${rw_data_path}/test_save.odl", amxd_dm_get_root(&dm), false), 0);
+
+    fd = open("/tmp/test_save.odl", O_RDONLY);
+    assert_int_not_equal(fd, -1);
+    close(fd);
+    unlink("/tmp/test_save.odl");
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+}
+
+void test_save_can_change_buffer_size(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxc_var_t* buffer_size = NULL;
+    int fd = -1;
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    buffer_size = amxo_parser_claim_config(&parser, "odl.buffer-size");
+    amxc_var_set(int32_t, buffer_size, 128);
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_main.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_save_object(&parser, "/tmp/test_save.odl", amxd_dm_get_root(&dm), false), 0);
 
     fd = open("/tmp/test_save.odl", O_RDONLY);
     assert_int_not_equal(fd, -1);

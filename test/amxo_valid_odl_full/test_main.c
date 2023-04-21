@@ -68,6 +68,7 @@
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_can_parse_odl_file),
+        cmocka_unit_test(test_can_parse_odl_file_no_resolve),
         cmocka_unit_test(test_can_parse_empty_file),
         cmocka_unit_test(test_can_parse_fd),
         cmocka_unit_test(test_can_parse_string),

@@ -67,6 +67,7 @@
 
 int main(void) {
     const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_lib_version),
         cmocka_unit_test(test_populate_object_resolves_path),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);

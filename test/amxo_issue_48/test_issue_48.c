@@ -84,9 +84,14 @@
 #include <amxo/amxo.h>
 #include <amxo/amxo_mibs.h>
 
+#include "amxo_version.h"
 #include "test_issue_48.h"
 
 #define UNUSED __attribute__((unused))
+
+void test_lib_version(UNUSED void** state) {
+    assert_string_equal(amxo_lib_version(), AMXO_VERSION);
+}
 
 void test_populate_object_resolves_path(UNUSED void** state) {
     amxd_dm_t dm;

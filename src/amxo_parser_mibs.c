@@ -219,10 +219,6 @@ int amxo_parser_scan_mib_dir(amxo_parser_t* parser,
     when_null(parser, exit);
     when_str_empty(path, exit);
 
-    if(amxc_string_set_resolved(&res_path, path, &parser->config) > 0) {
-        path = amxc_string_get(&res_path, 0);
-    }
-
     real_path = realpath(path, NULL);
     if(real_path != NULL) {
         retval = amxo_parser_scan(parser, real_path);

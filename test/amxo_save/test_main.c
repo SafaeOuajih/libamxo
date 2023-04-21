@@ -68,12 +68,13 @@
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_save_config_array),
-        cmocka_unit_test(test_config_arrays_can_only_contain_primitives),
+        cmocka_unit_test(test_config_arrays_can_contain_tables),
         cmocka_unit_test(test_save_config_key_value_pairs),
-        cmocka_unit_test(test_config_tables_can_only_contain_primitives),
-        cmocka_unit_test(test_config_tables_keys_must_be_conform_naming_convention),
+        cmocka_unit_test(test_config_tables_can_be_composite),
+        cmocka_unit_test(test_config_tables_keys_can_contain_symbols),
         cmocka_unit_test(test_save_config_values),
-        cmocka_unit_test(test_save_config_fails_when_using_invalid_key_names),
+        cmocka_unit_test(test_save_config_succeeds_when_using_keys_with_symbols),
+        cmocka_unit_test(test_save_config_fails_for_unsupported_data_types),
         cmocka_unit_test(test_save_can_append_config_values),
         cmocka_unit_test(test_can_save_object),
         cmocka_unit_test(test_can_save_instance),
@@ -82,6 +83,7 @@ int main(void) {
         cmocka_unit_test(test_save_fails_if_file_can_not_be_opened),
         cmocka_unit_test(test_save_fails_if_append_to_none_existing_file),
         cmocka_unit_test(test_save_takes_rw_data_path_into_account),
+        cmocka_unit_test(test_save_can_change_buffer_size),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

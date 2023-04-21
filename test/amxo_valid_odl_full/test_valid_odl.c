@@ -293,6 +293,36 @@ void test_can_parse_odl_file(UNUSED void** state) {
     amxo_resolver_import_close_all();
 }
 
+void test_can_parse_odl_file_no_resolve(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxc_var_t* lib_dirs = NULL;
+    amxo_parser_t parser;
+    amxc_var_t* odl_resolve = NULL;
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    lib_dirs = amxo_parser_get_config(&parser, "import-dirs");
+    odl_resolve = amxo_parser_claim_config(&parser, "odl-resolve");
+    amxc_var_set(bool, odl_resolve, false);
+
+    amxc_var_add(cstring_t, lib_dirs, "../test_plugin/");
+    amxc_var_dump(&parser.config, STDOUT_FILENO);
+
+    assert_int_equal(amxo_parser_parse_file(&parser, "test_valid.odl", amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    check_options_are_available(&parser);
+    check_objects_exist(&dm);
+    check_parameters_exist(&dm);
+    check_functions_exist(&dm);
+    check_mib_extions_work(&dm);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+    amxo_resolver_import_close_all();
+}
+
 void test_can_parse_empty_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;

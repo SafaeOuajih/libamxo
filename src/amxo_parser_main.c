@@ -221,7 +221,6 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->entry_points = NULL;
     parser->connections = NULL;
     parser->listeners = NULL;
-    parser->data = NULL;
     parser->post_includes = NULL;
     parser->parent = NULL;
     parser->resolved_fn_name = NULL;

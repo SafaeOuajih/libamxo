@@ -66,6 +66,10 @@
 include "test_include.odl";
 
 %define {
+    mib test_mib {
+        string MibText = "test";
+    }
+
     /* This is multi line comment and should be passed
        to the comment hook*/
     object TestObjectRoot {
@@ -165,7 +169,9 @@ include "test_include.odl";
             parameter Param1 = "This is param 1 in instance";
             parameter Param3 = "Hello World";
         }
-        instance add(0, "");
+        instance add(0, "") {
+            extend using mib "test_mib";
+        }
     }
 
     !read-only %persistent object TestObjectRoot.TestChangeAttr {

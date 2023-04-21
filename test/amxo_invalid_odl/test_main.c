@@ -97,6 +97,7 @@ int main(void) {
         cmocka_unit_test(test_add_mib_with_duplicates),
         cmocka_unit_test(test_invalid_regexp_in_filter),
         cmocka_unit_test(test_empty_file_name),
+        cmocka_unit_test(test_parse_non_existing_file),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

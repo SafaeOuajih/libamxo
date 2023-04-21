@@ -60,7 +60,6 @@
 import "../test_plugin/test_plugin.so" as test;
 
 %config {
-    import-pcb-compat = true;
     import-dbg = true;
 }
 

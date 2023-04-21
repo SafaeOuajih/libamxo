@@ -108,23 +108,6 @@ static void check_can_invoke_functions(amxd_dm_t* dm) {
     amxc_var_clean(&ret);
 }
 
-void test_import_resolver_resolves_pcb_style(UNUSED void** state) {
-    amxd_dm_t dm;
-    amxo_parser_t parser;
-
-    amxd_dm_init(&dm);
-    amxo_parser_init(&parser);
-
-    assert_int_equal(amxo_parser_parse_file(&parser, "test_valid1.odl", amxd_dm_get_root(&dm)), 0);
-    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
-
-    check_can_invoke_functions(&dm);
-
-    amxd_dm_clean(&dm);
-    amxo_parser_clean(&parser);
-    amxo_resolver_import_close_all();
-}
-
 void test_import_resolver_resolves(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
@@ -199,6 +182,10 @@ void test_import_resolver_multiple_import(UNUSED void** state) {
         "import \"../test_plugin/test_plugin.so\" as test2; %define { object TestObject { void TestFunc1();  } }",
         "import \"../test_plugin/test_plugin.so\" as test3; %define { object TestObject { void TestFunc1();  } }",
         "import \"../test_plugin/test_plugin.so\" as test; %define { object TestObject { void TestFunc1();  } }",
+        "%config { silent = false; import-dbg = true; } import \"../test_plugin/test_plugin.so\" as test; %define { object TestObject { void TestFunc1();  } }",
+        "%config { dir = \"test_plugin\"; myalias = \"test\"; } import \"../${dir}/test_plugin.so\" as \"${myalias}\"; %define { object TestObject { void TestFunc1();  } }",
+        "%config { thelib = \"test\"; } import \"../test_plugin/test_plugin.so\" as test; %define { object TestObject { void TestFunc1()<!import:${thelib}:data!>;  } }",
+        "%config { odl-import = false; } import \"../test_plugin/test_plugin.so\" as test; %define { object TestObject { void TestFunc1(); } }",
         NULL
     };
 
@@ -210,6 +197,30 @@ void test_import_resolver_multiple_import(UNUSED void** state) {
     for(int i = 0; odls[i] != NULL; i++) {
         assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
         assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+        amxd_dm_clean(&dm);
+        amxo_parser_clean(&parser);
+        amxo_parser_init(&parser);
+    }
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+    amxo_resolver_import_close_all();
+}
+
+void test_import_resolver_import_dlopen_fails(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odls[] = {
+        "import \"./fake.so\" as test; %define { object TestObject { void TestFunc1(); } }",
+        "%config { silent = false; import-dbg = true; } import \"./fake.so\" as test; %define { object TestObject { void TestFunc1(); } }",
+        NULL
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    for(int i = 0; odls[i] != NULL; i++) {
+        assert_int_not_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
         amxd_dm_clean(&dm);
         amxo_parser_clean(&parser);
         amxo_parser_init(&parser);
@@ -239,7 +250,7 @@ void test_can_call_entry_point(UNUSED void** state) {
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_START), 0);
-    assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_STOP), 0);
+    assert_int_equal(amxo_parser_rinvoke_entry_points(&parser, &dm, AMXO_STOP), 0);
 
     assert_int_equal(amxc_var_constcast(uint32_t, amxo_parser_get_config(&parser, "counter")), 2);
 
@@ -267,9 +278,37 @@ void test_entry_point_invocation_continues_after_failing_entry_point(UNUSED void
     assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
     assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
     assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_START), 1);
-    assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_STOP), 1);
+    assert_int_equal(amxo_parser_rinvoke_entry_points(&parser, &dm, AMXO_STOP), 1);
 
     assert_int_equal(amxc_var_constcast(uint32_t, amxo_parser_get_config(&parser, "counter")), 4);
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+    amxo_resolver_import_close_all();
+}
+
+void test_entry_point_only_added_once(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    amxc_var_t counter;
+
+    const char* odl = "%define { entry-point test.test_entry_point; entry-point test.test_entry_point; }";
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    amxc_var_init(&counter);
+    amxc_var_set(uint32_t, &counter, 0);
+    amxo_parser_set_config(&parser, "counter", &counter);
+
+    assert_int_equal(amxo_resolver_import_open(&parser, "../test_plugin/test_plugin.so", "test", 0), 0);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+    assert_int_equal(amxo_parser_invoke_entry_points(&parser, &dm, AMXO_START), 0);
+    assert_int_equal(amxo_parser_rinvoke_entry_points(&parser, &dm, AMXO_STOP), 0);
+
+    assert_int_equal(amxc_var_constcast(uint32_t, amxo_parser_get_config(&parser, "counter")), 2);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
@@ -315,7 +354,7 @@ void test_entry_point_invoke_does_not_crash_with_invalid_args(UNUSED void** stat
 void test_open_non_existing_file(UNUSED void** state) {
     amxd_dm_t dm;
     amxo_parser_t parser;
-    const char* odl = "import \"NONE-EXISTING.so\" as fake;";
+    const char* odl = "%config { import-dbg = true; } import \"NONE-EXISTING.so\" as fake;";
 
     amxd_dm_init(&dm);
     amxo_parser_init(&parser);
@@ -331,4 +370,27 @@ void test_open_non_existing_file(UNUSED void** state) {
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);
+}
+
+void test_resolve_non_existing_function(UNUSED void** state) {
+    amxd_dm_t dm;
+    amxo_parser_t parser;
+    const char* odls[] = {
+        "%config { silent = false; import-dbg = true; } import \"../test_plugin/test_plugin.so\" as test; %define { object TestObject { void FakeFunc(); } }",
+        NULL
+    };
+
+    amxd_dm_init(&dm);
+    amxo_parser_init(&parser);
+
+    for(int i = 0; odls[i] != NULL; i++) {
+        assert_int_equal(amxo_parser_parse_string(&parser, odls[i], amxd_dm_get_root(&dm)), 0);
+        amxd_dm_clean(&dm);
+        amxo_parser_clean(&parser);
+        amxo_parser_init(&parser);
+    }
+
+    amxo_parser_clean(&parser);
+    amxd_dm_clean(&dm);
+    amxo_resolver_import_close_all();
 }
