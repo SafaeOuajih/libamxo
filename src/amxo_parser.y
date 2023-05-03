@@ -79,6 +79,7 @@
 #include <amxd/amxd_common.h>
 #include <amxd/amxd_dm.h>
 #include <amxd/amxd_object.h>
+#include <amxd/amxd_object_event.h>
 #include <amxd/amxd_function.h>
 #include <amxd/amxd_parameter.h>
 #include <amxo/amxo.h>
@@ -152,7 +153,7 @@
 %type <bitmap>  attributes unset_attributes
 %type <cptr>    name path filter 
 %type <cregexp> text_or_regexp
-%type <var>     flags flag value values data_option data_options data
+%type <var>     flags flag value values data_option data_options data event_param event_body
 
 %{
     int yylex(YYSTYPE* lvalp, YYLTYPE* llocp, void * yyscanner);
@@ -586,12 +587,19 @@ param_content
 
 action
   : action_header action_function ';' {
-      int retval = amxo_parser_set_action(parser_ctx, $1, NULL);
+      int retval = amxo_parser_set_action(parser_ctx, $1, parser_ctx->data);
+      parser_ctx->data = NULL;
       YY_CHECK(retval < 0, "Action");
       YY_WARNING(retval > 0, "Action");
     }
   | action_header action_function data ';' {
-      int retval = amxo_parser_set_action(parser_ctx, $1, $3);
+      amxc_var_t* data = parser_ctx->data == NULL?$3:parser_ctx->data;
+      int retval = 0;
+      if (parser_ctx->data != NULL) {
+        amxc_var_delete(&$3);
+      }
+      parser_ctx->data = NULL;
+      retval = amxo_parser_set_action(parser_ctx, $1, data);
       YY_CHECK(retval < 0, "Action");
       YY_WARNING(retval > 0, "Action");
     }
@@ -747,11 +755,52 @@ add_mib
 event_def
   : EVENT name ';' {
       $2.txt[$2.length] = 0;
-      amxd_dm_t *dm = amxd_object_get_dm(parser_ctx->object);
-      YY_CHECK(dm == NULL, "Can't add event");
-      amxp_sigmngr_add_signal(&dm->sigmngr, $2.txt);
-      amxd_object_add_event(parser_ctx->object, $2.txt);
+      YY_CHECK(amxd_object_add_event(parser_ctx->object, $2.txt) != 0, 
+               "Failed to add event");
       $$ = 0;
+    }
+  | EVENT name '{' '}' {
+      $2.txt[$2.length] = 0;
+      YY_CHECK(amxd_object_add_event(parser_ctx->object, $2.txt) != 0, 
+               "Failed to add event");
+      $$ = 0;
+    }
+  | EVENT name '{' event_body '}' {
+      $2.txt[$2.length] = 0;
+      YY_CHECK(amxd_object_add_event_ext(parser_ctx->object, $2.txt, $4) != 0, 
+               "Failed to add event");
+      $$ = 0;
+    }
+  ;
+
+event_body
+  : event_param event_body {
+        amxc_var_for_each(var, $1) {
+          amxc_var_set_path($2, amxc_var_key(var), var, AMXC_VAR_FLAG_UPDATE | AMXC_VAR_FLAG_COPY | AMXC_VAR_FLAG_AUTO_ADD);
+        }
+        amxc_var_delete(&$1);
+        $$ = $2;
+    }
+  | event_param {
+        $$ = $1;
+    }
+  ;
+
+event_param
+  : TYPE name ';' {
+      amxc_var_t* value = NULL;
+      $2.txt[$2.length] = 0;
+      amxc_var_new(&$$);
+      amxc_var_set_type($$, AMXC_VAR_ID_HTABLE);
+      value = amxc_var_add_new_key($$, $2.txt);
+      amxc_var_set_type(value, $1);
+    }
+  | TYPE name '=' value ';' {
+      $2.txt[$2.length] = 0;
+      amxc_var_new(&$$);
+      amxc_var_set_type($$, AMXC_VAR_ID_HTABLE);
+      amxc_var_cast($4, $1);
+      amxc_var_set_key($$, $2.txt, $4, AMXC_VAR_FLAG_DEFAULT);
     }
   ;
 
@@ -1055,7 +1104,6 @@ data_options
           free(key);
           amxc_var_delete(&var);
         }
-
     }
   ;
 

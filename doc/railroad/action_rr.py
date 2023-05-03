@@ -47,6 +47,8 @@ d = Diagram(
       Terminal("describe"),
       Terminal("validate"),
       Terminal("destroy"),
+      Terminal("add-inst"),
+      Terminal("del-inst"),
     ),
     Terminal("call"),
     Choice(0,

@@ -38,6 +38,11 @@ svg.railroad-diagram rect.group-box {
 
 d = Diagram(
   Terminal("mib"),
+  Choice(0,
+    Terminal("<NAME>"),
+    Terminal("'<NAME>'"),
+    Terminal('"<NAME>"')
+  ),
   Terminal("{"),
   OneOrMore(
     Choice(0,

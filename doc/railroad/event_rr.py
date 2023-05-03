@@ -36,16 +36,54 @@ svg.railroad-diagram rect.group-box {
     fill: none;
 }"""
 
-d = Diagram(
-  Sequence(
-    Terminal("event"),
-    Choice(0,
-      Terminal("<NAME>"),
-      Terminal("'<NAME>'"),
-      Terminal('"<NAME>"'),
+d =Diagram(
+  Terminal("event"),
+  Choice(0,
+    Terminal("<NAME>"),
+    Terminal("'<NAME>'"),
+    Terminal('"<NAME>"'),
+  ),
+  Choice(0,
+    Terminal(";"),
+    Sequence(
+      Terminal("{"),
+      OneOrMore(
+        Sequence(
+          Choice(0,
+            Terminal("string"),
+            Terminal("csv_string"),
+            Terminal("ssv_string"),
+            Terminal("int8"),
+            Terminal("int16"),
+            Terminal("int32"),
+            Terminal("int64"),
+            Terminal("uint8"),
+            Terminal("uint16"),
+            Terminal("uint32"),
+            Terminal("uint64"),
+            Terminal("bool"),
+            Terminal("datetime"),
+            Terminal("htable"),
+            Terminal("list"),
+            Terminal("variant")
+          ),
+          Choice(0,
+            Terminal("<NAME>"),
+            Terminal("'<NAME>'"),
+            Terminal('"<NAME>"')
+          ),
+          Optional(
+            Sequence(
+              Terminal("="),
+              NonTerminal("<VALUE>")
+            )
+          ),
+          Terminal(";")
+        )
+      ),
+      Terminal("}")
     ),
-    Terminal(";")
-  )
+  ),
 )
 
 d.writeStandalone(sys.stdout.write, css=css_rr)

@@ -225,6 +225,7 @@ void PRIVATE amxo_parser_child_init(amxo_parser_t* parser) {
     parser->parent = NULL;
     parser->resolved_fn_name = NULL;
     parser->buffer_len = 0;
+    parser->data = NULL;
 
     memset(parser->buffer, 0, 128);
     amxc_rbuffer_init(&parser->rbuffer, 0);

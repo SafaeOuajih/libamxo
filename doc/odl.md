@@ -1074,7 +1074,8 @@ The possible action names for objects are:
 - `write`  - called when the parameter values of the object need to be changed.
 - `validate`  - called when a new object needs to be validated.
 - `destroy` - called when the object is going to be deleted. 
-- `describe` - called for introspection reasons.
+- `describe` - called for introspection reasons. Provides meta information about objects and parameters.
+- `list` - called for introspection reasons. Provides lists of sub-objects, instances, parameters and functions. This action only has effect on objects. 
 - `add-inst` - called to add a new instance for a multi-instance object, this action only has effect on multi-instance objects.
 - `del-inst` - called to delete an instance from a multi-instance object, this action only has effect on multi-instance objects.
 
@@ -1356,8 +1357,7 @@ The default defined events are:
 - `app:start` - The application should send this event when the data model is loaded
 - `app:stop` - The application should send this event when the data model is going to be removed.
 
-Besides these events, it is possible to define your own events in the data model. Most events are sent for a certain object, an event must be defined within the `object definition body`. It is currently not possible to define the content of the event in the `ODL`.
-
+Besides these events, it is possible to define your own events in the data model. Most events are sent for a certain object, an event must be defined within the `object definition body`. It is possible to define the event data (event content) in the odl. After the event name define an event body, which starts with `{` and ends with `}`. In the body the event parameters can be defined by providing the type and name of the event parameter. Optionally a default value can be provided.
 #### Event syntax
 
 ![Event](doc/railroad/event.svg "event")<br>
@@ -1982,6 +1982,13 @@ For more information about `<RESOLVER-DATA>` read [\<RESOLVER-DATA\>](#resolver-
 # Appendix A - Syntax Overview
 ## **ACTION**
 ![Action Syntax](doc/railroad/action.svg "action")<br>
+
+***
+> **NOTE**<br>
+> The `list` action can only be defined on objects.<br>
+> The `add-inst` and `del-inst` actions can only be defined on multi-instance objects.
+***
+
 ## **ARGUMENT**
 ![Argument Syntax](doc/railroad/argument.svg "argument")<br>
 ## **CONFIG**
