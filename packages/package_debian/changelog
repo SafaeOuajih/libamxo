@@ -1,3 +1,9 @@
+libamxo (3.1.0) unstable; urgency=medium
+
+  * gsdm missing arguments for commands and events
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 03 May 2023 06:48:22 +0000
+
 libamxo (3.0.0) unstable; urgency=medium
 
   * Remove deprecated odl syntax and pcb compatibility syntax
