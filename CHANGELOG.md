@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## Release v3.1.3 - 2023-05-12(13:27:38 +0000)
+
+### Fixes
+
+- Use index paths when sending events after an odl file is parsed
+
 ## Release v3.1.2 - 2023-05-10(09:32:20 +0000)
 
 ### Changes
