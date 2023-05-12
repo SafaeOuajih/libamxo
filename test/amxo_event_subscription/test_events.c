@@ -332,6 +332,7 @@ void test_populate_section_generates_events(UNUSED void** state) {
         "    object Test {"
         "        object MiTest[] {"
         "            string Text;"
+        "            %unique %key string Alias;"
         "        }"
         "    }"
         "}"
@@ -347,6 +348,15 @@ void test_populate_section_generates_events(UNUSED void** state) {
         "    on event \"*\" call print_event;"
         "    on event \"dm:instance-added\" call instance_added;"
         "    on event \"dm:object-changed\" call object_changed;"
+        "}";
+
+    const char* odl_dot =
+        "%populate {"
+        "    object Test.MiTest {"
+        "        instance add (0,\"welcome.again\") {"
+        "            parameter Text = \"I like dots in Aliases\";"
+        "        }"
+        "    }"
         "}";
 
     amxd_dm_init(&dm);
@@ -365,6 +375,14 @@ void test_populate_section_generates_events(UNUSED void** state) {
     assert_int_equal(event_counter, 4);
     assert_int_equal(instance_add_counter, 1);
     assert_int_equal(object_changed_counter, 1);
+
+    assert_int_equal(amxo_parser_parse_string(&parser, odl_dot, amxd_dm_get_root(&dm)), 0);
+    assert_int_equal(amxo_parser_get_status(&parser), amxd_status_ok);
+
+    while(amxp_signal_read() == 0) {
+    }
+    assert_int_equal(event_counter, 5);
+    assert_int_equal(instance_add_counter, 2);
 
     amxo_parser_clean(&parser);
     amxd_dm_clean(&dm);

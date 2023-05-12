@@ -119,7 +119,7 @@ static void amxo_parser_push_event(amxo_parser_t* pctx,
                                    event_id_t event) {
     event_t* e = (event_t*) calloc(1, sizeof(event_t));
     e->id = event;
-    e->path = amxd_object_get_path(pctx->object, AMXD_OBJECT_TERMINATE);
+    e->path = amxd_object_get_path(pctx->object, AMXD_OBJECT_TERMINATE | AMXD_OBJECT_INDEXED);
     amxc_var_init(&e->data);
 
     amxc_llist_append(&pctx->event_list, &e->it);
