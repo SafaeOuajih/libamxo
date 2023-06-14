@@ -1,3 +1,9 @@
+libamxo (3.1.6) unstable; urgency=medium
+
+  * Update dependencies in .gitlab-ci.yml
+
+ -- Peter DEHERDT <peter.deherdt@softathome.com>  Wed, 14 Jun 2023 20:55:55 +0000
+
 libamxo (3.1.5) unstable; urgency=medium
 
   * Update dependencies in .gitlab-ci.yml
