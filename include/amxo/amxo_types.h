@@ -205,6 +205,8 @@ typedef void (* amxo_set_counter_t) (amxo_parser_t* parser,
                                      amxd_object_t* parent,
                                      const char* name);
 
+typedef void (* amxo_add_event_t) (const char* name);
+
 typedef struct _amxo_hooks {
     amxc_llist_it_t it;
     amxo_comment_t comment;
@@ -227,6 +229,7 @@ typedef struct _amxo_hooks {
     amxo_end_func_t end_func;
     amxo_add_mib_t add_mib;
     amxo_set_counter_t set_counter;
+    amxo_add_event_t add_event;
 } amxo_hooks_t;
 
 typedef enum _amxo_reason {

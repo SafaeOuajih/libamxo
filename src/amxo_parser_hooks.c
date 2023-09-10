@@ -264,6 +264,15 @@ void amxo_hooks_add_func(amxo_parser_t* parser,
     }
 }
 
+void amxo_hooks_add_event(amxo_parser_t* parser ,const char* name) {
+    amxc_llist_for_each(it, parser->hooks) {
+        amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);
+        if(hook->add_event != NULL) {
+            hook->add_event(name);
+        }
+    }
+}
+
 void amxo_hooks_end_func(amxo_parser_t* parser) {
     amxc_llist_for_each(it, parser->hooks) {
         amxo_hooks_t* hook = amxc_llist_it_get_data(it, amxo_hooks_t, it);

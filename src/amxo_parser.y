@@ -869,6 +869,7 @@ event_func
   : CALL name {
       $2.txt[$2.length] = 0;
       int retval = amxo_parser_resolve_internal(parser_ctx, $2.txt, amxo_function_event, "auto");
+      amxo_hooks_add_event(parser_ctx, $2.txt);
       YY_CHECK(retval < 0, $2.txt);
       YY_WARNING(retval > 0, $2.txt);
     }

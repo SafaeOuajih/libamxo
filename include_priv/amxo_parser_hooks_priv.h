@@ -119,6 +119,9 @@ void PRIVATE amxo_hooks_add_func(amxo_parser_t* parser,
                                  int64_t attr_bitmask,
                                  uint32_t type);
 
+void PRIVATE amxo_hooks_add_event(amxo_parser_t* parser,
+                                  const char* name);
+
 void PRIVATE amxo_hooks_end_func(amxo_parser_t* parser);
 
 void PRIVATE amxo_hooks_add_func_arg(amxo_parser_t* parser,
